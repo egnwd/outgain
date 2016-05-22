@@ -9,6 +9,10 @@ import (
 func main() {
 	// Entry point for the application, set up the database, server here
 	http.Handle("/", appHandler(hello))
+
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
 	http.ListenAndServe(":8080", nil)
 }
 
