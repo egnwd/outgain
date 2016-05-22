@@ -5,7 +5,7 @@ dependencies:
 deployment:
   master:
     branch: master
-    owner: plietar
+    owner: egnwd
     commands:
       - tar czvf /tmp/slug.tgz --transform='s#^./#./app/#S' --exclude .git .
       - ./deploy.rb /tmp/slug.tgz
