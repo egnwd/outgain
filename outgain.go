@@ -4,16 +4,22 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	// Entry point for the application, set up the database, server here
 	http.Handle("/", appHandler(hello))
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":"+port, nil)
 }
 
 type httpError struct {
