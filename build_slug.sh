@@ -22,6 +22,6 @@ cp server/server "$TARGET_DIR"
 
 cat > "$TARGET_DIR/start.sh" <<EOF
 #!/usr/bin/env bash
-exec ./server -static-dir ./static
+exec ./server -static-dir ./static -redirect-plain-http
 EOF
 chmod +x "$TARGET_DIR/start.sh"
