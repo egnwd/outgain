@@ -1,0 +1,13 @@
+dependencies:
+  pre:
+    - gem install 'platform-api'
+
+deployment:
+  master:
+    branch: master
+    owner: plietar
+    commands:
+      - mkdir -p target/app
+      - cp outgain target/app/
+      - tar czvf target/slug.tgz -C target ./app
+      - ./deploy.rb target/slug.tgz
