@@ -2,3 +2,4 @@ client/dist
 client/node_modules
 server/server
 app/
+slug.tgz

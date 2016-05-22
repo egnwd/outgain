@@ -20,9 +20,6 @@ test:
 
 deployment:
   master:
-    branch: master
-    owner: egnwd
+    branch: /.*/
     commands:
-      - ./build_slug.sh app
-      - tar czvf slug.tgz ./app
-      - ./deploy.rb "outgain" slug.tgz
+      - ./circle_deploy.sh
