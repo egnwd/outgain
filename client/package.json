@@ -1,0 +1,10 @@
+{
+  "name": "outgain-client",
+  "version": "1.0.0",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-sass": "^2.3.1",
+    "gulp-typescript": "^2.13.4"
+  }
+}

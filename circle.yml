@@ -1,11 +1,28 @@
 dependencies:
-  pre:
+  override:
     - gem install 'platform-api'
+    - npm install -g gulp
+
+    - npm install:
+        pwd: client
+    - gulp:
+        pwd: client
+
+    - go get -t -d -v ./...:
+        pwd: server
+    - go build -v:
+        pwd: server
+
+test:
+  override:
+    - go test -v -race ./...:
+        pwd: server
 
 deployment:
   master:
     branch: master
     owner: egnwd
     commands:
-      - tar czvf /tmp/slug.tgz --transform='s#^./#./app/#S' --exclude .git .
-      - ./deploy.rb /tmp/slug.tgz
+      - ./build_slug.sh app
+      - tar czvf slug.tgz ./app
+      - ./deploy.rb "outgain" slug.tgz
