@@ -3,3 +3,5 @@ client/node_modules
 server/server
 app/
 slug.tgz
+.tag
+.tag1
