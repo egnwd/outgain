@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"outgain/routes"
 	"strings"
 )
 
@@ -15,26 +16,18 @@ func main() {
 	}
 
 	staticDir := flag.String("static-dir", "client/dist", "")
-	redirectPlainHttp := flag.Bool("redirect-plain-http", false, "")
+	redirectPlainHTTP := flag.Bool("redirect-plain-http", false, "")
 	flag.Parse()
 
-	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir(*staticDir)))
-	mux.HandleFunc("/ping", pingHandler)
-
-	var handler http.Handler = mux
-	if *redirectPlainHttp {
-		handler = redirectPlainHttpMiddleware(handler)
+	handler := routes.GetHandler(*staticDir)
+	if *redirectPlainHTTP {
+		handler = redirectPlainHTTPMiddleware(handler)
 	}
 
 	http.ListenAndServe(":"+port, handler)
 }
 
-func pingHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Pong")
-}
-
-func redirectPlainHttpMiddleware(next http.Handler) http.Handler {
+func redirectPlainHTTPMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("x-forwarded-proto") != "https" {
 			hostname := strings.Split(r.Host, ":")[0]
