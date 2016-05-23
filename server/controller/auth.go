@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,17 +11,31 @@ import (
 	"github.com/nu7hatch/gouuid"
 )
 
-var store = sessions.NewCookieStore([]byte(os.Getenv("USER_STORE_SECRET_AUTH")),
-	[]byte(os.Getenv("USER_STORE_SECRET_ENC")))
+var store *sessions.CookieStore
 
 const (
-	stateKey    = "state"
-	sessionName = "session"
+	stateKey       = "state"
+	usernameKey    = "username"
+	accessTokenKey = "access_token"
+	sessionName    = "session"
 )
+
+func init() {
+	authKey, _ := hex.DecodeString(os.Getenv("USER_STORE_SECRET_AUTH"))
+	encKey, _ := hex.DecodeString(os.Getenv("USER_STORE_SECRET_ENC"))
+
+	store = sessions.NewCookieStore(authKey, encKey)
+
+	store.Options = &sessions.Options{
+		Domain: "localhost",
+		Path:   "/",
+		MaxAge: 3600 * 8, // 8 hours
+	}
+}
 
 // UserSignIn signs the user in and sets up a session
 func UserSignIn(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, "sesh")
+	session, err := store.Get(r, sessionName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -31,7 +46,9 @@ func UserSignIn(w http.ResponseWriter, r *http.Request) {
 
 	session.Values[stateKey] = state
 	fmt.Printf("Session: %#v\n", session.Values)
-	sessions.Save(r, w)
+	if err := sessions.Save(r, w); err != nil {
+		fmt.Println(err.Error())
+	}
 
 	http.Redirect(w, r, github.GetOAuthURL(state), http.StatusFound)
 }
@@ -40,11 +57,8 @@ func UserSignIn(w http.ResponseWriter, r *http.Request) {
 // to get/create a user
 func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 	// TODO:
-	// Get username
 	// Create user if they do not exist
-	// Redirect to main/lobby page
-
-	session, err := store.Get(r, "sesh")
+	session, err := store.Get(r, sessionName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -54,9 +68,6 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 
 	fmt.Printf("Session: %#v\n", session.Values)
-
-	// HACK: We should not set this it should already be in the cookie store
-	session.Values[stateKey] = state
 
 	if state != session.Values[stateKey] {
 		errorMessage := fmt.Sprintf("%d: Invalid state,\n\texpected: %s\n\tactual:%s",
@@ -78,6 +89,13 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	message := fmt.Sprintf("Username: %s", username)
-	fmt.Fprintln(w, message)
+	session.Values[usernameKey] = username
+	session.Values[accessTokenKey] = accessToken
+	if err := sessions.Save(r, w); err != nil {
+		fmt.Println(err.Error())
+	}
+
+	u := fmt.Sprintf("http://%s/", r.Host)
+
+	http.Redirect(w, r, u, http.StatusFound)
 }
