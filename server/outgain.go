@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"outgain/routes"
 	"strings"
+
+	"github.com/egnwd/outgain/server/routes"
 )
 
 func main() {
