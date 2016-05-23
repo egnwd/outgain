@@ -3,6 +3,10 @@
     "target": "es5"
   },
   "files": [
-      "src/main.ts"
+      "src/main.ts",
+      "src/util.ts",
+      "src/protocol.ts",
+      "src/jquery.d.ts",
+      "src/sse.d.ts"
   ]
 }

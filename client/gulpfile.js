@@ -1,17 +1,21 @@
 'use strict';
 
 var gulp = require('gulp');
+var merge2 = require('merge2');
 var sass = require('gulp-sass');
-var ts = require('gulp-typescript');
+var typescript = require('gulp-typescript');
 
 var targetDir = './dist';
 
-var tsProject = ts.createProject('tsconfig.json');
+var tsProject = typescript.createProject('tsconfig.json');
 
 gulp.task('scripts', function () {
-    return tsProject.src()
-        .pipe(ts(tsProject))
-        .js.pipe(gulp.dest(targetDir + '/js'));
+    var ts = tsProject.src()
+                .pipe(typescript(tsProject)).js;
+    var js = gulp.src('./src/**/*.js');
+
+    return merge2(ts, js)
+            .pipe(gulp.dest(targetDir + '/js'));
 });
 
 gulp.task('styles', function () {
@@ -34,6 +38,7 @@ gulp.task('all', ['scripts', 'styles', 'html', 'images']);
 
 gulp.task('watch', ['scripts', 'styles', 'html', 'images'], function() {
     gulp.watch('./src/**/*.ts', ['scripts']);
+    gulp.watch('./src/**/*.js', ['scripts']);
     gulp.watch('./style/**/*.scss', ['styles']);
     gulp.watch('./html/**/*.html', ['html']);
     gulp.watch('./images/**/*.scss', ['images']);
