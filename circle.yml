@@ -5,9 +5,7 @@ machine:
 dependencies:
   override:
     - mkdir -p "$GOPATH/src/$IMPORT_PATH"
-    - rsync -azC --delete ./ "$GOPATH/src/$IMPORT_PATH/"
-    - echo "$GOPATH/src/$IMPORT_PATH/"
-    - ls "$GOPATH/src/$IMPORT_PATH/"
+    - rsync -azC --delete ./ ".go_workspace/src/$IMPORT_PATH/"
 
     - gem install 'platform-api'
     - npm install -g gulp
