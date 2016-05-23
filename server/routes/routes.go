@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"controller"
 	"net/http"
+
+	"github.com/egnwd/outgain/server/controller"
 )
 
 //GetHandler returns a mux that mapps routes to controller actions
