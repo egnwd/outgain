@@ -11,12 +11,14 @@ import (
 func GetHandler(static string) http.Handler {
 	mux := mux.NewRouter()
 
-	get := mux.Methods("GET").Subrouter()
-	// post := mux.Methods("POST").Subrouter()
+	get := mux.Methods(http.MethodGet).Subrouter()
+	// post := mux.Methods(http.MethodPost).Subrouter()
 
-	get.Handle("/", http.FileServer(http.Dir(static)))
 	get.HandleFunc("/ping", controller.PingHandler)
 	get.HandleFunc("/signin", controller.UserSignIn)
+	get.HandleFunc("/oauthSignInCallback", controller.OAuthSignInCallback)
+	get.PathPrefix("/").Handler(
+		http.StripPrefix("/", http.FileServer(http.Dir(static))))
 
 	return mux
 }
