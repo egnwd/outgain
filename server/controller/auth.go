@@ -3,39 +3,24 @@ package controller
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
 
+	"github.com/egnwd/outgain/server/github"
 	"github.com/gorilla/sessions"
-	"github.com/joho/godotenv"
 	"github.com/nu7hatch/gouuid"
-	"golang.org/x/oauth2/github"
 )
 
-type config struct {
-	ClientID, ClientSecret, RedirectURI string
-}
-
-var c config
-var store = sessions.NewCookieStore([]byte(os.Getenv("USER_STORE_SECRET")))
+var store = sessions.NewCookieStore([]byte(os.Getenv("USER_STORE_SECRET_AUTH")),
+	[]byte(os.Getenv("USER_STORE_SECRET_ENC")))
 
 const (
-	githubScope = "user"
-	sessionName = "session-login-user"
+	stateKey    = "state"
+	sessionName = "session"
 )
-
-func init() {
-	if err := godotenv.Load(); err != nil {
-		fmt.Printf("Error: %s\n", err.Error())
-	}
-	c.ClientID = os.Getenv("CLIENT_ID")
-	c.ClientSecret = os.Getenv("CLIENT_SECRET")
-	c.RedirectURI = os.Getenv("REDIRECT_URI")
-}
 
 // UserSignIn signs the user in and sets up a session
 func UserSignIn(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, sessionName)
+	session, err := store.Get(r, "sesh")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -44,32 +29,55 @@ func UserSignIn(w http.ResponseWriter, r *http.Request) {
 	id, _ := uuid.NewV4()
 	state := id.String()
 
-	values := make(url.Values)
-	values.Add("client_id", c.ClientID)
-	values.Add("redirect_uri", c.RedirectURI)
-	values.Add("scope", githubScope)
-	values.Add("state", state)
-
-	session.Values["State"] = state
+	session.Values[stateKey] = state
+	fmt.Printf("Session: %#v\n", session.Values)
 	sessions.Save(r, w)
 
-	githubOAuth := fmt.Sprintf("%s?%s", github.Endpoint.AuthURL, values.Encode())
-	http.Redirect(w, r, githubOAuth, http.StatusFound)
+	http.Redirect(w, r, github.GetOAuthURL(state), http.StatusFound)
 }
 
 // OAuthSignInCallback gets the access token from the Github API and uses it
 // to get/create a user
 func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 	// TODO:
-	// Get session
-	// Make Github API
-	// Get Access Token
 	// Get username
 	// Create user if they do not exist
 	// Redirect to main/lobby page
 
-	// state := r.FormValue("state")
+	session, err := store.Get(r, "sesh")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	state := r.FormValue("state")
 	code := r.FormValue("code")
 
-	fmt.Fprintln(w, code)
+	fmt.Printf("Session: %#v\n", session.Values)
+
+	// HACK: We should not set this it should already be in the cookie store
+	session.Values[stateKey] = state
+
+	if state != session.Values[stateKey] {
+		errorMessage := fmt.Sprintf("%d: Invalid state,\n\texpected: %s\n\tactual:%s",
+			http.StatusUnauthorized, session.Values[stateKey], state)
+		http.Error(w, errorMessage, http.StatusUnauthorized)
+		return
+	}
+
+	accessToken, err := github.GetAccessToken(state, code)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	username, err := github.GetUsername(accessToken)
+	if err != nil {
+		fmt.Println("Error on username")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	message := fmt.Sprintf("Username: %s", username)
+	fmt.Fprintln(w, message)
 }
