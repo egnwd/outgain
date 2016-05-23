@@ -4,7 +4,7 @@ machine:
 
 dependencies:
   override:
-    - mkdir -p "$GOPATH/src/$IMPORT_PATH"
+    - mkdir -p "/home/ubuntu/.go_workspace/src/$IMPORT_PATH"
     - rsync -azC --delete ./ "/home/ubuntu/.go_workspace/src/$IMPORT_PATH/"
 
     - gem install 'platform-api'
