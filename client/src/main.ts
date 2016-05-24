@@ -25,6 +25,7 @@ class Creature {
     render(ctx: CanvasRenderingContext2D, scale: number, interpolation: number) {
         let x = util.lerp(this.previous.x, this.current.x, interpolation)
         let y = util.lerp(this.previous.y, this.current.y, interpolation)
+        let radius = this.current.radius
         let color = this.current.color
         let name = this.current.name
 
@@ -32,7 +33,7 @@ class Creature {
         ctx.translate(x * scale, y * scale)
 
         ctx.beginPath()
-        ctx.arc(0, 0, scale / 2, 0, 2 * Math.PI, false)
+        ctx.arc(0, 0, radius * scale, 0, 2 * Math.PI, false)
         ctx.fillStyle = color
         ctx.fill()
         ctx.closePath()
@@ -47,15 +48,36 @@ class Creature {
     }
 }
 
+class Resource {
+    state: protocol.IResource
+
+    constructor(state: protocol.IResource) {
+        this.state = state
+    }
+
+    render(ctx: CanvasRenderingContext2D, scale: number) {
+        ctx.save()
+        ctx.translate(this.state.x * scale, this.state.y * scale)
+
+        ctx.beginPath()
+        ctx.arc(0, 0, this.state.radius * scale, 0, 2 * Math.PI, false)
+        ctx.fillStyle = this.state.color
+        ctx.fill()
+        ctx.closePath()
+
+        ctx.restore()
+    }
+}
+
 class GameRenderer {
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
-    creatures: { [key:number]: Creature }
+    creatures: { [key:number]: Creature } = {}
+    resources: Resource[] = []
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas
         this.ctx = canvas.getContext("2d")
-        this.creatures = {}
     }
 
     onResize() {
@@ -73,24 +95,26 @@ class GameRenderer {
 
         this.drawGrid(10, 10, scale)
 
+        for (let resource of this.resources) {
+            resource.render(this.ctx, scale)
+        }
         for (let id in this.creatures) {
-            let creature = this.creatures[id]
-            creature.render(this.ctx, scale, interpolation)
+            this.creatures[id].render(this.ctx, scale, interpolation)
         }
     }
 
     drawGrid(xsize, ysize, scale: number) {
-        for (let x = 0; x < (xsize + 1) * scale; x += scale) {
+        for (let x = 0; x <= xsize; x += 1) {
             this.ctx.beginPath()
-            this.ctx.moveTo(x, 0)
-            this.ctx.lineTo(x, ysize * scale)
+            this.ctx.moveTo(x * scale, 0)
+            this.ctx.lineTo(x * scale, ysize * scale)
             this.ctx.stroke()
         }
 
-        for (let y = 0; y < (ysize + 1) * scale; y += scale) {
+        for (let y = 0; y <= ysize; y += 1) {
             this.ctx.beginPath()
-            this.ctx.moveTo(0, y)
-            this.ctx.lineTo(xsize * scale, y)
+            this.ctx.moveTo(0, y * scale)
+            this.ctx.lineTo(xsize * scale, y * scale)
             this.ctx.stroke()
         }
     }
@@ -134,6 +158,8 @@ $(function() {
                 creature.pushState(state, interpolation)
             }
         }
+
+        renderer.resources = update.resources.map(function(r) { return new Resource(r) })
 
         lastUpdate = Date.now()
         if (previous != null) {
