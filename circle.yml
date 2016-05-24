@@ -22,6 +22,8 @@ dependencies:
 
 test:
   override:
+    - test -z "$(gofmt -l .)":
+        pwd: server
     - go test -v -race ./...:
         pwd: server
 
