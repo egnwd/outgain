@@ -25,6 +25,7 @@ class Creature {
     render(ctx: CanvasRenderingContext2D, scale: number, interpolation: number) {
         let x = util.lerp(this.previous.x, this.current.x, interpolation)
         let y = util.lerp(this.previous.y, this.current.y, interpolation)
+        let radius = this.current.radius
         let color = this.current.color
         let name = this.current.name
 
@@ -32,7 +33,7 @@ class Creature {
         ctx.translate(x * scale, y * scale)
 
         ctx.beginPath()
-        ctx.arc(0, 0, scale / 2, 0, 2 * Math.PI, false)
+        ctx.arc(0, 0, radius * scale, 0, 2 * Math.PI, false)
         ctx.fillStyle = color
         ctx.fill()
         ctx.closePath()
@@ -80,17 +81,17 @@ class GameRenderer {
     }
 
     drawGrid(xsize, ysize, scale: number) {
-        for (let x = 0; x < (xsize + 1) * scale; x += scale) {
+        for (let x = 0; x <= xsize; x += 1) {
             this.ctx.beginPath()
-            this.ctx.moveTo(x, 0)
-            this.ctx.lineTo(x, ysize * scale)
+            this.ctx.moveTo(x * scale, 0)
+            this.ctx.lineTo(x * scale, ysize * scale)
             this.ctx.stroke()
         }
 
-        for (let y = 0; y < (ysize + 1) * scale; y += scale) {
+        for (let y = 0; y <= ysize; y += 1) {
             this.ctx.beginPath()
-            this.ctx.moveTo(0, y)
-            this.ctx.lineTo(xsize * scale, y)
+            this.ctx.moveTo(0, y * scale)
+            this.ctx.lineTo(xsize * scale, y * scale)
             this.ctx.stroke()
         }
     }

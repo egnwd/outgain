@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-const grid, radius float64 = 10, 0.5
+const gridSize float64 = 10
+const defaultRadius float64 = 0.5
 
 type Engine struct {
 	Updates <-chan protocol.WorldUpdate
@@ -20,12 +21,12 @@ type Engine struct {
 }
 
 type Creature struct {
-	Id    uint64
-	Name  string
-	Color string
-	X     float64
-	Y     float64
-	Rad   float64
+	Id     uint64
+	Name   string
+	Color  string
+	X      float64
+	Y      float64
+	Radius float64
 
 	dx float64
 	dy float64
@@ -37,19 +38,19 @@ func NewEngine(creatureCount int) *Engine {
 	creatures := make([]*Creature, creatureCount)
 	for i := range creatures {
 		angle := rand.Float64() * 2 * math.Pi
-		x := rand.Float64() * grid
-		y := rand.Float64() * grid
+		x := rand.Float64() * gridSize
+		y := rand.Float64() * gridSize
 
 		creatures[i] = &Creature{
 			Id:   uint64(i),
 			Name: "foo",
 
-			Color: colors[i].Hex(),
-			X:     x,
-			Y:     y,
-			Rad:   radius,
-			dx:    math.Cos(angle),
-			dy:    math.Sin(angle),
+			Color:  colors[i].Hex(),
+			X:      x,
+			Y:      y,
+			Radius: defaultRadius,
+			dx:     math.Cos(angle),
+			dy:     math.Sin(angle),
 		}
 	}
 
@@ -75,11 +76,12 @@ func (engine *Engine) Run() {
 
 		for i, c := range engine.creatures {
 			update.Creatures[i] = protocol.Creature{
-				Id:    c.Id,
-				Name:  c.Name,
-				Color: c.Color,
-				X:     c.X,
-				Y:     c.Y,
+				Id:     c.Id,
+				Name:   c.Name,
+				Color:  c.Color,
+				X:      c.X,
+				Y:      c.Y,
+				Radius: c.Radius,
 			}
 		}
 
@@ -109,20 +111,20 @@ func (engine *Engine) tick() {
 		c.X += c.dx * dt
 		c.Y += c.dy * dt
 
-		if c.X-c.Rad < 0 {
-			c.X = c.Rad
+		if c.X-c.Radius < 0 {
+			c.X = c.Radius
 			c.dx *= -1
 		}
-		if c.X+c.Rad > grid {
-			c.X = grid - c.Rad
+		if c.X+c.Radius > gridSize {
+			c.X = gridSize - c.Radius
 			c.dx *= -1
 		}
-		if c.Y-c.Rad < 0 {
-			c.Y = c.Rad
+		if c.Y-c.Radius < 0 {
+			c.Y = c.Radius
 			c.dy *= -1
 		}
-		if c.Y+c.Rad > grid {
-			c.Y = grid - c.Rad
+		if c.Y+c.Radius > gridSize {
+			c.Y = gridSize - c.Radius
 			c.dy *= -1
 		}
 	}
