@@ -25,7 +25,7 @@ type Creature struct {
 	Color string
 	X     float64
 	Y     float64
-  Rad   float64
+	Rad   float64
 
 	dx float64
 	dy float64
@@ -47,7 +47,7 @@ func NewEngine(creatureCount int) *Engine {
 			Color: colors[i].Hex(),
 			X:     x,
 			Y:     y,
-      Rad:   radius,
+			Rad:   radius,
 			dx:    math.Cos(angle),
 			dy:    math.Sin(angle),
 		}
@@ -109,19 +109,19 @@ func (engine *Engine) tick() {
 		c.X += c.dx * dt
 		c.Y += c.dy * dt
 
-		if c.X - c.Rad < 0 {
+		if c.X-c.Rad < 0 {
 			c.X = c.Rad
 			c.dx *= -1
 		}
-		if c.X + c.Rad > grid {
+		if c.X+c.Rad > grid {
 			c.X = grid - c.Rad
 			c.dx *= -1
 		}
-		if c.Y - c.Rad < 0 {
+		if c.Y-c.Rad < 0 {
 			c.Y = c.Rad
 			c.dy *= -1
 		}
-		if c.Y + c.Rad > grid {
+		if c.Y+c.Rad > grid {
 			c.Y = grid - c.Rad
 			c.dy *= -1
 		}
