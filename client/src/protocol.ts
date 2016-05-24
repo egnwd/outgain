@@ -9,7 +9,15 @@ export interface ICreature {
     radius: number
 }
 
+export interface IResource {
+    color: string
+    x: number
+    y: number
+    radius: number
+}
+
 export interface IWorldUpdate {
     time: number
     creatures: ICreature[]
+    resources: IResource[]
 }

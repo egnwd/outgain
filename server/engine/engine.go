@@ -9,15 +9,21 @@ import (
 )
 
 const gridSize float64 = 10
+
 const defaultRadius float64 = 0.5
+const resourceRadius float64 = 0.1
+
+const resourceSpawnInterval time.Duration = 5 * time.Second
 
 type Engine struct {
 	Updates <-chan protocol.WorldUpdate
 
-	updatesOut   chan<- protocol.WorldUpdate
-	tickInterval time.Duration
-	creatures    []*Creature
-	lastTick     uint64
+	updatesOut        chan<- protocol.WorldUpdate
+	tickInterval      time.Duration
+	creatures         []*Creature
+	resources         []protocol.Resource
+	lastTick          time.Time
+	lastResourceSpawn time.Time
 }
 
 type Creature struct {
@@ -57,21 +63,24 @@ func NewEngine(creatureCount int) *Engine {
 	ch := make(chan protocol.WorldUpdate)
 
 	return &Engine{
-		Updates:      ch,
-		updatesOut:   ch,
-		tickInterval: time.Millisecond * 100,
-		creatures:    creatures,
-		lastTick:     0,
+		Updates:           ch,
+		updatesOut:        ch,
+		tickInterval:      time.Millisecond * 100,
+		creatures:         creatures,
+		lastTick:          time.Now(),
+		lastResourceSpawn: time.Now(),
 	}
 }
 
 func (engine *Engine) Run() {
-	engine.lastTick = uint64(time.Now().UnixNano()) / 1e6
+	engine.lastTick = time.Now()
+	engine.lastResourceSpawn = time.Now()
 
 	for {
 		update := protocol.WorldUpdate{
-			Time:      engine.lastTick,
+			Time:      uint64(engine.lastTick.UnixNano()) / 1e6,
 			Creatures: make([]protocol.Creature, len(engine.creatures)),
+			Resources: engine.resources,
 		}
 
 		for i, c := range engine.creatures {
@@ -94,9 +103,26 @@ func (engine *Engine) Run() {
 }
 
 func (engine *Engine) tick() {
-	now := uint64(time.Now().UnixNano()) / 1e6
-	dt := float64(now-engine.lastTick) / 1000
+	now := time.Now()
+	dt := now.Sub(engine.lastTick).Seconds()
 	engine.lastTick = now
+
+	if now.Sub(engine.lastResourceSpawn) > resourceSpawnInterval {
+		engine.lastResourceSpawn = now
+
+		x := rand.Float64() * gridSize
+		y := rand.Float64() * gridSize
+		color := colorful.FastHappyColor()
+
+		resource := protocol.Resource{
+			X:      x,
+			Y:      y,
+			Radius: resourceRadius,
+			Color:  color.Hex(),
+		}
+
+		engine.resources = append(engine.resources, resource)
+	}
 
 	for _, c := range engine.creatures {
 		angle := rand.NormFloat64() * math.Pi / 4
