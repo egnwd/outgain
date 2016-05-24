@@ -28,7 +28,7 @@ func init() {
 
 	store.Options = &sessions.Options{
 		// TODO: change depending on environment
-		Domain: "localhost",
+		// Domain: "localhost",
 		Path:   "/",
 		MaxAge: 3600 * 8, // 8 hours
 	}
