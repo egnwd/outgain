@@ -1,21 +1,20 @@
 'use strict';
 
 var gulp = require('gulp');
-var merge2 = require('merge2');
+var browserify = require('browserify');
+var tsify = require('tsify');
+var source = require('vinyl-source-stream');
 var sass = require('gulp-sass');
-var typescript = require('gulp-typescript');
 
-var targetDir = './dist';
 
-var tsProject = typescript.createProject('tsconfig.json');
+var targetDir = __dirname + '/dist';
 
 gulp.task('scripts', function () {
-    var ts = tsProject.src()
-                .pipe(typescript(tsProject)).js;
-    var js = gulp.src('./src/**/*.js');
-
-    return merge2(ts, js)
-            .pipe(gulp.dest(targetDir + '/js'));
+    return browserify(__dirname + '/src/main.ts')
+        .plugin(tsify)
+        .bundle()
+        .pipe(source('bundle.js'))
+        .pipe(gulp.dest(targetDir + '/js'));
 });
 
 gulp.task('styles', function () {

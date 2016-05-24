@@ -3,6 +3,7 @@
 
 import * as protocol from "./protocol";
 import * as util from "./util";
+import * as $ from 'jquery';
 
 class Creature {
     previous: protocol.ICreature
