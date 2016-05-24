@@ -31,9 +31,9 @@ func init() {
 	if err := godotenv.Load(); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 	}
-	c.ClientID = os.Getenv("CLIENT_ID")
-	c.ClientSecret = os.Getenv("CLIENT_SECRET")
-	c.RedirectURI = os.Getenv("REDIRECT_URI")
+	c.ClientID = os.Getenv("GITHUB_CLIENT_ID")
+	c.ClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
+	c.RedirectURI = os.Getenv("GITHUB_REDIRECT_URI")
 }
 
 // GetOAuthURL returns the authorize URL for the github api with the query
