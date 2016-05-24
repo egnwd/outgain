@@ -17,6 +17,7 @@ func GetHandler(static string) http.Handler {
 	// post := mux.Methods(http.MethodPost).Subrouter()
 
 	get.HandleFunc("/ping", controller.PingHandler)
+
 	get.HandleFunc("/signin", controller.UserSignIn)
 	get.HandleFunc("/oauthSignInCallback", controller.OAuthSignInCallback)
 

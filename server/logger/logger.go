@@ -31,11 +31,11 @@ func ServerLogger(l io.Writer, h http.Handler) http.Handler {
 func colourForMethod(method string) string {
 	switch method {
 	case http.MethodGet:
-		return blue
-	case http.MethodPost:
 		return cyan
-	case http.MethodPut:
+	case http.MethodPost:
 		return yellow
+	case http.MethodPut:
+		return blue
 	case http.MethodDelete:
 		return red
 	case http.MethodPatch:

@@ -27,8 +27,6 @@ func init() {
 	store = sessions.NewCookieStore(authKey, encKey)
 
 	store.Options = &sessions.Options{
-		// TODO: change depending on environment
-		Domain: "localhost",
 		Path:   "/",
 		MaxAge: 3600 * 8, // 8 hours
 	}
