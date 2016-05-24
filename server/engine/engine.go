@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const grid, radius float64 = 10, 0.5
+
 type Engine struct {
 	Updates <-chan protocol.WorldUpdate
 
@@ -23,6 +25,7 @@ type Creature struct {
 	Color string
 	X     float64
 	Y     float64
+	Rad   float64
 
 	dx float64
 	dy float64
@@ -34,8 +37,8 @@ func NewEngine(creatureCount int) *Engine {
 	creatures := make([]*Creature, creatureCount)
 	for i := range creatures {
 		angle := rand.Float64() * 2 * math.Pi
-		x := rand.Float64() * 10
-		y := rand.Float64() * 10
+		x := rand.Float64() * grid
+		y := rand.Float64() * grid
 
 		creatures[i] = &Creature{
 			Id:   uint64(i),
@@ -44,6 +47,7 @@ func NewEngine(creatureCount int) *Engine {
 			Color: colors[i].Hex(),
 			X:     x,
 			Y:     y,
+			Rad:   radius,
 			dx:    math.Cos(angle),
 			dy:    math.Sin(angle),
 		}
@@ -105,20 +109,20 @@ func (engine *Engine) tick() {
 		c.X += c.dx * dt
 		c.Y += c.dy * dt
 
-		if c.X < 0 {
-			c.X = 0
+		if c.X-c.Rad < 0 {
+			c.X = c.Rad
 			c.dx *= -1
 		}
-		if c.X > 10 {
-			c.X = 10
+		if c.X+c.Rad > grid {
+			c.X = grid - c.Rad
 			c.dx *= -1
 		}
-		if c.Y < 0 {
-			c.Y = 0
+		if c.Y-c.Rad < 0 {
+			c.Y = c.Rad
 			c.dy *= -1
 		}
-		if c.Y > 10 {
-			c.Y = 10
+		if c.Y+c.Rad > grid {
+			c.Y = grid - c.Rad
 			c.dy *= -1
 		}
 	}
