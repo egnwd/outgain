@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"log"
 
 	"github.com/egnwd/outgain/server/github"
 	"github.com/gorilla/sessions"
@@ -27,8 +28,6 @@ func init() {
 	store = sessions.NewCookieStore(authKey, encKey)
 
 	store.Options = &sessions.Options{
-		// TODO: change depending on environment
-		// Domain: "localhost",
 		Path:   "/",
 		MaxAge: 3600 * 8, // 8 hours
 	}
@@ -46,7 +45,7 @@ func UserSignIn(w http.ResponseWriter, r *http.Request) {
 	state := id.String()
 
 	session.Values[stateKey] = state
-	fmt.Printf("Session: %#v\n", session.Values)
+	log.Printf("Session: %v\n", session.Values)
 	if err := sessions.Save(r, w); err != nil {
 		fmt.Println(err.Error())
 	}
@@ -68,7 +67,7 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 	state := r.FormValue("state")
 	code := r.FormValue("code")
 
-	fmt.Printf("Session: %#v\n", session.Values)
+	log.Printf("Session: %v\n", session.Values)
 
 	if state != session.Values[stateKey] {
 		errorMessage := fmt.Sprintf("%d: Invalid state,\n\texpected: %s\n\tactual:%s",
@@ -85,7 +84,6 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 
 	username, err := github.GetUsername(accessToken)
 	if err != nil {
-		fmt.Println("Error on username")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -93,7 +91,7 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 	session.Values[usernameKey] = username
 	session.Values[accessTokenKey] = accessToken
 	if err := sessions.Save(r, w); err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 
 	u := fmt.Sprintf("http://%s/", r.Host)
