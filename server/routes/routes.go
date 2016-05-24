@@ -2,8 +2,10 @@ package routes
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/egnwd/outgain/server/controller"
+	"github.com/egnwd/outgain/server/logger"
 	"github.com/gorilla/mux"
 )
 
@@ -25,5 +27,5 @@ func GetHandler(static string) http.Handler {
 	get.PathPrefix("/").Handler(
 		http.StripPrefix("/", http.FileServer(http.Dir(static))))
 
-	return mux
+	return logger.ServerLogger(os.Stdout, mux)
 }
