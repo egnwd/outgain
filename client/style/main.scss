@@ -1,4 +1,16 @@
 * { margin:0; padding:0; }
+// TODO: Insert reference to bootstrap buttons and variables
+
+@import 'variables';
+
+@mixin border-radius($radius) {
+    -webkit-border-radius: $radius;
+    -moz-border-radius: $radius;
+    -ms--border-radius: $radius;
+    border-radius: $radius;
+}
+
+
 
 html, body {
     height: 100%;
@@ -7,7 +19,6 @@ html, body {
 
 body {
     background-color: #a5a7ab;
-    height: 100%;
     display: flex;
     flex-direction: column; 
 }
@@ -24,16 +35,90 @@ body {
 #game-container {
     margin: 5px;
     flex: 1;
-    overflow: auto;
+    overflow: hidden;
     width: 100%;
     height: 100%;
     position: relative;
+    -webkit-flex-flow: row no-wrap;
+    max-width: 100%;
+    justify-content: flex-end;
 }
 
 #game-view {
-    position:absolute;
+    width: 100%;
+    height: 100%;
     background-color: white;
-    border-radius: 20px;
+    @include border-radius(20px);
+}
+
+#game-sidebar {
+    align-content: flex-end;
+    flex-direction: column;
+    margin-left: 10px;
+}
+
+
+
+#game-log {
+    padding: 5px;
+    margin: 5px;
+    @include border-radius(5px);
+    background: $darkBackground;
     height: 100%;
     width: 100%;
+    color: $logText;
+    word-wrap: break-word;
+}
+
+#game-panel {
+    padding: 5px;
+    margin: 5px;
+    height: 100px;
+    @include border-radius(5px);
+}
+
+.one {
+    flex: 1;
+}
+
+.two {
+    flex: 2;
+}
+
+.flex-container {
+    padding: 0;
+    margin: 0;
+
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flex-box;
+    display: -webkit-flex;
+    display: flex;
+}
+
+.btn {
+  background: #3498db;
+  background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+  background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+  background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+  background-image: -o-linear-gradient(top, #3498db, #2980b9);
+  background-image: linear-gradient(to bottom, #3498db, #2980b9);
+  -webkit-border-radius: 28;
+  -moz-border-radius: 28;
+  border-radius: 28px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 20px;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: #3cb0fd;
+  background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+  background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+  text-decoration: none;
 }
