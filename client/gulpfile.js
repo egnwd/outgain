@@ -1,17 +1,20 @@
 'use strict';
 
 var gulp = require('gulp');
+var browserify = require('browserify');
+var tsify = require('tsify');
+var source = require('vinyl-source-stream');
 var sass = require('gulp-sass');
-var ts = require('gulp-typescript');
 
-var targetDir = './dist';
 
-var tsProject = ts.createProject('tsconfig.json');
+var targetDir = __dirname + '/dist';
 
 gulp.task('scripts', function () {
-    return tsProject.src()
-        .pipe(ts(tsProject))
-        .js.pipe(gulp.dest(targetDir + '/js'));
+    return browserify(__dirname + '/src/main.ts')
+        .plugin(tsify)
+        .bundle()
+        .pipe(source('bundle.js'))
+        .pipe(gulp.dest(targetDir + '/js'));
 });
 
 gulp.task('styles', function () {
@@ -34,6 +37,7 @@ gulp.task('all', ['scripts', 'styles', 'html', 'images']);
 
 gulp.task('watch', ['scripts', 'styles', 'html', 'images'], function() {
     gulp.watch('./src/**/*.ts', ['scripts']);
+    gulp.watch('./src/**/*.js', ['scripts']);
     gulp.watch('./style/**/*.scss', ['styles']);
     gulp.watch('./html/**/*.html', ['html']);
     gulp.watch('./images/**/*.scss', ['images']);
