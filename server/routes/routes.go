@@ -17,6 +17,11 @@ func GetHandler(static string) http.Handler {
 	get.HandleFunc("/ping", controller.PingHandler)
 	get.HandleFunc("/signin", controller.UserSignIn)
 	get.HandleFunc("/oauthSignInCallback", controller.OAuthSignInCallback)
+
+	// FIXME: Wrap the FileServer in a Handler that hooks w upon writing
+	// 404 to the Header
+	mux.NotFoundHandler = http.HandlerFunc(controller.NotFound)
+
 	get.PathPrefix("/").Handler(
 		http.StripPrefix("/", http.FileServer(http.Dir(static))))
 
