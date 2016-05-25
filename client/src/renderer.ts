@@ -117,14 +117,19 @@ export class GameRenderer {
         this.previousTime = this.currentTime
         this.currentTime = state.time
 
+        let entities : { [key: number]: Entity } = {}
+
         for (let entityState of state.entities) {
             let entity = this.entities[entityState.id]
             if (typeof entity === "undefined") {
-                this.entities[entityState.id] = new Entity(entityState)
+                entities[entityState.id] = new Entity(entityState)
             } else {
                 entity.pushState(entityState, interpolation)
+                entities[entityState.id] = entity
             }
         }
+
+        this.entities = entities
 
         this.lastUpdate = Date.now()
         if (this.previousTime != null) {
