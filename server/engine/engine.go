@@ -130,4 +130,5 @@ func (engine *Engine) tick() {
 		}
 	}
 	engine.events = append(engine.events, "Test\n")
+	engine.events = append(engine.events, "DoubleTest\n")
 }

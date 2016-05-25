@@ -121,9 +121,9 @@ $(function() {
         let data = JSON.parse(event.data)
         let update = <protocol.IWorldUpdate>data
 
-	console.log(data)
-	gameLog.innerHTML = gameLog.innerHTML + update.logEvents
-
+	for (let logEvent of update.logEvents) {
+	    gameLog.innerHTML = gameLog.innerHTML + logEvent
+	}
         let interpolation = 1
         if (current != null && previous != null) {
             let elapsed = (Date.now() - lastUpdate)
