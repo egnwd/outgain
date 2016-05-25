@@ -98,3 +98,14 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, u, http.StatusFound)
 }
+
+// CurrentUser returns the username of the session's user
+func CurrentUser(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, sessionName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
+
+	fmt.Fprint(w, session.Values[usernameKey])
+}

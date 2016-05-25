@@ -21,6 +21,8 @@ func GetHandler(static string, engine *engine.Engine) http.Handler {
 
 	get.HandleFunc("/login", controller.UserLogIn)
 	get.HandleFunc("/oauthSignInCallback", controller.OAuthSignInCallback)
+	get.HandleFunc("/currentUser", controller.CurrentUser)
+
 	get.Handle("/updates", controller.UpdatesHandler(engine))
 
 	// FIXME: Wrap the FileServer in a Handler that hooks w upon writing
