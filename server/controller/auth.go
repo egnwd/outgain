@@ -47,7 +47,7 @@ func UserSignIn(w http.ResponseWriter, r *http.Request) {
 	session.Values[stateKey] = state
 	log.Printf("Session: %v\n", session.Values)
 	if err := sessions.Save(r, w); err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 
 	http.Redirect(w, r, github.GetOAuthURL(state), http.StatusFound)
