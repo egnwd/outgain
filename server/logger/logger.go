@@ -19,13 +19,40 @@ var (
 
 // ServerLogger is wrapper for a http.Handler that logs output
 // to the specified writer
-func ServerLogger(l io.Writer, h http.Handler) http.Handler {
+func ServerLogger(l io.Writer, next http.Handler) http.Handler {
 	log.SetOutput(l)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		h.ServeHTTP(w, r)
-		methodColour := colourForMethod(r.Method)
-		log.Printf("|%s %s %s| %s", methodColour, r.Method, reset, r.RequestURI)
-	})
+
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		var logger logResponseWriter = &responseLogger{w: w}
+		next.ServeHTTP(logger, r)
+
+		writeLog(r.URL.Path, logger.Status(), r.Method)
+	}
+
+	return http.HandlerFunc(fn)
+}
+
+func writeLog(uri string, status int, method string) {
+	statusColour := colourForStatus(status)
+	methodColour := colourForMethod(method)
+	log.Printf("|%s %d %s| %s %s %s - %s",
+		statusColour, status, reset,
+		methodColour, method, reset,
+		uri,
+	)
+}
+
+func colourForStatus(status int) string {
+	switch {
+	case status < 300:
+		return green
+	case 300 <= status && status < 400:
+		return white
+	case 400 <= status && status < 500:
+		return yellow
+	default:
+		return red
+	}
 }
 
 func colourForMethod(method string) string {
@@ -47,4 +74,38 @@ func colourForMethod(method string) string {
 	default:
 		return reset
 	}
+}
+
+type logResponseWriter interface {
+	http.ResponseWriter
+	Status() int
+}
+
+type responseLogger struct {
+	w      http.ResponseWriter
+	status int
+}
+
+func (l *responseLogger) Status() int {
+	if l.status == 0 {
+		return http.StatusOK
+	}
+
+	return l.status
+}
+
+func (l *responseLogger) Header() http.Header {
+	return l.w.Header()
+}
+
+func (l *responseLogger) Write(bs []byte) (int, error) {
+	if l.status == 0 {
+		l.status = http.StatusOK
+	}
+	return l.w.Write(bs)
+}
+
+func (l *responseLogger) WriteHeader(s int) {
+	l.w.WriteHeader(s)
+	l.status = s
 }

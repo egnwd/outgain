@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/hex"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -44,9 +45,9 @@ func UserSignIn(w http.ResponseWriter, r *http.Request) {
 	state := id.String()
 
 	session.Values[stateKey] = state
-	fmt.Printf("Session: %#v\n", session.Values)
+	log.Printf("Session: %v\n", session.Values)
 	if err := sessions.Save(r, w); err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 
 	http.Redirect(w, r, github.GetOAuthURL(state), http.StatusFound)
@@ -66,7 +67,7 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 	state := r.FormValue("state")
 	code := r.FormValue("code")
 
-	fmt.Printf("Session: %#v\n", session.Values)
+	log.Printf("Session: %v\n", session.Values)
 
 	if state != session.Values[stateKey] {
 		errorMessage := fmt.Sprintf("%d: Invalid state,\n\texpected: %s\n\tactual:%s",
@@ -83,7 +84,6 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 
 	username, err := github.GetUsername(accessToken)
 	if err != nil {
-		fmt.Println("Error on username")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -91,7 +91,7 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 	session.Values[usernameKey] = username
 	session.Values[accessTokenKey] = accessToken
 	if err := sessions.Save(r, w); err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 
 	u := fmt.Sprintf("http://%s/", r.Host)
