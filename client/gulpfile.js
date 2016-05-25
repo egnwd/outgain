@@ -25,7 +25,7 @@ gulp.task('sweetalert', function () {
 
 gulp.task('styles', function () {
     return gulp.src('./style/**/*.scss')
-        .pipe(sass({ importer: moduleImporter() }).on('error', sass.logError))
+        .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest(targetDir + '/css'));
 });
 

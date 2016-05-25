@@ -1,8 +1,7 @@
 @import "partials/base";
 @import "partials/reset";
 
-@import "sweetalert";
-
+@import "../../node_modules/sweetalert/dev/sweetalert";
 @import "modules/colours";
 
 @import "partials/application";
