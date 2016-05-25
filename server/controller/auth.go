@@ -3,9 +3,9 @@ package controller
 import (
 	"encoding/hex"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
-	"log"
 
 	"github.com/egnwd/outgain/server/github"
 	"github.com/gorilla/sessions"
