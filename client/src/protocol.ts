@@ -9,4 +9,5 @@ export interface ICreature {
 export interface IWorldUpdate {
     time: number
     creatures: ICreature[]
+    logEvents : string[]
 }

@@ -14,6 +14,7 @@ type Engine struct {
 	Updates <-chan protocol.WorldUpdate
 
 	updatesOut   chan<- protocol.WorldUpdate
+	events       []string
 	tickInterval time.Duration
 	creatures    []*Creature
 	lastTick     uint64
@@ -71,8 +72,9 @@ func (engine *Engine) Run() {
 		update := protocol.WorldUpdate{
 			Time:      engine.lastTick,
 			Creatures: make([]protocol.Creature, len(engine.creatures)),
+			LogEvents: make([]string, len(engine.events)),
 		}
-
+		
 		for i, c := range engine.creatures {
 			update.Creatures[i] = protocol.Creature{
 				Id:    c.Id,
@@ -82,7 +84,8 @@ func (engine *Engine) Run() {
 				Y:     c.Y,
 			}
 		}
-
+		update.LogEvents = engine.events
+		engine.events = []string{}
 		engine.updatesOut <- update
 
 		time.Sleep(engine.tickInterval)
@@ -126,4 +129,5 @@ func (engine *Engine) tick() {
 			c.dy *= -1
 		}
 	}
+	engine.events = append(engine.events, "Test\n")
 }

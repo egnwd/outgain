@@ -58,7 +58,7 @@ class GameRenderer {
         this.creatures = {}
     }
 
-    onResize() {
+   onResize() {
         this.canvas.width = this.canvas.clientWidth
         this.canvas.height = this.canvas.clientHeight
     }
@@ -98,6 +98,10 @@ class GameRenderer {
 
 $(function() {
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
+    
+    let gameLog = document.getElementById("game-log")
+
+
     let renderer = new GameRenderer(canvas)
 
     $(window).resize(function() {
@@ -116,6 +120,9 @@ $(function() {
     source.onmessage = function(event) {
         let data = JSON.parse(event.data)
         let update = <protocol.IWorldUpdate>data
+
+	console.log(data)
+	gameLog.innerHTML = gameLog.innerHTML + update.logEvents
 
         let interpolation = 1
         if (current != null && previous != null) {

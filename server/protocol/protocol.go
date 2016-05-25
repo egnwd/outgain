@@ -14,4 +14,5 @@ type Creature struct {
 type WorldUpdate struct {
 	Time      uint64     `json:"time"`
 	Creatures []Creature `json:"creatures"`
+	LogEvents []string   `json:"logEvents"`
 }
