@@ -1,11 +1,12 @@
 package engine
 
 import (
-	"github.com/egnwd/outgain/server/protocol"
-	"github.com/lucasb-eyer/go-colorful"
 	"math"
 	"math/rand"
 	"time"
+
+	"github.com/egnwd/outgain/server/protocol"
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 const gridSize float64 = 10
@@ -19,6 +20,7 @@ type Engine struct {
 	Updates <-chan protocol.WorldUpdate
 
 	updatesOut        chan<- protocol.WorldUpdate
+	events            []string
 	tickInterval      time.Duration
 	creatures         []*Creature
 	resources         []protocol.Resource
@@ -81,6 +83,7 @@ func (engine *Engine) Run() {
 			Time:      uint64(engine.lastTick.UnixNano()) / 1e6,
 			Creatures: make([]protocol.Creature, len(engine.creatures)),
 			Resources: engine.resources,
+			LogEvents: make([]string, len(engine.events)),
 		}
 
 		for i, c := range engine.creatures {
@@ -93,7 +96,8 @@ func (engine *Engine) Run() {
 				Radius: c.Radius,
 			}
 		}
-
+		update.LogEvents = engine.events
+		engine.events = []string{}
 		engine.updatesOut <- update
 
 		time.Sleep(engine.tickInterval)
@@ -154,4 +158,6 @@ func (engine *Engine) tick() {
 			c.dy *= -1
 		}
 	}
+	engine.events = append(engine.events, "Test\n")
+	engine.events = append(engine.events, "DoubleTest\n")
 }

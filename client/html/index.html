@@ -9,8 +9,17 @@
     <body>
         <h1 id="title"></h1>
         <a href="/signin">Login</a>
-        <div id="game-container">
-            <canvas id="game-view" width="480" height="320">
+        <div id="game-container" class="flex-container">
+            <canvas id="game-view" class="two"></canvas>
+	    <div id="game-sidebar" class="one flex-container">
+	      <code id="game-log" class="one"> log  </code>
+	      <div id="game-panel"> 
+                  <a class="btn" href="/config">Config</a>
+                  <a class="btn" href="/leave">Leave</a>
+                  <a class="btn" href="/toggleLog">toggleLog</a>
+                </ul>
+              </div> 
+	    </div>
         </div>
     </body>
 </html>

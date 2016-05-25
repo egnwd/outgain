@@ -20,4 +20,5 @@ export interface IWorldUpdate {
     time: number
     creatures: ICreature[]
     resources: IResource[]
+    logEvents : string[]
 }
