@@ -16,9 +16,9 @@ const resourceRadius float64 = 0.1
 const resourceSpawnInterval time.Duration = 5 * time.Second
 
 type Engine struct {
-	Updates <-chan protocol.WorldUpdate
+	Events <-chan protocol.Event
 
-	updatesOut        chan<- protocol.WorldUpdate
+	eventsOut         chan<- protocol.Event
 	tickInterval      time.Duration
 	entities          []Entity
 	lastTick          time.Time
@@ -32,7 +32,7 @@ type Entity interface {
 }
 
 func NewEngine(creatureCount int) (engine *Engine) {
-	updateChannel := make(chan protocol.WorldUpdate)
+	eventChannel := make(chan protocol.Event)
 	idChannel := make(chan uint64)
 	go func() {
 		var id uint64 = 0
@@ -43,8 +43,8 @@ func NewEngine(creatureCount int) (engine *Engine) {
 	}()
 
 	engine = &Engine{
-		Updates:           updateChannel,
-		updatesOut:        updateChannel,
+		Events:            eventChannel,
+		eventsOut:         eventChannel,
 		tickInterval:      time.Millisecond * 100,
 		lastTick:          time.Now(),
 		lastResourceSpawn: time.Now(),
@@ -64,21 +64,26 @@ func (engine *Engine) Run() {
 	engine.lastResourceSpawn = time.Now()
 
 	for {
-		entities := make([]protocol.Entity, len(engine.entities))
-		for i, entity := range engine.entities {
-			entities[i] = entity.Serialize()
+		engine.eventsOut <- protocol.Event{
+			Type: "state",
+			Data: engine.Serialize(),
 		}
-
-		update := protocol.WorldUpdate{
-			Time:     uint64(engine.lastTick.UnixNano()) / 1e6,
-			Entities: entities,
-		}
-
-		engine.updatesOut <- update
 
 		time.Sleep(engine.tickInterval)
 
 		engine.tick()
+	}
+}
+
+func (engine *Engine) Serialize() protocol.WorldState {
+	entities := make([]protocol.Entity, len(engine.entities))
+	for i, entity := range engine.entities {
+		entities[i] = entity.Serialize()
+	}
+
+	return protocol.WorldState{
+		Time:     uint64(engine.lastTick.UnixNano()) / 1e6,
+		Entities: entities,
 	}
 }
 

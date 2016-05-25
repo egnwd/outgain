@@ -1,4 +1,4 @@
-import { IEntity, IWorldUpdate } from "./protocol";
+import { IEntity, IWorldState } from "./protocol";
 import { lerp } from "./util";
 
 class Entity {
@@ -52,8 +52,8 @@ export class GameRenderer {
 
     entities: { [key:number]: Entity } = {}
 
-    previous: IWorldUpdate
-    current: IWorldUpdate
+    previousTime: number
+    currentTime: number
     dt: number
     lastUpdate: number
 
@@ -70,7 +70,7 @@ export class GameRenderer {
     }
 
     interpolation() : number {
-        if (this.previous != null) {
+        if (this.previousTime != null) {
             let elapsed = Date.now() - this.lastUpdate
             return elapsed / this.dt
         } else {
@@ -111,24 +111,24 @@ export class GameRenderer {
         }
     }
 
-    onUpdate(update: IWorldUpdate) {
+    pushState(state: IWorldState) {
         let interpolation = this.interpolation()
 
-        this.previous = this.current
-        this.current = update
+        this.previousTime = this.currentTime
+        this.currentTime = state.time
 
-        for (let state of update.entities) {
-            let entity = this.entities[state.id]
+        for (let entityState of state.entities) {
+            let entity = this.entities[entityState.id]
             if (typeof entity === "undefined") {
-                this.entities[state.id] = new Entity(state)
+                this.entities[entityState.id] = new Entity(entityState)
             } else {
-                entity.pushState(state, interpolation)
+                entity.pushState(entityState, interpolation)
             }
         }
 
         this.lastUpdate = Date.now()
-        if (this.previous != null) {
-            this.dt = this.current.time - this.previous.time
+        if (this.previousTime != null) {
+            this.dt = this.currentTime - this.previousTime
         }
     }
 }

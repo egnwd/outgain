@@ -9,7 +9,7 @@ export interface IEntity {
     radius: number
 }
 
-export interface IWorldUpdate {
+export interface IWorldState {
     time: number
     entities: IEntity[]
 }
