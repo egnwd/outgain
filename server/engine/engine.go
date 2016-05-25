@@ -1,9 +1,6 @@
 package engine
 
 import (
-	"fmt"
-	"math"
-	"math/rand"
 	"time"
 
 	"github.com/egnwd/outgain/server/protocol"
@@ -11,9 +8,6 @@ import (
 )
 
 const gridSize float64 = 10
-
-const defaultRadius float64 = 0.5
-const resourceRadius float64 = 0.1
 
 const resourceSpawnInterval time.Duration = 5 * time.Second
 
@@ -27,11 +21,6 @@ type Engine struct {
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextId            <-chan uint64
-}
-
-type Entity interface {
-	Tick(dt float64)
-	Serialize() protocol.Entity
 }
 
 func NewEngine(creatureCount int) (engine *Engine) {
@@ -115,108 +104,4 @@ func (engine *Engine) tick() {
 
 	message := fmt.Sprintf("Test - %s\n", now.String())
 	engine.events = append(engine.events, message)
-}
-
-type Creature struct {
-	Id     uint64
-	Name   string
-	Color  string
-	X      float64
-	Y      float64
-	Radius float64
-
-	dx float64
-	dy float64
-}
-
-func RandomCreature(id uint64) Entity {
-	angle := rand.Float64() * 2 * math.Pi
-	x := rand.Float64() * gridSize
-	y := rand.Float64() * gridSize
-
-	return &Creature{
-		Id:   id,
-		Name: "foo",
-
-		Color:  colorful.FastHappyColor().Hex(),
-		X:      x,
-		Y:      y,
-		Radius: defaultRadius,
-		dx:     math.Cos(angle),
-		dy:     math.Sin(angle),
-	}
-}
-
-func (creature *Creature) Tick(dt float64) {
-	angle := rand.NormFloat64() * math.Pi / 4
-	cos := math.Cos(angle)
-	sin := math.Sin(angle)
-
-	dx := creature.dx*cos - creature.dy*sin
-	dy := creature.dx*sin + creature.dy*cos
-	creature.dx = dx
-	creature.dy = dy
-
-	creature.X += creature.dx * dt
-	creature.Y += creature.dy * dt
-
-	if creature.X-creature.Radius < 0 {
-		creature.X = creature.Radius
-		creature.dx *= -1
-	}
-	if creature.X+creature.Radius > gridSize {
-		creature.X = gridSize - creature.Radius
-		creature.dx *= -1
-	}
-	if creature.Y-creature.Radius < 0 {
-		creature.Y = creature.Radius
-		creature.dy *= -1
-	}
-	if creature.Y+creature.Radius > gridSize {
-		creature.Y = gridSize - creature.Radius
-		creature.dy *= -1
-	}
-}
-
-func (creature *Creature) Serialize() protocol.Entity {
-	return protocol.Entity{
-		Id:     creature.Id,
-		Name:   &creature.Name,
-		Color:  creature.Color,
-		X:      creature.X,
-		Y:      creature.Y,
-		Radius: creature.Radius,
-	}
-}
-
-type Resource struct {
-	Id     uint64
-	Color  string
-	X      float64
-	Y      float64
-	Radius float64
-}
-
-func RandomResource(id uint64) Entity {
-	return &Resource{
-		Id:     id,
-		X:      rand.Float64() * gridSize,
-		Y:      rand.Float64() * gridSize,
-		Radius: resourceRadius,
-		Color:  colorful.FastHappyColor().Hex(),
-	}
-}
-
-func (resource *Resource) Tick(dt float64) {
-}
-
-func (resource *Resource) Serialize() protocol.Entity {
-	return protocol.Entity{
-		Id:     resource.Id,
-		Name:   nil,
-		Color:  resource.Color,
-		X:      resource.X,
-		Y:      resource.Y,
-		Radius: resource.Radius,
-	}
 }
