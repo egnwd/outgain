@@ -17,12 +17,12 @@ type Entity interface {
 }
 
 type EntityBase struct {
-	Id        uint64
-	Color     string
-	X         float64
-	Y         float64
-	Radius    float64
-	Colliding bool
+	Id     uint64
+	Color  string
+	X      float64
+	Y      float64
+	Radius float64
+	Dying  bool
 }
 
 func (entity *EntityBase) Left() float64 {

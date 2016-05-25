@@ -11,6 +11,8 @@ const gridSize float64 = 10
 
 const resourceSpawnInterval time.Duration = 5 * time.Second
 
+const eatRadiusDifference = 0.2
+
 type Engine struct {
 	Events <-chan protocol.Event
 
@@ -105,12 +107,18 @@ func (engine *Engine) tick() {
 	engine.entities.Sort()
 
 	engine.entities.Collisions(func(a, b Entity) {
-		a.Base().Colliding = true
-		b.Base().Colliding = true
+		diff := a.Base().Radius - b.Base().Radius
+		if diff > eatRadiusDifference {
+			a.Base().Radius += b.Base().Radius
+			b.Base().Dying = true
+		} else if diff < -eatRadiusDifference {
+			b.Base().Radius += a.Base().Radius
+			a.Base().Dying = true
+		}
 	})
 
 	engine.entities = engine.entities.Filter(func(entity Entity) bool {
-		return !entity.Base().Colliding
+		return !entity.Base().Dying
 	})
 
 	message := fmt.Sprintf("Test - %s\n", now.String())
