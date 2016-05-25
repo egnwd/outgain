@@ -1,6 +1,4 @@
 function popUp() {
-
-  alert("Hello from Outgain!")
-
+  swal("Hello from Outgain!")
   return false;
 }
