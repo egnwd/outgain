@@ -69,6 +69,7 @@ func NewEngine(creatureCount int) *Engine {
 		creatures:         creatures,
 		lastTick:          time.Now(),
 		lastResourceSpawn: time.Now(),
+		resources:         make([]protocol.Resource, 0),
 	}
 }
 
