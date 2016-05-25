@@ -24,6 +24,22 @@ type EntityBase struct {
 	Radius float64
 }
 
+func (entity *EntityBase) Left() float64 {
+	return entity.X - entity.Radius
+}
+
+func (entity *EntityBase) Right() float64 {
+	return entity.X + entity.Radius
+}
+
+func (entity *EntityBase) Top() float64 {
+	return entity.Y - entity.Radius
+}
+
+func (entity *EntityBase) Bottom() float64 {
+	return entity.Y + entity.Radius
+}
+
 type Creature struct {
 	EntityBase
 
