@@ -17,7 +17,7 @@ type Engine struct {
 	eventsOut         chan<- protocol.Event
 	events            []string
 	tickInterval      time.Duration
-	entities          []Entity
+	entities          EntityList
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextId            <-chan uint64
@@ -40,7 +40,7 @@ func NewEngine(creatureCount int) (engine *Engine) {
 		tickInterval:      time.Millisecond * 100,
 		lastTick:          time.Now(),
 		lastResourceSpawn: time.Now(),
-		entities:          make([]Entity, 0),
+		entities:          EntityList{},
 		nextId:            idChannel,
 	}
 
@@ -84,7 +84,7 @@ func (engine *Engine) Serialize() protocol.WorldState {
 
 func (engine *Engine) AddEntity(builder func(uint64) Entity) {
 	entity := builder(<-engine.nextId)
-	engine.entities = append(engine.entities, entity)
+	engine.entities = engine.entities.Insert(entity)
 }
 
 func (engine *Engine) tick() {
@@ -101,6 +101,17 @@ func (engine *Engine) tick() {
 	for _, entity := range engine.entities {
 		entity.Tick(dt)
 	}
+
+	engine.entities.Sort()
+
+	engine.entities.Collisions(func(a, b Entity) {
+		a.Base().Colliding = true
+		b.Base().Colliding = true
+	})
+
+	engine.entities = engine.entities.Filter(func(entity Entity) bool {
+		return !entity.Base().Colliding
+	})
 
 	message := fmt.Sprintf("Test - %s\n", now.String())
 	engine.events = append(engine.events, message)

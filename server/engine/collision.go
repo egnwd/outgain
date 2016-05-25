@@ -68,3 +68,14 @@ func (list EntityList) Collisions(onCollision func(Entity, Entity)) {
 		}
 	}
 }
+
+func (list EntityList) Filter(filter func(Entity) bool) EntityList {
+	count := list.Len()
+	for i := 0; i < count; i++ {
+		if !filter(list[i]) {
+			list.Swap(i, count-1)
+			count--
+		}
+	}
+	return list[:count]
+}
