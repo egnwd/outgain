@@ -9,14 +9,15 @@
     <body>
       <div id="game-container" class="container">
         <canvas id="game-view" class="two-thirds"></canvas>
-        <div id="game-sidebar" class="one-third container">
+        <div id="game-sidebar" class="container one-third">
           <code id="game-log">log</code>
           <div id="game-panel">
             <a class="btn btn--action" href="/config">Config</a>
             <a class="btn" href="/toggleLog">toggleLog</a>
             <a class="btn" href="/leave">Leave</a>
             <p>
-              Current user: <span id="user-id">Guest</span>
+              User: <span id="user-id"></span><br>
+              Resources: <span id="user-resources">0</span>
             </p>
           </div>
         </div>

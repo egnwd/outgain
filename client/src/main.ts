@@ -122,10 +122,9 @@ class GameRenderer {
 
 $(function() {
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
+    let renderer = new GameRenderer(canvas)
 
     let gameLog = document.getElementById("game-log")
-
-    let renderer = new GameRenderer(canvas)
 
     $(window).resize(function() {
         renderer.onResize()
@@ -146,7 +145,10 @@ $(function() {
 
       	for (let logEvent of update.logEvents) {
       	    gameLog.innerHTML = gameLog.innerHTML + logEvent
+
+            gameLog.scrollTop = gameLog.scrollHeight;
       	}
+
         let interpolation = 1
         if (current != null && previous != null) {
             let elapsed = (Date.now() - lastUpdate)
@@ -187,23 +189,35 @@ $(function() {
     })
 })
 
+class UserPanel {
+    username: string;
+    resources: number;
+    private usernameEl: string;
+    private resourcesEl: string;
+
+    constructor(usernameEl: string, resourcesEl: string) {
+      this.usernameEl = usernameEl
+      this.resourcesEl = resourcesEl
+    }
+
+    public setUserID() {
+      let el = $(this.usernameEl)
+      var username = ""
+
+      $.ajax({url: "/currentUser", success: function(result){
+        username = result
+        el.html(result)
+      }});
+
+      this.username = username
+    }
+}
+
 $(function() {
 
     function isUserAuthenticated() {
       let cookie = document.cookie.match(/^(.*;)? session=[^;]+(.*)?$/)
         return cookie != null
-    }
-
-    function getUserID() {
-      var xhttp = new XMLHttpRequest()
-      xhttp.onreadystatechange = function() {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-          let user = document.getElementById("user-id")
-          user.innerHTML = xhttp.responseText;
-        }
-      }
-      xhttp.open("GET", "/currentUser", true)
-      xhttp.send()
     }
 
     if (!isUserAuthenticated()) {
@@ -214,8 +228,7 @@ $(function() {
           showConfirmButton: false
       })
     } else {
-      console.log("Logged In")
-      let user = getUserID()
-      console.log("User ID: " + user)
+      var userPanel = new UserPanel("#user-id", "#user-resources")
+      userPanel.setUserID()
     }
 })
