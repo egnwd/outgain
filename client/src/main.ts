@@ -1,9 +1,9 @@
-/// <reference path="jquery.d.ts" />
 /// <reference path="sse.d.ts" />
 
 import * as protocol from "./protocol";
 import * as util from "./util";
 import * as $ from 'jquery';
+import * as sweetalert from 'sweetalert';
 
 class Creature {
     previous: protocol.ICreature
@@ -185,4 +185,13 @@ $(function() {
 
         window.requestAnimationFrame(draw)
     })
+})
+
+$(function() {
+    sweetalert({
+        title: "<h1 id=\"title\"></h1>",
+        text: "<a href=\"/login\" class=\"btn btn--action\">Login with Github</a>",
+        html: true,
+        showConfirmButton: false
+    });
 })
