@@ -22,7 +22,7 @@ func main() {
 	redirectPlainHTTP := flag.Bool("redirect-plain-http", false, "")
 	flag.Parse()
 
-	engine := engine.NewEngine(10)
+	engine := engine.NewEngine()
 
 	handler := routes.GetHandler(*staticDir, engine)
 	if *redirectPlainHTTP {

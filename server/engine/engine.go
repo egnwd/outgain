@@ -13,6 +13,8 @@ const resourceSpawnInterval time.Duration = 5 * time.Second
 
 const eatRadiusDifference = 0.2
 
+const initialCreatureCount = 10
+
 type Engine struct {
 	Events <-chan protocol.Event
 
@@ -25,7 +27,7 @@ type Engine struct {
 	nextId            <-chan uint64
 }
 
-func NewEngine(creatureCount int) (engine *Engine) {
+func NewEngine() (engine *Engine) {
 	eventChannel := make(chan protocol.Event)
 	idChannel := make(chan uint64)
 	go func() {
@@ -46,11 +48,16 @@ func NewEngine(creatureCount int) (engine *Engine) {
 		nextId:            idChannel,
 	}
 
-	for i := 0; i < creatureCount; i++ {
+	engine.Reset()
+	return
+}
+
+func (engine *Engine) Reset() {
+	engine.entities = EntityList{}
+
+	for i := 0; i < initialCreatureCount; i++ {
 		engine.AddEntity(RandomCreature)
 	}
-
-	return
 }
 
 func (engine *Engine) Run() {
@@ -120,6 +127,13 @@ func (engine *Engine) tick() {
 	engine.entities = engine.entities.Filter(func(entity Entity) bool {
 		return !entity.Base().Dying
 	})
+
+	for _, entity := range engine.entities {
+		if entity.Base().Radius > gridSize/2 {
+			engine.Reset()
+			break
+		}
+	}
 
 	message := fmt.Sprintf("Test - %s\n", now.String())
 	engine.events = append(engine.events, message)
