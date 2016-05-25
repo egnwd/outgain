@@ -5,6 +5,7 @@ var browserify = require('browserify');
 var tsify = require('tsify');
 var source = require('vinyl-source-stream');
 var sass = require('gulp-sass');
+var moduleImporter = require('sass-module-importer');
 
 
 var targetDir = __dirname + '/dist';
@@ -24,7 +25,7 @@ gulp.task('sweetalert', function () {
 
 gulp.task('styles', function () {
     return gulp.src('./style/**/*.scss')
-        .pipe(sass().on('error', sass.logError))
+        .pipe(sass({ importer: moduleImporter() }).on('error', sass.logError))
         .pipe(gulp.dest(targetDir + '/css'));
 });
 
