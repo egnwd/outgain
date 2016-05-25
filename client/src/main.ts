@@ -188,10 +188,34 @@ $(function() {
 })
 
 $(function() {
-    sweetalert({
-        title: "<h1 id=\"title\"></h1>",
-        text: "<a href=\"/login\" class=\"btn btn--action\">Login with Github</a>",
-        html: true,
-        showConfirmButton: false
-    });
+
+    function isUserAuthenticated() {
+      let cookie = document.cookie.match(/^(.*;)? session=[^;]+(.*)?$/)
+        return cookie != null
+    }
+
+    function getUserID() {
+      var xhttp = new XMLHttpRequest()
+      xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+          let user = document.getElementById("user-id")
+          user.innerHTML = xhttp.responseText;
+        }
+      }
+      xhttp.open("GET", "/currentUser", true)
+      xhttp.send()
+    }
+
+    if (!isUserAuthenticated()) {
+      sweetalert({
+          title: "<h1 id=\"title\"></h1>",
+          text: "<a href=\"/login\" class=\"btn btn--action\">Login with Github</a>",
+          html: true,
+          showConfirmButton: false
+      })
+    } else {
+      console.log("Logged In")
+      let user = getUserID()
+      console.log("User ID: " + user)
+    }
 })
