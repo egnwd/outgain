@@ -1,0 +1,69 @@
+@import "partials/base";
+@import "modules/colours";
+
+body {
+    background-color: $background-colour;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: $body-colour;
+}
+
+/* apply a natural box layout model to all elements, but allowing components to change */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+hr {
+    border: 0;
+    height: 0;
+    margin: 0 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.container {
+  margin: 0 auto;
+  padding-bottom: 40px;
+  width: 1024px;
+  position: relative;
+  display: block;
+  text-align: left;
+}
+
+.rounded {
+  background-color: darken($background-colour, 20%);
+  @include border-radius(4px);
+  padding: 10px;
+}
+
+.for-show {
+  margin: 40px 10px;
+  width: 460px;
+  height: 340px;
+
+  font-size: 4em;
+  font-weight: bold;
+  color: $blue-lighter;
+  text-align: center;
+  line-height: 320px;
+}
+
+code {
+  @extend .rounded;
+  @extend .container;
+ white-space: pre-wrap;       /* css-3 */
+ white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+ white-space: -pre-wrap;      /* Opera 4-6 */
+ white-space: -o-pre-wrap;    /* Opera 7 */
+ word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+.code-demo {
+  margin: 20px 10px;
+  width: 460px;
+  height: 340px;
+}

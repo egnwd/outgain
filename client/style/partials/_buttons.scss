@@ -1,0 +1,109 @@
+/*
+ * Edited from:
+ * btns.css
+ * Simple css utilities for building responsive buttons
+ * Author: mrmrs
+ * License: MIT
+ *
+ *                */
+
+/*
+  Base .btn class
+  Code:
+  <a href="#" class="btn">Default button</a>
+*/
+
+@import "modules/colours";
+
+.btn,
+.btn:link,
+.btn:visited {
+  @include border-radius(.25em);
+  background-color: $btn-colour;
+  color: $blue-lighter;
+  display: inline-block;
+  letter-spacing: .15em;
+  margin: .5em;
+  padding: 0.8em 1.2em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color .4s, background-color .4s;
+}
+
+.btn:hover,
+.btn:focus {
+  background-color: $btn-hover-colour;
+  transition: background-color .3s, color .3s;
+}
+
+.btn:active {
+  color: darken($blue-lighter, 10%);
+  background-color: $btn-active-colour;
+  transition: background-color .3s, color .3s;
+}
+
+/*
+  Skins
+  - Action
+  - Success
+  - Fail
+
+  Code:
+  <a href="#" class="btn btn--action">
+  <a href="#" class="btn btn--success">
+  <a href="#" class="btn btn--fail">
+*/
+
+/* Action */
+
+.btn--action {
+  &:link,
+  &:visited {
+    background-color: $btn-action-colour;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: $btn-action-hover-colour;
+  }
+
+  &:active {
+    background-color: $btn-action-active-colour;
+  }
+}
+
+/* Success */
+
+.btn--success {
+  &:link,
+  &:visited {
+    background-color: $btn-success-colour;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: $btn-success-hover-colour;
+  }
+
+  &:active {
+    background-color: $btn-success-active-colour;
+  }
+}
+
+/* Fail */
+
+.btn--fail {
+  &:link,
+  &:visited {
+    background-color: $btn-fail-colour;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: $btn-fail-hover-colour;
+  }
+
+  &:active {
+    background-color: $btn-fail-active-colour;
+  }
+}
