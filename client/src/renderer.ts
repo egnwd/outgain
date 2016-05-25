@@ -1,4 +1,4 @@
-import { IEntity, IWorldState } from "./protocol";
+import { IEntity, IWorldState, IWorldDiff } from "./protocol";
 import { lerp } from "./util";
 
 class Entity {
@@ -124,6 +124,36 @@ export class GameRenderer {
             } else {
                 entity.pushState(entityState, interpolation)
             }
+        }
+
+        this.lastUpdate = Date.now()
+        if (this.previousTime != null) {
+            this.dt = this.currentTime - this.previousTime
+        }
+    }
+
+    applyDiff(diff: IWorldDiff) {
+        if (this.currentTime == null || diff.previousTime != this.currentTime) {
+            console.log("Skip diff")
+            return
+        }
+
+        let interpolation = this.interpolation()
+
+        this.previousTime = this.currentTime
+        this.currentTime = diff.time
+
+        for (let entityState of diff.modified) {
+            let entity = this.entities[entityState.id]
+            if (typeof entity === "undefined") {
+                this.entities[entityState.id] = new Entity(entityState)
+            } else {
+                entity.pushState(entityState, 1)
+            }
+        }
+
+        for (let removed of diff.removed) {
+            delete this.entities[removed];
         }
 
         this.lastUpdate = Date.now()

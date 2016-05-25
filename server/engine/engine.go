@@ -14,6 +14,7 @@ const defaultRadius float64 = 0.5
 const resourceRadius float64 = 0.1
 
 const resourceSpawnInterval time.Duration = 5 * time.Second
+const fullUpdateInterval time.Duration = 1 * time.Second
 
 type Engine struct {
 	Events <-chan protocol.Event
@@ -24,6 +25,10 @@ type Engine struct {
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextId            <-chan uint64
+
+	lastFullUpdate time.Time
+
+	worldState protocol.WorldState
 }
 
 type Entity interface {
@@ -64,9 +69,26 @@ func (engine *Engine) Run() {
 	engine.lastResourceSpawn = time.Now()
 
 	for {
-		engine.eventsOut <- protocol.Event{
-			Type: "state",
-			Data: engine.Serialize(),
+		now := time.Now()
+
+		if now.Sub(engine.lastFullUpdate) > fullUpdateInterval {
+			engine.lastFullUpdate = now
+
+			engine.worldState = engine.Serialize()
+
+			engine.eventsOut <- protocol.Event{
+				Type: "state",
+				Data: engine.worldState,
+			}
+		} else {
+			newState := engine.Serialize()
+			diff := protocol.DiffWorld(engine.worldState, newState)
+			engine.worldState = newState
+
+			engine.eventsOut <- protocol.Event{
+				Type: "diff",
+				Data: diff,
+			}
 		}
 
 		time.Sleep(engine.tickInterval)

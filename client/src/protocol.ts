@@ -13,3 +13,10 @@ export interface IWorldState {
     time: number
     entities: IEntity[]
 }
+
+export interface IWorldDiff {
+    time: number
+    previousTime: number
+    modified: IEntity[]
+    removed: number[]
+}

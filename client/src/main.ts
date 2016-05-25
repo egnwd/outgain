@@ -1,7 +1,7 @@
 /// <reference path="jquery.d.ts" />
 /// <reference path="sse.d.ts" />
 
-import { IWorldState } from "./protocol";
+import { IWorldState, IWorldDiff } from "./protocol";
 import { GameRenderer } from './renderer'
 import * as $ from 'jquery'
 
@@ -15,6 +15,11 @@ $(function() {
     source.addEventListener("state", function(event) {
         let data = JSON.parse((<sse.IOnMessageEvent>event).data)
         renderer.pushState(<IWorldState>data)
+    })
+
+    source.addEventListener("diff", function(event) {
+        let data = JSON.parse((<sse.IOnMessageEvent>event).data)
+        renderer.applyDiff(<IWorldDiff>data)
     })
 
     window.addEventListener("resize", () => renderer.onResize())
