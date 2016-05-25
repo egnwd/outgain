@@ -1,13 +1,10 @@
-@import "modules/all";
+@import "partials/base";
+@import "partials/reset";
 
-#title {
-    height: 160px;
-    background-image: url("/images/outgain_logo.svg");
-    background-repeat: no-repeat;
-    background-position: center;
-    color: white;
-    text-align: center;
-    padding: 0;
-    margin: 0;
-    line-height: 0;
-}
+@import "../node_modules/sweetalert/dev/sweetalert";
+@import "modules/colours";
+
+@import "partials/application";
+@import "partials/typography";
+@import "partials/table";
+@import "partials/buttons";
