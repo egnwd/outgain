@@ -20,10 +20,87 @@ type Engine struct {
 
 	updatesOut        chan<- protocol.WorldUpdate
 	tickInterval      time.Duration
-	creatures         []*Creature
-	resources         []protocol.Resource
+	entities          []Entity
 	lastTick          time.Time
 	lastResourceSpawn time.Time
+	nextId            <-chan uint64
+}
+
+type Entity interface {
+	Tick(dt float64)
+	Serialize() protocol.Entity
+}
+
+func NewEngine(creatureCount int) (engine *Engine) {
+	updateChannel := make(chan protocol.WorldUpdate)
+	idChannel := make(chan uint64)
+	go func() {
+		var id uint64 = 0
+		for {
+			idChannel <- id
+			id += 1
+		}
+	}()
+
+	engine = &Engine{
+		Updates:           updateChannel,
+		updatesOut:        updateChannel,
+		tickInterval:      time.Millisecond * 100,
+		lastTick:          time.Now(),
+		lastResourceSpawn: time.Now(),
+		entities:          make([]Entity, 0),
+		nextId:            idChannel,
+	}
+
+	for i := 0; i < creatureCount; i++ {
+		engine.AddEntity(RandomCreature)
+	}
+
+	return
+}
+
+func (engine *Engine) Run() {
+	engine.lastTick = time.Now()
+	engine.lastResourceSpawn = time.Now()
+
+	for {
+		entities := make([]protocol.Entity, len(engine.entities))
+		for i, entity := range engine.entities {
+			entities[i] = entity.Serialize()
+		}
+
+		update := protocol.WorldUpdate{
+			Time:     uint64(engine.lastTick.UnixNano()) / 1e6,
+			Entities: entities,
+		}
+
+		engine.updatesOut <- update
+
+		time.Sleep(engine.tickInterval)
+
+		engine.tick()
+	}
+}
+
+func (engine *Engine) AddEntity(builder func(uint64) Entity) {
+	entity := builder(<-engine.nextId)
+	engine.entities = append(engine.entities, entity)
+}
+
+func (engine *Engine) tick() {
+	now := time.Now()
+	dt := now.Sub(engine.lastTick).Seconds()
+	engine.lastTick = now
+
+	if now.Sub(engine.lastResourceSpawn) > resourceSpawnInterval {
+		engine.lastResourceSpawn = now
+
+		engine.AddEntity(RandomResource)
+	}
+
+	for _, entity := range engine.entities {
+		entity.Tick(dt)
+	}
 }
 
 type Creature struct {
@@ -38,121 +115,94 @@ type Creature struct {
 	dy float64
 }
 
-func NewEngine(creatureCount int) *Engine {
-	colors := colorful.FastHappyPalette(creatureCount)
+func RandomCreature(id uint64) Entity {
+	angle := rand.Float64() * 2 * math.Pi
+	x := rand.Float64() * gridSize
+	y := rand.Float64() * gridSize
 
-	creatures := make([]*Creature, creatureCount)
-	for i := range creatures {
-		angle := rand.Float64() * 2 * math.Pi
-		x := rand.Float64() * gridSize
-		y := rand.Float64() * gridSize
+	return &Creature{
+		Id:   id,
+		Name: "foo",
 
-		creatures[i] = &Creature{
-			Id:   uint64(i),
-			Name: "foo",
-
-			Color:  colors[i].Hex(),
-			X:      x,
-			Y:      y,
-			Radius: defaultRadius,
-			dx:     math.Cos(angle),
-			dy:     math.Sin(angle),
-		}
-	}
-
-	ch := make(chan protocol.WorldUpdate)
-
-	return &Engine{
-		Updates:           ch,
-		updatesOut:        ch,
-		tickInterval:      time.Millisecond * 100,
-		creatures:         creatures,
-		lastTick:          time.Now(),
-		lastResourceSpawn: time.Now(),
-		resources:         make([]protocol.Resource, 0),
+		Color:  colorful.FastHappyColor().Hex(),
+		X:      x,
+		Y:      y,
+		Radius: defaultRadius,
+		dx:     math.Cos(angle),
+		dy:     math.Sin(angle),
 	}
 }
 
-func (engine *Engine) Run() {
-	engine.lastTick = time.Now()
-	engine.lastResourceSpawn = time.Now()
+func (creature *Creature) Tick(dt float64) {
+	angle := rand.NormFloat64() * math.Pi / 4
+	cos := math.Cos(angle)
+	sin := math.Sin(angle)
 
-	for {
-		update := protocol.WorldUpdate{
-			Time:      uint64(engine.lastTick.UnixNano()) / 1e6,
-			Creatures: make([]protocol.Creature, len(engine.creatures)),
-			Resources: engine.resources,
-		}
+	dx := creature.dx*cos - creature.dy*sin
+	dy := creature.dx*sin + creature.dy*cos
+	creature.dx = dx
+	creature.dy = dy
 
-		for i, c := range engine.creatures {
-			update.Creatures[i] = protocol.Creature{
-				Id:     c.Id,
-				Name:   c.Name,
-				Color:  c.Color,
-				X:      c.X,
-				Y:      c.Y,
-				Radius: c.Radius,
-			}
-		}
+	creature.X += creature.dx * dt
+	creature.Y += creature.dy * dt
 
-		engine.updatesOut <- update
-
-		time.Sleep(engine.tickInterval)
-
-		engine.tick()
+	if creature.X-creature.Radius < 0 {
+		creature.X = creature.Radius
+		creature.dx *= -1
+	}
+	if creature.X+creature.Radius > gridSize {
+		creature.X = gridSize - creature.Radius
+		creature.dx *= -1
+	}
+	if creature.Y-creature.Radius < 0 {
+		creature.Y = creature.Radius
+		creature.dy *= -1
+	}
+	if creature.Y+creature.Radius > gridSize {
+		creature.Y = gridSize - creature.Radius
+		creature.dy *= -1
 	}
 }
 
-func (engine *Engine) tick() {
-	now := time.Now()
-	dt := now.Sub(engine.lastTick).Seconds()
-	engine.lastTick = now
-
-	if now.Sub(engine.lastResourceSpawn) > resourceSpawnInterval {
-		engine.lastResourceSpawn = now
-
-		x := rand.Float64() * gridSize
-		y := rand.Float64() * gridSize
-		color := colorful.FastHappyColor()
-
-		resource := protocol.Resource{
-			X:      x,
-			Y:      y,
-			Radius: resourceRadius,
-			Color:  color.Hex(),
-		}
-
-		engine.resources = append(engine.resources, resource)
+func (creature *Creature) Serialize() protocol.Entity {
+	return protocol.Entity{
+		Id:     creature.Id,
+		Name:   &creature.Name,
+		Color:  creature.Color,
+		X:      creature.X,
+		Y:      creature.Y,
+		Radius: creature.Radius,
 	}
+}
 
-	for _, c := range engine.creatures {
-		angle := rand.NormFloat64() * math.Pi / 4
-		cos := math.Cos(angle)
-		sin := math.Sin(angle)
+type Resource struct {
+	Id     uint64
+	Color  string
+	X      float64
+	Y      float64
+	Radius float64
+}
 
-		dx := c.dx*cos - c.dy*sin
-		dy := c.dx*sin + c.dy*cos
-		c.dx = dx
-		c.dy = dy
+func RandomResource(id uint64) Entity {
+	return &Resource{
+		Id:     id,
+		X:      rand.Float64() * gridSize,
+		Y:      rand.Float64() * gridSize,
+		Radius: resourceRadius,
+		Color:  colorful.FastHappyColor().Hex(),
+	}
+}
 
-		c.X += c.dx * dt
-		c.Y += c.dy * dt
+func (resource *Resource) Tick(dt float64) {
+}
 
-		if c.X-c.Radius < 0 {
-			c.X = c.Radius
-			c.dx *= -1
-		}
-		if c.X+c.Radius > gridSize {
-			c.X = gridSize - c.Radius
-			c.dx *= -1
-		}
-		if c.Y-c.Radius < 0 {
-			c.Y = c.Radius
-			c.dy *= -1
-		}
-		if c.Y+c.Radius > gridSize {
-			c.Y = gridSize - c.Radius
-			c.dy *= -1
-		}
+func (resource *Resource) Serialize() protocol.Entity {
+	return protocol.Entity{
+		Id:     resource.Id,
+		Name:   nil,
+		Color:  resource.Color,
+		X:      resource.X,
+		Y:      resource.Y,
+		Radius: resource.Radius,
 	}
 }

@@ -1,16 +1,16 @@
-import { ICreature, IResource, IWorldUpdate } from "./protocol";
+import { IEntity, IWorldUpdate } from "./protocol";
 import { lerp } from "./util";
 
-class Creature {
-    previous: ICreature
-    current: ICreature
+class Entity {
+    previous: IEntity
+    current: IEntity
 
-    constructor(state: ICreature) {
+    constructor(state: IEntity) {
         this.previous = state
         this.current = state
     }
 
-    pushState(state: ICreature, interpolation: number) {
+    pushState(state: IEntity, interpolation: number) {
         this.current.x = lerp(this.previous.x, this.current.x, interpolation)
         this.current.y = lerp(this.previous.y, this.current.y, interpolation)
 
@@ -34,32 +34,13 @@ class Creature {
         ctx.fill()
         ctx.closePath()
 
-        ctx.scale(2, 2)
-        ctx.textAlign = "center"
-        ctx.textBaseline = 'middle'
-        ctx.fillStyle = "black"
-        ctx.fillText(name, 0, 0)
-
-        ctx.restore()
-    }
-}
-
-class Resource {
-    state: IResource
-
-    constructor(state: IResource) {
-        this.state = state
-    }
-
-    render(ctx: CanvasRenderingContext2D, scale: number) {
-        ctx.save()
-        ctx.translate(this.state.x * scale, this.state.y * scale)
-
-        ctx.beginPath()
-        ctx.arc(0, 0, this.state.radius * scale, 0, 2 * Math.PI, false)
-        ctx.fillStyle = this.state.color
-        ctx.fill()
-        ctx.closePath()
+        if (name != null) {
+            ctx.scale(2, 2)
+            ctx.textAlign = "center"
+            ctx.textBaseline = 'middle'
+            ctx.fillStyle = "black"
+            ctx.fillText(name, 0, 0)
+        }
 
         ctx.restore()
     }
@@ -69,8 +50,7 @@ export class GameRenderer {
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
 
-    creatures: { [key:number]: Creature } = {}
-    resources: Resource[] = []
+    entities: { [key:number]: Entity } = {}
 
     previous: IWorldUpdate
     current: IWorldUpdate
@@ -110,11 +90,8 @@ export class GameRenderer {
 
         this.drawGrid(10, 10, scale)
 
-        for (let resource of this.resources) {
-            resource.render(this.ctx, scale)
-        }
-        for (let id in this.creatures) {
-            this.creatures[id].render(this.ctx, scale, interpolation)
+        for (let id in this.entities) {
+            this.entities[id].render(this.ctx, scale, interpolation)
         }
     }
 
@@ -140,16 +117,14 @@ export class GameRenderer {
         this.previous = this.current
         this.current = update
 
-        for (let state of update.creatures) {
-            let creature = this.creatures[state.id]
-            if (typeof creature === "undefined") {
-                this.creatures[state.id] = new Creature(state)
+        for (let state of update.entities) {
+            let entity = this.entities[state.id]
+            if (typeof entity === "undefined") {
+                this.entities[state.id] = new Entity(state)
             } else {
-                creature.pushState(state, interpolation)
+                entity.pushState(state, interpolation)
             }
         }
-
-        this.resources = update.resources.map(r => new Resource(r))
 
         this.lastUpdate = Date.now()
         if (this.previous != null) {
