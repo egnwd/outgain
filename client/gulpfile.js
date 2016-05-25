@@ -43,4 +43,9 @@ gulp.task('watch', ['scripts', 'styles', 'html', 'images'], function() {
     gulp.watch('./images/**/*.scss', ['images']);
 });
 
+gulp.task('demo', function () {
+    return gulp.src('./src/demo.js')
+        .pipe(gulp.dest(targetDir + '/js'));
+});
+
 gulp.task('default', ['all']);
