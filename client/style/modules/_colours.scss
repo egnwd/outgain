@@ -1,0 +1,39 @@
+$blue-base:              #000 !default;
+$blue-darker:            lighten($blue-base, 13.5%) !default; // #222
+$blue-dark:              lighten($blue-base, 20%) !default;   // #333
+$blue:                   lighten($blue-base, 33.5%) !default; // #555
+$blue-light:             lighten($blue-base, 46.7%) !default; // #777
+$blue-lighter:           lighten($blue-base, 93.5%) !default; // #eee
+
+$background-colour: #f0f0f0;
+
+$body-colour: $blue-darker !default;
+$body-muted: lighten($body-colour, 10%) !default;
+$heading-colour: darken($body-colour, 10%) !default;
+
+$link-colour: #3158A0;
+$link-hover-colour: darken($link-colour, 10%);
+$link-active-colour: darken($link-colour, 20%);
+
+$btn-colour: $blue-light;
+$btn-hover-colour: $blue;
+$btn-active-colour: $blue-darker;
+
+$btn-action-colour: $link-colour;
+$btn-action-hover-colour: $link-hover-colour;
+$btn-action-active-colour: $link-active-colour;
+
+$btn-success-colour: #9ECD52 !default;
+$btn-success-hover-colour: darken($btn-success-colour, 10%);
+$btn-success-active-colour: darken($btn-success-colour, 10%);
+
+$btn-fail-colour: #EE414A !default;
+$btn-fail-hover-colour: darken($btn-fail-colour, 15%);
+$btn-fail-active-colour: darken($btn-fail-colour, 20%);
+
+// Table
+$table-bg: $blue-lighter;
+$table-bg-accent: darken($table-bg, 8%);
+$table-border-colour: $blue;
+
+$table-bg-active: lighten($blue, 10%);

@@ -81,8 +81,6 @@ func GetAccessToken(state, code string) (string, error) {
 		return "", err
 	}
 
-	fmt.Println("Got Access Token!")
-	fmt.Printf("Access Token: %s\n", values.Get("access_token"))
 	return values.Get("access_token"), nil
 }
 

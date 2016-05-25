@@ -1,0 +1,96 @@
+@import "base";
+@import "modules/colours";
+
+caption {
+  padding-top: $table-cell-padding;
+  padding-bottom: $table-cell-padding;
+  color: $body-muted;
+  text-align: left;
+}
+th {
+  text-align: left;
+}
+
+
+// Baseline styles
+
+table {
+  border-collapse:separate;
+  margin-bottom: 30px;
+  background-color: $table-bg;
+  border: 1px solid $table-border-colour;
+  margin: 20px;
+  @include border-radius(3px);
+  overflow:hidden;
+
+  > tbody > tr:nth-of-type(odd) {
+    background-color: $table-bg-accent;
+  }
+
+  // Cells
+  > thead,
+  > tbody,
+  > tfoot {
+    > tr {
+      border-top: 1px solid $table-border-colour;
+      > th, > td {
+        padding: $table-cell-padding;
+        line-height: $line-height-base;
+        vertical-align: top;
+
+        &.right {
+          text-align: right;
+        }
+      }
+    }
+  }
+
+  // Bottom align for column headings
+  > thead > tr {
+    > th {
+      vertical-align: bottom;
+      border-bottom: 2px solid $table-border-colour;
+    }
+    > th, > td {
+      border-bottom-width: 2px;
+    }
+  }
+
+  // Remove top border from thead by default
+  > caption + thead,
+  > colgroup + thead,
+  > thead:first-child {
+    > tr:first-child {
+      > th,
+      > td {
+        border-top: 0;
+      }
+    }
+  }
+  // Account for multiple tbody instances
+  > tbody + tbody {
+    border-top: 2px solid $table-border-colour;
+  }
+}
+
+// Table cell sizing
+//
+// Reset default table behavior
+
+table col[class*="col-"] {
+  position: static; // Prevent border hiding in Firefox and IE9-11 (see https://github.com/twbs/bootstrap/issues/11623)
+  float: none;
+  display: table-column;
+}
+table {
+  td,
+  th {
+    &[class*="col-"] {
+      position: static; // Prevent border hiding in Firefox and IE9-11 (see https://github.com/twbs/bootstrap/issues/11623)
+      float: none;
+      display: table-cell;
+    }
+  }
+}
+
+@include table-row-variant('active', $table-bg-active);

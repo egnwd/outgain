@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8" />
-        <link href="css/main.css" rel="stylesheet" type="text/css" />
-        <script src="js/bundle.js" type="text/javascript"></script>
-        <title>Outgain</title>
+      <meta charset="utf-8" />
+      <link href="css/main.css" rel="stylesheet" type="text/css" />
+      <script src="js/bundle.js" type="text/javascript"></script>
+      <title>Outgain</title>
     </head>
     <body>
-        <h1 id="title"></h1>
-        <a href="/signin">Login</a>
-        <div id="game-container">
-            <canvas id="game-view" width="480" height="320">
+      <div id="game-container" class="container">
+        <canvas id="game-view" class="two-thirds"></canvas>
+        <div id="game-sidebar" class="one-third container">
+          <code id="game-log">log</code>
+          <div id="game-panel">
+            <a class="btn btn--action" href="/config">Config</a>
+            <a class="btn" href="/toggleLog">toggleLog</a>
+            <a class="btn" href="/leave">Leave</a>
+          </div>
         </div>
+      </div>
     </body>
 </html>
