@@ -3,8 +3,8 @@ package github
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -29,7 +29,7 @@ const githubScope = "user"
 
 func init() {
 	if err := godotenv.Load(); err != nil {
-		fmt.Printf("Error: %s\n", err.Error())
+		log.Printf("Error: %s\n", err.Error())
 	}
 	c.ClientID = os.Getenv("GITHUB_CLIENT_ID")
 	c.ClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
@@ -81,8 +81,6 @@ func GetAccessToken(state, code string) (string, error) {
 		return "", err
 	}
 
-	fmt.Println("Got Access Token!")
-	fmt.Printf("Access Token: %s\n", values.Get("access_token"))
 	return values.Get("access_token"), nil
 }
 
