@@ -1,6 +1,3 @@
-@import "partials/base";
-@import "modules/colours";
-
 body {
     background-color: $background-colour;
     height: 100%;
@@ -28,7 +25,6 @@ hr {
 .container {
   margin: 0 auto;
   padding-bottom: 40px;
-  width: 1024px;
   position: relative;
   display: block;
   text-align: left;
