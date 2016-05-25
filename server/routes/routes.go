@@ -19,7 +19,7 @@ func GetHandler(static string, engine *engine.Engine) http.Handler {
 
 	get.HandleFunc("/ping", controller.PingHandler)
 
-	get.HandleFunc("/signin", controller.UserSignIn)
+	get.HandleFunc("/login", controller.UserLogIn)
 	get.HandleFunc("/oauthSignInCallback", controller.OAuthSignInCallback)
 	get.Handle("/updates", controller.UpdatesHandler(engine))
 

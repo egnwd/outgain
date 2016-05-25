@@ -39,7 +39,7 @@ gulp.task('images', function () {
         .pipe(gulp.dest(targetDir + '/images'));
 });
 
-gulp.task('all', ['scripts', 'styles', 'html', 'images', 'sweetalert']);
+gulp.task('all', ['sweetalert', 'scripts', 'styles', 'html', 'images']);
 
 gulp.task('watch', ['scripts', 'styles', 'html', 'images'], function() {
     gulp.watch('./src/**/*.ts', ['scripts']);

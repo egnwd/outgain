@@ -33,8 +33,8 @@ func init() {
 	}
 }
 
-// UserSignIn signs the user in and sets up a session
-func UserSignIn(w http.ResponseWriter, r *http.Request) {
+// UserLogIn signs the user in and sets up a session
+func UserLogIn(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, sessionName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
