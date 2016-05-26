@@ -4,10 +4,19 @@ import { lerp } from "./util";
 class Entity {
     previous: IEntity
     current: IEntity
+    img: HTMLImageElement
 
     constructor(state: IEntity) {
         this.previous = state
         this.current = state
+    }
+
+    setupImage(ctx: CanvasRenderingContext2D) {
+        this.img = new Image()
+        this.img.src = "/images/sprite" + this.current.color + ".png"
+        this.img.onload = function() {
+            ctx.drawImage(this.img, -(this.img.width / 2), -(this.img.height / 2))
+        }
     }
 
     pushState(state: IEntity, interpolation: number) {
@@ -28,11 +37,7 @@ class Entity {
         ctx.save()
         ctx.translate(x * scale, y * scale)
 
-        ctx.beginPath()
-        ctx.arc(0, 0, radius * scale, 0, 2 * Math.PI, false)
-        ctx.fillStyle = color
-        ctx.fill()
-        ctx.closePath()
+        this.setupImage(ctx)
 
         if (name != null) {
             ctx.scale(2, 2)
