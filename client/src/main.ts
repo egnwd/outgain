@@ -10,12 +10,34 @@ var userPanel = new UserPanel("#user-id", "#user-resources")
 
 $(function() {
     if (!userPanel.isUserAuthenticated()) {
-      sweetalert({
-          title: "<h1 id=\"title\"></h1>",
-          text: "<a href=\"/login\" class=\"btn btn--action\">Login with Github</a>",
-          html: true,
-          showConfirmButton: false
-      })
+      let mainModal = function() {
+        sweetalert({
+            title: "<h1 id=\"title\"></h1>",
+            text: "\
+            <a href=\"/login\" class=\"btn btn--action\">Login with Github</a>\
+            ",
+            html: true,
+            confirmButtonText: "How to Play",
+            closeOnConfirm: false
+        }, function() {
+            howtoplay()
+        })
+      }
+
+      let howtoplay = function() {
+        sweetalert({
+            title: "How to Play",
+            text: "<p>This is how you play the game</p>",
+            html: true,
+            confirmButtonText: "Done",
+            closeOnConfirm: false
+        }, function() {
+          mainModal()
+        })
+      }
+
+      mainModal()
+
     } else {
       userPanel.setUserID()
     }
@@ -26,7 +48,7 @@ $(function() {
     if (!userPanel.isUserAuthenticated()) {
         return
     }
-  
+
     let gameLog = document.getElementById("game-log")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
 
