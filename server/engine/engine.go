@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/egnwd/outgain/server/protocol"
-
 )
 
 const gridSize float64 = 10
