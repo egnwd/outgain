@@ -1,4 +1,14 @@
 .sweet-alert {
+
+  h2 {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  h2.modal-title {
+    margin: 20px auto !important;
+  }
+
   p {
     .btn {
       font-weight: normal;
@@ -10,6 +20,17 @@
       @extend .btn;
     }
   }
+
+  .sa-button-container {
+    margin-bottom: 20px;
+  }
+
+  p.howtoplay {
+    margin: 0 10px 20px;
+    overflow-y: scroll;
+    height: 240px;
+  }
+
 }
 
 .sweet-overlay {
@@ -22,8 +43,4 @@
 
 .modal {
   @include box-shadow(0px, 0px, 30px, rgba(0,0,0,0.3));
-}
-
-p.howtoplay {
-  margin-bottom: 20px;
 }
