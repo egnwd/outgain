@@ -62,7 +62,7 @@ class UserPanel {
 
 $(function() {
     function isUserAuthenticated() {
-      let cookie = document.cookie.match(/^(.*;)? session=[^;]+(.*)?$/)
+      let cookie = document.cookie.match(/^(.*; )?session=[^;]+(.*)?$/)
         return cookie != null
     }
 
