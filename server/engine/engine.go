@@ -58,6 +58,15 @@ func (engine *Engine) Reset() {
 	for i := 0; i < initialCreatureCount; i++ {
 		engine.AddEntity(RandomCreature)
 	}
+	clearGameLog(&engine.events)
+}
+
+// clearGameLog should clear the current gmae-log (or make it clear that a new game has begun
+func clearGameLog(events *[]string) {
+	// This is temporary before I deal with the front-end
+	message := fmt.Sprintf("A new game has begun!\n\n\n")
+	*events = append(*events, message)
+
 }
 
 func (engine *Engine) Run() {
@@ -96,6 +105,19 @@ func (engine *Engine) AddEntity(builder func(uint64) Entity) {
 	engine.entities = engine.entities.Insert(entity)
 }
 
+func addEvent(events *[]string, a, b Entity) {
+
+	switch b.(type) {
+	case *Resource:
+		message := fmt.Sprintf("Yum, creature %d ate a resource\n", a.Base().Id)
+		*events = append(*events, message)
+	case *Creature:
+		message := fmt.Sprintf("Creature number %d ate %d\n", a.Base().Id, b.Base().Id)
+		*events = append(*events, message)
+	}
+
+}
+
 func (engine *Engine) tick() {
 	now := time.Now()
 	dt := now.Sub(engine.lastTick).Seconds()
@@ -126,9 +148,11 @@ func (engine *Engine) collisionDetection() {
 		if diff > eatRadiusDifference {
 			a.Base().radiusIncrement += b.Base().Radius + b.Base().radiusIncrement
 			b.Base().dying = true
+			addEvent(&engine.events, a, b)
 		} else if diff < -eatRadiusDifference {
 			b.Base().radiusIncrement += a.Base().Radius + a.Base().radiusIncrement
 			a.Base().dying = true
+			addEvent(&engine.events, b, a)
 		}
 	}
 
