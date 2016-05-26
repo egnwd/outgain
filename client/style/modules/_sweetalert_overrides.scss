@@ -1,0 +1,29 @@
+.sweet-alert {
+  p {
+    .btn {
+      font-weight: normal;
+    }
+  }
+
+  button {
+    &.confirm, &.cancel {
+      @extend .btn;
+    }
+  }
+}
+
+.sweet-overlay {
+  background: url(../images/outgain_login_cover.png) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.modal {
+  @include box-shadow(0px, 0px, 30px, rgba(0,0,0,0.3));
+}
+
+p.howtoplay {
+  margin-bottom: 20px;
+}

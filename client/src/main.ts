@@ -8,6 +8,11 @@ import * as $ from 'jquery'
 var userPanel = new UserPanel("#user-id", "#user-resources")
 
 $(function() {
+    sweetalert.setDefaults({
+      closeOnConfirm: false,
+      customClass: "modal",
+      html: true, });
+
     if (!userPanel.isUserAuthenticated()) {
       ModalPopUp.mainModal()
     } else {
