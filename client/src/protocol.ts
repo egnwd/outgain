@@ -3,6 +3,7 @@
 export interface IEntity {
     id: number
     name?: string
+    sprite?: string
     color: string
     x: number
     y: number

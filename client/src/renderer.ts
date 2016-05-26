@@ -9,15 +9,10 @@ class Entity {
     constructor(state: IEntity) {
         this.previous = state
         this.current = state
-        if (this.current.name != null) {
-            this.setupImage()
+        if (this.current.sprite != null) {
+            this.img = new Image()
+            this.img.src = this.current.sprite
         }
-    }
-
-    setupImage() {
-        this.img = new Image()
-        var col = this.current.color.replace('#', '-')
-        this.img.src = "/images/sprite" + col + ".png"
     }
 
     pushState(state: IEntity, interpolation: number) {
@@ -38,20 +33,23 @@ class Entity {
         ctx.save()
         ctx.translate(x * scale, y * scale)
 
-        if (name != null) {
-            var size = radius * scale * 2
-            ctx.drawImage(this.img, -size / 2, -size / 2, size, size)
-            ctx.scale(2, 2)
-            ctx.textAlign = "center"
-            ctx.textBaseline = 'middle'
-            ctx.fillStyle = "black"
-            ctx.fillText(name, 0, 0)
-        } else {
+        if (this.current.sprite == "") {
             ctx.beginPath()
             ctx.arc(0, 0, radius * scale, 0, 2 * Math.PI, false)
             ctx.fillStyle = color
             ctx.fill()
             ctx.closePath()
+        } else {
+            var size = radius * scale * 2
+            ctx.drawImage(this.img, -size / 2, -size / 2, size, size)
+        }
+
+        if (name != null) {
+            ctx.scale(2, 2)
+            ctx.textAlign = "center"
+            ctx.textBaseline = 'middle'
+            ctx.fillStyle = "black"
+            ctx.fillText(name, 0, 0)
         }
 
         ctx.restore()
