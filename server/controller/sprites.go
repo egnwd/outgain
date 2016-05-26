@@ -12,12 +12,12 @@ import (
 )
 
 func SpriteHandler(w http.ResponseWriter, r *http.Request, staticDir string) {
-  // Check if the image exists, if so simply serve that image
+	// Check if the image exists, if so simply serve that image
 	outputPath := staticDir + r.URL.String()
-  if _, err := os.Stat(outputPath); err == nil {
-	  http.ServeFile(w, r, outputPath)
-    return
-  }
+	if _, err := os.Stat(outputPath); err == nil {
+		http.ServeFile(w, r, outputPath)
+		return
+	}
 
 	// Load the base image from the file path, converted for OS
 	path, err := filepath.Abs("client/images/sprite.png")
