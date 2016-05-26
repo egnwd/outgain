@@ -1,37 +1,5 @@
 package engine
 
-type EntityList []Entity
-
-func (list EntityList) Len() int {
-	return len(list)
-}
-
-func (list EntityList) Less(i, j int) bool {
-	return list[i].Base().Left() < list[j].Base().Left()
-}
-
-func (list EntityList) Swap(i, j int) {
-	list[i], list[j] = list[j], list[i]
-}
-
-func (list EntityList) Insert(entity Entity) EntityList {
-	result := append(list, entity)
-
-	for i := result.Len() - 1; i > 0 && result.Less(i, i-1); i-- {
-		result.Swap(i-1, i)
-	}
-
-	return result
-}
-
-func (list EntityList) Sort() {
-	for i := 1; i < list.Len(); i++ {
-		for j := i; j > 0 && list.Less(j, j-1); j-- {
-			list.Swap(j-1, j)
-		}
-	}
-}
-
 func XOverlap(a, b Entity) bool {
 	return a.Base().Right() > b.Base().Left() &&
 		b.Base().Right() > a.Base().Left()
@@ -131,15 +99,4 @@ func collisionsNarrowPhase(in <-chan Collision) <-chan Collision {
 // list until the output channel is complete
 func (list EntityList) Collisions() <-chan Collision {
 	return collisionsNarrowPhase(collisionsBroadPhase(list))
-}
-
-func (list EntityList) Filter(filter func(Entity) bool) EntityList {
-	count := list.Len()
-	for i := 0; i < count; i++ {
-		if !filter(list[i]) {
-			list.Swap(i, count-1)
-			count--
-		}
-	}
-	return list[:count]
 }

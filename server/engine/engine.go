@@ -107,35 +107,49 @@ func (engine *Engine) tick() {
 		engine.AddEntity(RandomResource)
 	}
 
-	for _, entity := range engine.entities {
-		entity.Tick(dt)
-	}
+	engine.entities.Tick(dt)
+	engine.collisionDetection()
 
-	engine.entities.Sort()
+	message := fmt.Sprintf("Test - %s\n", now.String())
+	engine.events = append(engine.events, message)
+}
+
+func (engine *Engine) collisionDetection() {
+	for _, entity := range engine.entities {
+		entity.Base().dying = false
+		entity.Base().radiusIncrement = 0
+	}
 
 	for collision := range engine.entities.Collisions() {
 		a, b := collision.a, collision.b
 		diff := a.Base().Radius - b.Base().Radius
 		if diff > eatRadiusDifference {
-			a.Base().Radius += b.Base().Radius
-			b.Base().Dying = true
+			a.Base().radiusIncrement += b.Base().Radius + b.Base().radiusIncrement
+			b.Base().dying = true
 		} else if diff < -eatRadiusDifference {
-			b.Base().Radius += a.Base().Radius
-			a.Base().Dying = true
+			b.Base().radiusIncrement += a.Base().Radius + a.Base().radiusIncrement
+			a.Base().dying = true
 		}
 	}
 
 	engine.entities = engine.entities.Filter(func(entity Entity) bool {
-		return !entity.Base().Dying
+		return !entity.Base().dying
 	})
 
+	var resetEngine = false
 	for _, entity := range engine.entities {
+		entity.Base().Radius += entity.Base().radiusIncrement
+
 		if entity.Base().Radius > gridSize/2 {
-			engine.Reset()
-			break
+			resetEngine = true
 		}
 	}
 
-	message := fmt.Sprintf("Test - %s\n", now.String())
-	engine.events = append(engine.events, message)
+	// Changing the radius of entities changes their left coordinate,
+	// so sort the list again to maintain the invariant
+	engine.entities.Sort()
+
+	if resetEngine {
+		engine.Reset()
+	}
 }
