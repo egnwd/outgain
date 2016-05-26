@@ -15,32 +15,36 @@ func SpriteHandler(w http.ResponseWriter, r *http.Request, staticDir string) {
 	// Check if the image exists, otherwise create it
 	outputPath := staticDir + r.URL.String()
 	if _, err := os.Stat(outputPath); err != nil {
-		createSprite(outputPath, r.URL.String())
+		err := createSprite(staticDir, r.URL.String())
+		if err != nil {
+			log.Println(err)
+		}
 	}
 	http.ServeFile(w, r, outputPath)
 }
 
-func createSprite(outputPath string, url string) {
+func createSprite(staticDir string, url string) error {
+	outputPath := staticDir + url
 	// Load the base image from the file path, converted for OS
-	path, err := filepath.Abs("client/images/sprite.png")
+	path, err := filepath.Abs(staticDir + "/images/sprite.png")
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 	reader, err := os.Open(path)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 	defer reader.Close()
 	img, _, err := image.Decode(reader)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 
 	// Find the bounds of the image and create a new one of the same size
 	bounds := img.Bounds()
 	minX, minY := bounds.Min.X, bounds.Min.Y
 	maxX, maxY := bounds.Max.X, bounds.Max.Y
-	colouredSprite := image.NewNRGBA(image.Rect(minX, minY, maxX, maxY))
+	colouredSprite := image.NewNRGBA(bounds)
 	// Used for manipulating the new image's pixel RGBA values
 	stride := colouredSprite.Stride
 	pixels := colouredSprite.Pix
@@ -49,7 +53,7 @@ func createSprite(outputPath string, url string) {
 	col := strings.TrimSuffix(strings.SplitAfter(url, "-")[1], ".png")
 	colVal, err := strconv.ParseUint(col, 16, 32)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 	// Get individual RGB values from hex colour code
 	r1 := uint8((colVal & 0xff0000) >> 16)
@@ -95,11 +99,11 @@ func createSprite(outputPath string, url string) {
 	}
 
 	// Write new image to file and serve it
-	log.Printf(outputPath)
 	writer, err := os.Create(outputPath)
 	if err != nil {
 		log.Println(err)
 	}
 	defer writer.Close()
 	png.Encode(writer, colouredSprite)
+	return nil
 }
