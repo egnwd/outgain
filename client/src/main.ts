@@ -22,6 +22,11 @@ $(function() {
 })
 
 $(function() {
+    // Do not render the game if the user is not authenticated
+    if (!userPanel.isUserAuthenticated()) {
+        return
+    }
+  
     let gameLog = document.getElementById("game-log")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
 
