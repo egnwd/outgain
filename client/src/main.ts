@@ -1,7 +1,7 @@
 /// <reference path="jquery.d.ts" />
 /// <reference path="sse.d.ts" />
 
-import { IWorldUpdate } from "./protocol";
+import { IWorldState } from "./protocol";
 import { GameRenderer } from './renderer'
 import * as $ from 'jquery'
 
@@ -12,10 +12,11 @@ $(function() {
 
     let source = new EventSource("/updates")
 
-    source.onmessage = function(event) {
-        let data = JSON.parse(event.data)
-        renderer.onUpdate(<IWorldUpdate>data)
-    }
+    source.addEventListener("state", function(event) {
+        let data = JSON.parse((<sse.IOnMessageEvent>event).data)
+        renderer.pushState(<IWorldState>data)
+    })
+
     window.addEventListener("resize", () => renderer.onResize())
     window.requestAnimationFrame(function draw() {
         renderer.render()

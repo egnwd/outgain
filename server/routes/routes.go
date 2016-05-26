@@ -6,7 +6,7 @@ import (
 
 	"github.com/egnwd/outgain/server/controller"
 	"github.com/egnwd/outgain/server/engine"
-	"github.com/egnwd/outgain/server/logger"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -30,5 +30,5 @@ func GetHandler(static string, engine *engine.Engine) http.Handler {
 	get.PathPrefix("/").Handler(
 		http.StripPrefix("/", http.FileServer(http.Dir(static))))
 
-	return logger.ServerLogger(os.Stdout, mux)
+	return handlers.LoggingHandler(os.Stdout, mux)
 }

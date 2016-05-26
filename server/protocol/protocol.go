@@ -11,7 +11,12 @@ type Entity struct {
 	Radius float64 `json:"radius"`
 }
 
-type WorldUpdate struct {
+type WorldState struct {
 	Time     uint64   `json:"time"`
 	Entities []Entity `json:"entities"`
+}
+
+type Event struct {
+	Type string
+	Data interface{}
 }

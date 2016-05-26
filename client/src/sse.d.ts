@@ -16,13 +16,14 @@ declare module sse {
         onmessage: (event: IOnMessageEvent) => void;
         onerror: Function;
         close: () => void;
+        addEventListener(type: string, listener: EventListener, useCapture?: boolean): void;
     }
     
     interface IEventSourceInit {
         withCredentials?: boolean;
     }
     
-    interface IOnMessageEvent {
+    interface IOnMessageEvent extends Event {
         data: string;
     }
 }
