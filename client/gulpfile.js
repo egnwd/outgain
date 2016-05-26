@@ -16,9 +16,14 @@ gulp.task('scripts', ['typings'], function () {
         .add(__dirname + '/src/main.ts')
         .plugin(tsify)
         .bundle()
+        .on('error', logError)
         .pipe(source('bundle.js'))
         .pipe(gulp.dest(targetDir + '/js'));
 });
+
+var logError = function logError(error) {
+  process.stderr.write(error + '\n');
+};
 
 gulp.task('typings', function(){
     return gulp.src('./typings.json')
