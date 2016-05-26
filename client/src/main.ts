@@ -1,6 +1,6 @@
 /// <reference path="sse.d.ts" />
 
-import { IWorldState } from "./protocol";
+import { IWorldState, ILogEvent } from "./protocol";
 import { GameRenderer } from './renderer'
 import { UserPanel } from './gameUI'
 import * as $ from 'jquery'
@@ -38,11 +38,26 @@ $(function() {
         let data = JSON.parse((<sse.IOnMessageEvent>event).data)
 
         let update = <IWorldState>data
-
+	
+	
       	for (let logEvent of update.logEvents) {
-            let update = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
-            gameLog.innerHTML = gameLog.innerHTML + logEvent
-            if (update) {
+          let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
+	   //let test = <ILogEvent>update.logEvents[0]
+	    switch (logEvent.logType) {
+	    case 0: 
+		gameLog.innerHTML = gameLog.innerHTML +"\n\n\n\n\n\nA new game has started, good luck!\n"
+	    case 1:
+		gameLog.innerHTML = gameLog.innerHTML + "Yum, creature " 
+		    + logEvent.protagID + " ate a resource\n";
+		break;
+	    case 2: 
+		gameLog.innerHTML = gameLog.innerHTML + "Creature "
+		    + logEvent.protagID + " ate creature" + logEvent.antagID + "\n"
+		break;
+	    //defualt:
+	//	gameLog.innerHTML = gameLog.innerHTML + update.logEvents[0].protagID
+	    }
+            if (scrollUpdate) {
               gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight;
             }
       	}

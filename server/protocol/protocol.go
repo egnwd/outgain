@@ -11,10 +11,16 @@ type Entity struct {
 	Radius float64 `json:"radius"`
 }
 
+type LogEvent struct {
+	LogType  int    `json:"logType"`
+	ProtagID uint64 `json:"protagID"`
+	AntagID  uint64 `json:"antagID"`
+}
+
 type WorldState struct {
-	Time      uint64   `json:"time"`
-	Entities  []Entity `json:"entities"`
-	LogEvents []string `json:"logEvents"`
+	Time      uint64     `json:"time"`
+	Entities  []Entity   `json:"entities"`
+	LogEvents []LogEvent `json:"logEvents"`
 }
 
 type Event struct {

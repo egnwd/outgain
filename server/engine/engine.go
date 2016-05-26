@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/egnwd/outgain/server/protocol"
@@ -19,12 +18,27 @@ type Engine struct {
 	Events <-chan protocol.Event
 
 	eventsOut         chan<- protocol.Event
-	events            []string
+	logEvents         []LogEvent
 	tickInterval      time.Duration
 	entities          EntityList
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextId            <-chan uint64
+}
+
+type LogEvent struct {
+	logType  int    // e.g. 0 for new game, 1 for creature -> resource etc
+	protagID uint64 // ID of the protagonist (if any)
+	antagID  uint64 // ID of the antagonist (if any)
+}
+
+// Refactor?
+func (logEvent *LogEvent) Serialize() protocol.LogEvent {
+	return protocol.LogEvent{
+		LogType:  logEvent.logType,
+		ProtagID: logEvent.protagID,
+		AntagID:  logEvent.antagID,
+	}
 }
 
 func NewEngine() (engine *Engine) {
@@ -58,14 +72,12 @@ func (engine *Engine) Reset() {
 	for i := 0; i < initialCreatureCount; i++ {
 		engine.AddEntity(RandomCreature)
 	}
-	clearGameLog(&engine.events)
+	clearGameLog(&engine.logEvents)
 }
 
-// clearGameLog should clear the current game-log (or make it clear that a new game has begun
-func clearGameLog(events *[]string) {
-	// This is temporary before I deal with the front-end
-	message := fmt.Sprintf("A new game has begun!\n\n\n")
-	*events = append(*events, message)
+// clearGameLog should clear the current game-log (or make it clear that a new game has begun)
+func clearGameLog(logEvents *[]LogEvent) {
+	*logEvents = append(*logEvents, LogEvent{0, 0, 0})
 }
 
 func (engine *Engine) Run() {
@@ -78,7 +90,7 @@ func (engine *Engine) Run() {
 			Data: engine.Serialize(),
 		}
 
-		engine.events = []string{}
+		engine.logEvents = []LogEvent{}
 
 		time.Sleep(engine.tickInterval)
 
@@ -92,10 +104,15 @@ func (engine *Engine) Serialize() protocol.WorldState {
 		entities[i] = entity.Serialize()
 	}
 
+	lEvents := make([]protocol.LogEvent, len(engine.logEvents))
+	for i, logEvent := range engine.logEvents {
+		lEvents[i] = logEvent.Serialize()
+	}
+
 	return protocol.WorldState{
 		Time:      uint64(engine.lastTick.UnixNano()) / 1e6,
 		Entities:  entities,
-		LogEvents: engine.events,
+		LogEvents: lEvents,
 	}
 }
 
@@ -104,20 +121,16 @@ func (engine *Engine) AddEntity(builder func(uint64) Entity) {
 	engine.entities = engine.entities.Insert(entity)
 }
 
-// addEvent adds events which are eventually added to the gameLog
-// TODO: Refactor to send minimal information with inference on client-side
-func addEvent(events *[]string, a, b Entity) {
+// addLogEvent adds to  logEvents which are eventually added to the gameLog
+// Where is the best place to document the number -> eventType mappings?
+func addLogEvent(logEvents *[]LogEvent, a, b Entity) {
 	switch b.(type) {
 	case nil:
 		// I don't know Go well enough to know what to put here, open to suggestions
 	case *Resource:
-		message := fmt.Sprintf("Yum, creature %d ate a resource\n", a.Base().Id)
-		*events = append(*events, message)
+		*logEvents = append(*logEvents, LogEvent{1, a.Base().Id, 0})
 	case *Creature:
-		message := fmt.Sprintf("Creature number %d ate creature %d\n", a.Base().Id, b.Base().Id)
-		*events = append(*events, message)
-	}
-
+		*logEvents = append(*logEvents, LogEvent{2, a.Base().Id, b.Base().Id})
 	}
 }
 
@@ -151,11 +164,11 @@ func (engine *Engine) collisionDetection() {
 		if diff > eatRadiusDifference {
 			a.Base().radiusIncrement += b.Base().Radius + b.Base().radiusIncrement
 			b.Base().dying = true
-			addEvent(&engine.events, a, b)
+			addLogEvent(&engine.logEvents, a, b)
 		} else if diff < -eatRadiusDifference {
 			b.Base().radiusIncrement += a.Base().Radius + a.Base().radiusIncrement
 			a.Base().dying = true
-			addEvent(&engine.events, b, a)
+			addLogEvent(&engine.logEvents, b, a)
 		}
 	}
 

@@ -9,8 +9,14 @@ export interface IEntity {
     radius: number
 }
 
+export interface ILogEvent {
+    logType: number
+    protagID: number
+    antagID: number
+}
+
 export interface IWorldState {
     time: number
     entities: IEntity[]
-    logEvents : string[]
+    logEvents: ILogEvent[]
 }
