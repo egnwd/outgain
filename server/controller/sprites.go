@@ -3,6 +3,7 @@ package controller
 import (
 	"image"
 	"image/png"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -15,7 +16,25 @@ func SpriteHandler(w http.ResponseWriter, r *http.Request, staticDir string) {
 	// Check if the image exists, otherwise create it
 	outputPath := staticDir + r.URL.String()
 	if _, err := os.Stat(outputPath); err != nil {
-		err := createSprite(staticDir, r.URL.String())
+		// Open a reader for the specified file
+		path, err := filepath.Abs(staticDir + "/images/sprite.png")
+		if err != nil {
+			log.Println(err)
+		}
+		reader, err := os.Open(path)
+		if err != nil {
+			log.Println(err)
+		}
+		defer reader.Close()
+
+		// Open a writer for the specified output
+		writer, err := os.Create(outputPath)
+		if err != nil {
+			log.Println(err)
+		}
+		defer writer.Close()
+
+		err = createSprite(reader, writer, r.URL.String())
 		if err != nil {
 			log.Println(err)
 		}
@@ -23,18 +42,7 @@ func SpriteHandler(w http.ResponseWriter, r *http.Request, staticDir string) {
 	http.ServeFile(w, r, outputPath)
 }
 
-func createSprite(staticDir string, url string) error {
-	outputPath := staticDir + url
-	// Load the base image from the file path, converted for OS
-	path, err := filepath.Abs(staticDir + "/images/sprite.png")
-	if err != nil {
-		return err
-	}
-	reader, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer reader.Close()
+func createSprite(reader io.Reader, writer io.Writer, url string) error {
 	img, _, err := image.Decode(reader)
 	if err != nil {
 		return err
@@ -99,11 +107,6 @@ func createSprite(staticDir string, url string) error {
 	}
 
 	// Write new image to file and serve it
-	writer, err := os.Create(outputPath)
-	if err != nil {
-		log.Println(err)
-	}
-	defer writer.Close()
 	png.Encode(writer, colouredSprite)
 	return nil
 }
