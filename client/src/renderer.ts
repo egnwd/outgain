@@ -39,7 +39,8 @@ class Entity {
         ctx.translate(x * scale, y * scale)
 
         if (name != null) {
-            ctx.drawImage(this.img, -(this.img.width / 2), -(this.img.height / 2))
+            var size = radius * scale * 2
+            ctx.drawImage(this.img, -size / 2, -size / 2, size, size)
             ctx.scale(2, 2)
             ctx.textAlign = "center"
             ctx.textBaseline = 'middle'
