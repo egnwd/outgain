@@ -61,12 +61,11 @@ func (engine *Engine) Reset() {
 	clearGameLog(&engine.events)
 }
 
-// clearGameLog should clear the current gmae-log (or make it clear that a new game has begun
+// clearGameLog should clear the current game-log (or make it clear that a new game has begun
 func clearGameLog(events *[]string) {
 	// This is temporary before I deal with the front-end
 	message := fmt.Sprintf("A new game has begun!\n\n\n")
 	*events = append(*events, message)
-
 }
 
 func (engine *Engine) Run() {
@@ -105,17 +104,21 @@ func (engine *Engine) AddEntity(builder func(uint64) Entity) {
 	engine.entities = engine.entities.Insert(entity)
 }
 
+// addEvent adds events which are eventually added to the gameLog
+// TODO: Refactor to send minimal information with inference on client-side
 func addEvent(events *[]string, a, b Entity) {
-
 	switch b.(type) {
+	case nil:
+		// I don't know Go well enough to know what to put here, open to suggestions
 	case *Resource:
 		message := fmt.Sprintf("Yum, creature %d ate a resource\n", a.Base().Id)
 		*events = append(*events, message)
 	case *Creature:
-		message := fmt.Sprintf("Creature number %d ate %d\n", a.Base().Id, b.Base().Id)
+		message := fmt.Sprintf("Creature number %d ate creature %d\n", a.Base().Id, b.Base().Id)
 		*events = append(*events, message)
 	}
 
+	}
 }
 
 func (engine *Engine) tick() {
