@@ -12,13 +12,15 @@ import (
 )
 
 func SpriteHandler(w http.ResponseWriter, r *http.Request, staticDir string) {
-	// Check if the image exists, if so simply serve that image
+	// Check if the image exists, otherwise create it
 	outputPath := staticDir + r.URL.String()
-	if _, err := os.Stat(outputPath); err == nil {
-		http.ServeFile(w, r, outputPath)
-		return
+	if _, err := os.Stat(outputPath); err != nil {
+		createSprite(outputPath, r.URL.String())
 	}
+	http.ServeFile(w, r, outputPath)
+}
 
+func createSprite(outputPath string, url string) {
 	// Load the base image from the file path, converted for OS
 	path, err := filepath.Abs("client/images/sprite.png")
 	if err != nil {
@@ -44,7 +46,7 @@ func SpriteHandler(w http.ResponseWriter, r *http.Request, staticDir string) {
 	pixels := colouredSprite.Pix
 
 	// Extract hex code of colour from the URL and convert to an integer
-	col := strings.TrimSuffix(strings.SplitAfter(r.URL.String(), "-")[1], ".png")
+	col := strings.TrimSuffix(strings.SplitAfter(url, "-")[1], ".png")
 	colVal, err := strconv.ParseUint(col, 16, 32)
 	if err != nil {
 		log.Println(err)
@@ -100,5 +102,4 @@ func SpriteHandler(w http.ResponseWriter, r *http.Request, staticDir string) {
 	}
 	defer writer.Close()
 	png.Encode(writer, colouredSprite)
-	http.ServeFile(w, r, outputPath)
 }
