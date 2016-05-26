@@ -1,7 +1,8 @@
 client/dist
 client/node_modules
+client/typings
 server/server
-app/
+app
 slug.tgz
 .tags
 .tags1

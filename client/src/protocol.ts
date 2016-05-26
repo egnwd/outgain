@@ -12,4 +12,5 @@ export interface IEntity {
 export interface IWorldState {
     time: number
     entities: IEntity[]
+    logEvents : string[]
 }

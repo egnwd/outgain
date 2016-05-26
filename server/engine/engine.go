@@ -1,11 +1,13 @@
 package engine
 
 import (
-	"github.com/egnwd/outgain/server/protocol"
-	"github.com/lucasb-eyer/go-colorful"
+	"fmt"
 	"math"
 	"math/rand"
 	"time"
+
+	"github.com/egnwd/outgain/server/protocol"
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 const gridSize float64 = 10
@@ -19,6 +21,7 @@ type Engine struct {
 	Events <-chan protocol.Event
 
 	eventsOut         chan<- protocol.Event
+	events            []string
 	tickInterval      time.Duration
 	entities          []Entity
 	lastTick          time.Time
@@ -69,6 +72,8 @@ func (engine *Engine) Run() {
 			Data: engine.Serialize(),
 		}
 
+		engine.events = []string{}
+
 		time.Sleep(engine.tickInterval)
 
 		engine.tick()
@@ -84,6 +89,7 @@ func (engine *Engine) Serialize() protocol.WorldState {
 	return protocol.WorldState{
 		Time:     uint64(engine.lastTick.UnixNano()) / 1e6,
 		Entities: entities,
+                LogEvents: engine.events,
 	}
 }
 
@@ -106,6 +112,9 @@ func (engine *Engine) tick() {
 	for _, entity := range engine.entities {
 		entity.Tick(dt)
 	}
+
+	message := fmt.Sprintf("Test - %s\n", now.String())
+	engine.events = append(engine.events, message)
 }
 
 type Creature struct {

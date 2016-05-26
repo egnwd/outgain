@@ -33,8 +33,8 @@ func init() {
 	}
 }
 
-// UserSignIn signs the user in and sets up a session
-func UserSignIn(w http.ResponseWriter, r *http.Request) {
+// UserLogIn signs the user in and sets up a session
+func UserLogIn(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, sessionName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -97,4 +97,15 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 	u := fmt.Sprintf("http://%s/", r.Host)
 
 	http.Redirect(w, r, u, http.StatusFound)
+}
+
+// CurrentUser returns the username of the session's user
+func CurrentUser(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, sessionName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
+
+	fmt.Fprint(w, session.Values[usernameKey])
 }

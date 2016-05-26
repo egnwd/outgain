@@ -5,16 +5,24 @@ var browserify = require('browserify');
 var tsify = require('tsify');
 var source = require('vinyl-source-stream');
 var sass = require('gulp-sass');
-
+var gulpTypings = require('gulp-typings');
+var moduleImporter = require('sass-module-importer');
 
 var targetDir = __dirname + '/dist';
 
-gulp.task('scripts', function () {
-    return browserify(__dirname + '/src/main.ts')
+gulp.task('scripts', ['typings'], function () {
+    return browserify()
+        .add(__dirname + '/typings/index.d.ts')
+        .add(__dirname + '/src/main.ts')
         .plugin(tsify)
         .bundle()
         .pipe(source('bundle.js'))
         .pipe(gulp.dest(targetDir + '/js'));
+});
+
+gulp.task('typings', function(){
+    return gulp.src('./typings.json')
+        .pipe(gulpTypings());
 });
 
 gulp.task('styles', function () {

@@ -1,0 +1,59 @@
+body {
+  font-family: $fontStack;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	color: $heading-colour;
+	font-weight: bold;
+	text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+h1 {
+  font-size: 200%;
+  margin: 0.5em 1.5em 1.2em;
+}
+
+h2 {
+  font-size: 175%;
+  margin: 0.5em 1em 1em;
+}
+
+h3 {
+  font-size: 150%;
+  margin: 0.2em 0.2em 0.5em;
+}
+
+/* h4, h5, h6 seldom used */
+
+p {
+  margin-top: 20px;
+  padding: 10px;
+
+  &.center {
+    text-align: center;
+  }
+
+  &.right {
+    text-align: right;
+  }
+
+  &.justify {
+    text-align: justify;
+  }
+}
+
+a {
+  transition: color .4s;
+  color: $link-colour;
+  text-decoration: none;
+
+  &:link,
+  &:visited { color: $link-colour; }
+  &:hover   { color: $link-hover-colour; }
+  &:active  {
+    transition: color .3s;
+    color: $link-active-colour;
+  }
+
+}
