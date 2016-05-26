@@ -103,9 +103,13 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 func CurrentUser(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, sessionName)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusForbidden)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Fprint(w, session.Values[usernameKey])
+	if username, ok := session.Values[usernameKey]; ok {
+		fmt.Fprint(w, username)
+	} else {
+		http.Error(w, "User not logged in", http.StatusForbidden)
+	}
 }
