@@ -12,9 +12,15 @@ import (
 )
 
 func SpriteHandler(w http.ResponseWriter, r *http.Request, staticDir string) {
-	// Load the image from the file path, converted for OS
+  // Check if the image exists, if so simply serve that image
+	outputPath := staticDir + r.URL.String()
+  if _, err := os.Stat(outputPath); err == nil {
+	  http.ServeFile(w, r, outputPath)
+    return
+  }
+
+	// Load the base image from the file path, converted for OS
 	path, err := filepath.Abs("client/images/sprite.png")
-	// Generate output image with corresponding id
 	if err != nil {
 		log.Println(err)
 	}
@@ -23,11 +29,11 @@ func SpriteHandler(w http.ResponseWriter, r *http.Request, staticDir string) {
 		log.Println(err)
 	}
 	defer reader.Close()
-	// Convert the IO reader to an image
 	img, _, err := image.Decode(reader)
 	if err != nil {
 		log.Println(err)
 	}
+
 	// Find the bounds of the image and create a new one of the same size
 	bounds := img.Bounds()
 	minX, minY := bounds.Min.X, bounds.Min.Y
@@ -85,8 +91,8 @@ func SpriteHandler(w http.ResponseWriter, r *http.Request, staticDir string) {
 			}
 		}
 	}
-	// Write image to file
-	outputPath := staticDir + r.URL.String()
+
+	// Write new image to file and serve it
 	log.Printf(outputPath)
 	writer, err := os.Create(outputPath)
 	if err != nil {
