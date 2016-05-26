@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"time"
@@ -158,6 +159,7 @@ func (engine *Engine) tick() {
 			c.dy *= -1
 		}
 	}
-	engine.events = append(engine.events, "Test\n")
-	engine.events = append(engine.events, "DoubleTest\n")
+
+	message := fmt.Sprintf("Test - %s\n", now.String())
+	engine.events = append(engine.events, message)
 }

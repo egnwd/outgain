@@ -144,9 +144,11 @@ $(function() {
         let update = <protocol.IWorldUpdate>data
 
       	for (let logEvent of update.logEvents) {
-      	    gameLog.innerHTML = gameLog.innerHTML + logEvent
-
-            gameLog.scrollTop = gameLog.scrollHeight;
+            let update = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
+            gameLog.innerHTML = gameLog.innerHTML + logEvent
+            if (update) {
+              gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight;
+            }
       	}
 
         let interpolation = 1
@@ -214,7 +216,6 @@ class UserPanel {
 }
 
 $(function() {
-
     function isUserAuthenticated() {
       let cookie = document.cookie.match(/^(.*;)? session=[^;]+(.*)?$/)
         return cookie != null
