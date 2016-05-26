@@ -1,10 +1,11 @@
 package engine
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/egnwd/outgain/server/protocol"
-	"github.com/lucasb-eyer/go-colorful"
+
 )
 
 const gridSize float64 = 10
