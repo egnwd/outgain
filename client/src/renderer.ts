@@ -9,7 +9,9 @@ class Entity {
     constructor(state: IEntity) {
         this.previous = state
         this.current = state
-        this.setupImage()
+        if (this.current.name != null) {
+            this.setupImage()
+        }
     }
 
     setupImage() {
@@ -36,14 +38,19 @@ class Entity {
         ctx.save()
         ctx.translate(x * scale, y * scale)
 
-        ctx.drawImage(this.img, -(this.img.width / 2), -(this.img.height / 2))
-
         if (name != null) {
+            ctx.drawImage(this.img, -(this.img.width / 2), -(this.img.height / 2))
             ctx.scale(2, 2)
             ctx.textAlign = "center"
             ctx.textBaseline = 'middle'
             ctx.fillStyle = "black"
             ctx.fillText(name, 0, 0)
+        } else {
+            ctx.beginPath()
+            ctx.arc(0, 0, radius * scale, 0, 2 * Math.PI, false)
+            ctx.fillStyle = color
+            ctx.fill()
+            ctx.closePath()
         }
 
         ctx.restore()
