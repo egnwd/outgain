@@ -113,7 +113,8 @@ func (engine *Engine) tick() {
 
 	engine.entities.Sort()
 
-	engine.entities.Collisions(func(a, b Entity) {
+	for collision := range engine.entities.Collisions() {
+		a, b := collision.a, collision.b
 		diff := a.Base().Radius - b.Base().Radius
 		if diff > eatRadiusDifference {
 			a.Base().Radius += b.Base().Radius
@@ -122,7 +123,7 @@ func (engine *Engine) tick() {
 			b.Base().Radius += a.Base().Radius
 			a.Base().Dying = true
 		}
-	})
+	}
 
 	engine.entities = engine.entities.Filter(func(entity Entity) bool {
 		return !entity.Base().Dying
