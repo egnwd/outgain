@@ -9,14 +9,13 @@ class Entity {
     constructor(state: IEntity) {
         this.previous = state
         this.current = state
+        this.setupImage()
     }
 
-    setupImage(ctx: CanvasRenderingContext2D) {
+    setupImage() {
         this.img = new Image()
-        this.img.src = "/images/sprite" + this.current.color + ".png"
-        this.img.onload = function() {
-            ctx.drawImage(this.img, -(this.img.width / 2), -(this.img.height / 2))
-        }
+        var col = this.current.color.replace('#', '-')
+        this.img.src = "/images/sprite" + col + ".png"
     }
 
     pushState(state: IEntity, interpolation: number) {
@@ -37,7 +36,7 @@ class Entity {
         ctx.save()
         ctx.translate(x * scale, y * scale)
 
-        this.setupImage(ctx)
+        ctx.drawImage(this.img, -(this.img.width / 2), -(this.img.height / 2))
 
         if (name != null) {
             ctx.scale(2, 2)

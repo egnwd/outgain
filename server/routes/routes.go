@@ -19,7 +19,10 @@ func GetHandler(static string, engine *engine.Engine) http.Handler {
 
 	get.HandleFunc("/ping", controller.PingHandler)
 
-  get.HandleFunc("/images/sprite{id:#[0-9a-fA-F]+}.png", controller.SpriteHandler)
+	get.HandleFunc("/images/sprite{id:-[0-9a-fA-F]+}.png",
+		func(w http.ResponseWriter, r *http.Request) {
+			controller.SpriteHandler(w, r, static)
+		})
 
 	get.HandleFunc("/login", controller.UserLogIn)
 	get.HandleFunc("/logout", controller.Logout)
