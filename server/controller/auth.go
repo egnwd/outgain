@@ -99,6 +99,22 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, u, http.StatusFound)
 }
 
+// Logout deletes the user session
+func Logout(w http.ResponseWriter, r *http.Request) {
+	session, err := store.Get(r, sessionName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	session.Options.MaxAge = -1
+	sessions.Save(r, w)
+
+	u := fmt.Sprintf("http://%s/", r.Host)
+
+	http.Redirect(w, r, u, http.StatusFound)
+}
+
 // CurrentUser returns the username of the session's user
 func CurrentUser(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, sessionName)
