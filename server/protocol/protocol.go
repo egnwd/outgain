@@ -12,9 +12,9 @@ type Entity struct {
 }
 
 type WorldState struct {
-	Time     uint64   `json:"time"`
-	Entities []Entity `json:"entities"`
-	LogEvents []string   `json:"logEvents"`
+	Time      uint64   `json:"time"`
+	Entities  []Entity `json:"entities"`
+	LogEvents []string `json:"logEvents"`
 }
 
 type Event struct {

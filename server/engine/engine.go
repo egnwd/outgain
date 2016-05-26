@@ -87,9 +87,9 @@ func (engine *Engine) Serialize() protocol.WorldState {
 	}
 
 	return protocol.WorldState{
-		Time:     uint64(engine.lastTick.UnixNano()) / 1e6,
-		Entities: entities,
-                LogEvents: engine.events,
+		Time:      uint64(engine.lastTick.UnixNano()) / 1e6,
+		Entities:  entities,
+		LogEvents: engine.events,
 	}
 }
 
