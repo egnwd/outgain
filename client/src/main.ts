@@ -45,28 +45,41 @@ class UserPanel {
     constructor(usernameEl: string, resourcesEl: string) {
       this.usernameEl = usernameEl
       this.resourcesEl = resourcesEl
+      this.username = this.getUserID()
     }
 
     public setUserID() {
-      let el = $(this.usernameEl)
-      var username = ""
+      $(this.usernameEl).html(this.username)
+    }
 
-      $.ajax({url: "/currentUser", success: function(result){
-        username = result
-        el.html(result)
-      }});
+    private getUserID() {
+      var request = new XMLHttpRequest();
+      request.open('GET', '/currentUser', false);
+      request.send(null);
 
-      this.username = username
+      let username = ""
+
+      if (request.status == 200) {
+        console.log("User: " + request.responseText);
+        username = request.responseText
+      }
+      if (request.status == 401) {
+        console.log("Not logged in");
+        username = ""
+      }
+
+      return username
+    }
+
+    public isUserAuthenticated() {
+      return this.username != ""
     }
 }
 
 $(function() {
-    function isUserAuthenticated() {
-      let cookie = document.cookie.match(/^(.*; )?session=[^;]+(.*)?$/)
-        return cookie != null
-    }
+    var userPanel = new UserPanel("#user-id", "#user-resources")
 
-    if (!isUserAuthenticated()) {
+    if (!userPanel.isUserAuthenticated()) {
       sweetalert({
           title: "<h1 id=\"title\"></h1>",
           text: "<a href=\"/login\" class=\"btn btn--action\">Login with Github</a>",
@@ -74,7 +87,6 @@ $(function() {
           showConfirmButton: false
       })
     } else {
-      var userPanel = new UserPanel("#user-id", "#user-resources")
       userPanel.setUserID()
     }
 })

@@ -110,6 +110,6 @@ func CurrentUser(w http.ResponseWriter, r *http.Request) {
 	if username, ok := session.Values[usernameKey]; ok {
 		fmt.Fprint(w, username)
 	} else {
-		http.Error(w, "User not logged in", http.StatusForbidden)
+		http.Error(w, "User not logged in", http.StatusUnauthorized)
 	}
 }
