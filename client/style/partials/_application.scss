@@ -28,11 +28,15 @@ hr {
   position: relative;
   display: block;
   text-align: left;
+
+  &.main {
+    padding-bottom: 10px;
+  }
 }
 
 .rounded {
   background-color: darken($background-colour, 20%);
-  @include border-radius(4px);
+  @include border-radius($container-border-radius);
   padding: 10px;
 }
 
@@ -96,7 +100,7 @@ code {
     height: 100%;
     width: 100%;
     background-color: white;
-    @include border-radius(10px);
+    @include border-radius($container-border-radius);
 }
 
 #game-sidebar {
@@ -107,23 +111,121 @@ code {
   display: flex;
   float: right;
   flex-direction: column;
-  align-content: flex-end;
   box-sizing: border-box;
 }
 
-#game-log {
+#game-log-wrapper {
   flex: 1;
   width: 95%;
-  overflow-y: scroll;
-  box-sizing: border-box;
+  position: relative;
+
+  #game-log {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    overflow-y: scroll;
+
+    &.small {
+      position: absolute;
+      height:  36px;
+      width: 100%;
+      line-height:20px;
+      bottom: 0;
+    }
+  }
+
+  #collapse-arrow {
+    display: block;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: rgba(255, 255, 255, 0.5);
+    width: auto;
+    height: 24px;
+    border-radius: 3px;
+    padding: 0 6px;
+    color: white;
+    text-align: center;
+    font-family: 'Source Sans Pro';
+    line-height: 1.25em;
+    font-weight: bold;
+
+    &.small {
+      top: auto;
+      bottom: 6px !important;
+      right:6px;
+    }
+  }
 }
 
 #game-panel {
+    @extend .container;
+    @extend .rounded;
+
+    bottom: 0;
+    padding: 0;
     width: 95%;
-    height: 100px;
-    @include border-radius(5px);
     box-sizing: border-box;
+    margin: 10px 0;
+    overflow: hidden;
+    position: relative;
+    background: darken($background-colour, 70%);
+
     * {
       text-align: center;
+    }
+
+    span#user-resources,
+    span#user-id {
+      display: inline-block;
+      position: absolute;
+      width: 50%;
+      height: 2em;
+      line-height: 1.3em;
+      font-weight: bold;
+      background-color: darken($background-colour, 80%);
+    }
+
+    span#user-id {
+      text-align: left !important;
+      border-top-left-radius: $container-border-radius;
+      padding: 4px 10px 4px 26px;
+      color: $user;
+    }
+
+    span#user-resources {
+      text-align: right !important;
+      right: 0;
+      border-top-right-radius: $container-border-radius;
+      padding: 4px 26px 4px 10px;
+      color: $resource;
+    }
+
+    span#user-resources:before {
+      content: "•";
+      font-weight: bold;
+      position: absolute;
+      right: 4px;
+      font-size: 54px;
+      color: $resource;
+    }
+
+    span#user-id:before {
+      content: "@";
+      font-weight: bold;
+      position: absolute;
+      left: 6px;
+      font-size: 24px;
+      line-height: 0.95em;
+      color: $user;
+    }
+
+    ul#game-buttons {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10px 10px;
+      li {
+        float:left;
+      }
     }
 }
