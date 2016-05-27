@@ -92,20 +92,27 @@ export class GameRenderer {
     }
 
     render() {
+        this.ctx.save()
+
         let interpolation = this.interpolation()
 
         let height = this.canvas.height
         let width = this.canvas.width
 
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        this.ctx.clearRect(0, 0, width, height)
 
         let scale = Math.min(width / 10, height / 10)
+
+        let xOffset = (width - 10 * scale) / 2
+        this.ctx.translate(xOffset, 0)
 
         this.drawGrid(10, 10, scale)
 
         for (let id in this.entities) {
             this.entities[id].render(this.ctx, scale, interpolation)
         }
+
+        this.ctx.restore()
     }
 
     drawGrid(xsize, ysize, scale: number) {
