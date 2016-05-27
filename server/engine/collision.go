@@ -97,6 +97,26 @@ func collisionsNarrowPhase(in <-chan Collision) <-chan Collision {
 // Get all pairs of Entities which collide.
 // WARNING: You must not modify the radius nor the coordinates of any entity in the
 // list until the output channel is complete
+/*
 func (list EntityList) Collisions() <-chan Collision {
 	return collisionsNarrowPhase(collisionsBroadPhase(list))
+}
+*/
+
+func (list EntityList) Collisions() <-chan Collision {
+	out := make(chan Collision)
+
+	go func() {
+		defer close(out)
+
+		for i, a := range list {
+			for _, b := range list[:i] {
+				if Collide(a, b) {
+					out <- Collision{a, b}
+				}
+			}
+		}
+	}()
+
+	return out
 }
