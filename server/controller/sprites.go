@@ -18,7 +18,7 @@ func SpriteHandler(staticDir string) func(http.ResponseWriter, *http.Request) {
 		outputPath := staticDir + r.URL.String()
 		if _, err := os.Stat(outputPath); err != nil {
 			// Open a reader for the specified file
-			path, err := filepath.Abs(staticDir + "/images/sprite.png")
+			path, err := filepath.Abs(staticDir + "/images/creature.png")
 			if err != nil {
 				log.Println(err)
 			}
