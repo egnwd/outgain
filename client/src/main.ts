@@ -44,7 +44,6 @@ $(function() {
 
     source.addEventListener("log", function(lEvent) {
 	let data = JSON.parse((<sse.IOnMessageEvent>lEvent).data)
-	console.log("Gets here mate")
         let logEvent = <ILogEvent>data
 
         let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
@@ -61,8 +60,8 @@ $(function() {
 		break
 	}
         if (scrollUpdate) {
-          gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight
-         }
+            gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight
+        }
       	
     })
 
