@@ -12,34 +12,36 @@ import (
 	"strings"
 )
 
-func SpriteHandler(w http.ResponseWriter, r *http.Request, staticDir string) {
-	// Check if the image exists, otherwise create it
-	outputPath := staticDir + r.URL.String()
-	if _, err := os.Stat(outputPath); err != nil {
-		// Open a reader for the specified file
-		path, err := filepath.Abs(staticDir + "/images/sprite.png")
-		if err != nil {
-			log.Println(err)
-		}
-		reader, err := os.Open(path)
-		if err != nil {
-			log.Println(err)
-		}
-		defer reader.Close()
+func SpriteHandler(staticDir string) func(http.ResponseWriter, *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check if the image exists, otherwise create it
+		outputPath := staticDir + r.URL.String()
+		if _, err := os.Stat(outputPath); err != nil {
+			// Open a reader for the specified file
+			path, err := filepath.Abs(staticDir + "/images/sprite.png")
+			if err != nil {
+				log.Println(err)
+			}
+			reader, err := os.Open(path)
+			if err != nil {
+				log.Println(err)
+			}
+			defer reader.Close()
 
-		// Open a writer for the specified output
-		writer, err := os.Create(outputPath)
-		if err != nil {
-			log.Println(err)
-		}
-		defer writer.Close()
+			// Open a writer for the specified output
+			writer, err := os.Create(outputPath)
+			if err != nil {
+				log.Println(err)
+			}
+			defer writer.Close()
 
-		err = createSprite(reader, writer, r.URL.String())
-		if err != nil {
-			log.Println(err)
+			err = createSprite(reader, writer, r.URL.String())
+			if err != nil {
+				log.Println(err)
+			}
 		}
-	}
-	http.ServeFile(w, r, outputPath)
+		http.ServeFile(w, r, outputPath)
+	})
 }
 
 func createSprite(reader io.Reader, writer io.Writer, url string) error {
