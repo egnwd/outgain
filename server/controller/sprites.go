@@ -12,47 +12,47 @@ import (
 )
 
 func SpriteHandler(staticDir string) func(http.ResponseWriter, *http.Request) {
-  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// Check if the image exists, otherwise create it
-	outputPath := staticDir + r.URL.String()
-	if _, err := os.Stat(outputPath); err != nil {
-		// Open a reader for the specified file and read the image
-		path, err := filepath.Abs(staticDir + "/images/creature.png")
-		if err != nil {
-			log.Println(err)
-      return
-		}
-		reader, err := os.Open(path)
-		if err != nil {
-			log.Println(err)
-      return
-		}
-		defer reader.Close()
-	  img, _, err := image.Decode(reader)
-	  if err != nil {
-			log.Println(err)
-      return
-	  }
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check if the image exists, otherwise create it
+		outputPath := staticDir + r.URL.String()
+		if _, err := os.Stat(outputPath); err != nil {
+			// Open a reader for the specified file and read the image
+			path, err := filepath.Abs(staticDir + "/images/creature.png")
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			reader, err := os.Open(path)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			defer reader.Close()
+			img, _, err := image.Decode(reader)
+			if err != nil {
+				log.Println(err)
+				return
+			}
 
-    // Generate the new image
-    newImg, err := createSprite(img, r.URL.String())
-		if err != nil {
-			log.Println(err)
-      return
-		}
+			// Generate the new image
+			newImg, err := createSprite(img, r.URL.String())
+			if err != nil {
+				log.Println(err)
+				return
+			}
 
-		// Open a writer for the specified output and write the new image
-		writer, err := os.Create(outputPath)
-		if err != nil {
-			log.Println(err)
-      return
-		}
-		defer writer.Close()
-	  png.Encode(writer, newImg)
+			// Open a writer for the specified output and write the new image
+			writer, err := os.Create(outputPath)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			defer writer.Close()
+			png.Encode(writer, newImg)
 
-	}
-	http.ServeFile(w, r, outputPath)
-})
+		}
+		http.ServeFile(w, r, outputPath)
+	})
 }
 
 func createSprite(img image.Image, url string) (image.Image, error) {
