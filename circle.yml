@@ -13,15 +13,7 @@ dependencies:
     - gem install 'platform-api'
     - npm install -g gulp
 
-    - npm install:
-        pwd: client
-    - gulp:
-        pwd: client
-
-    - go get -t -d -v ./...:
-        pwd: server
-    - go build -v:
-        pwd: server
+    - ./build_all.sh
 
 test:
   override:

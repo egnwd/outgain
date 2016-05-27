@@ -2,6 +2,7 @@ client/dist
 client/node_modules
 client/typings
 server/server
+server/libmruby.a
 app
 slug.tgz
 .tags
