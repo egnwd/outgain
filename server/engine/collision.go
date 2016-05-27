@@ -56,10 +56,11 @@ func collisionsBroadPhase(list EntityList) <-chan Collision {
 		defer close(out)
 
 		for i, a := range list {
-			for _, b := range list[leftmost:i] {
+			for j := leftmost; j < i; j++ {
+				b := list[j]
 				if XOverlap(a, b) {
 					out <- Collision{a, b}
-				} else {
+				} else if j == leftmost {
 					leftmost++
 				}
 			}
@@ -97,13 +98,11 @@ func collisionsNarrowPhase(in <-chan Collision) <-chan Collision {
 // Get all pairs of Entities which collide.
 // WARNING: You must not modify the radius nor the coordinates of any entity in the
 // list until the output channel is complete
-/*
 func (list EntityList) Collisions() <-chan Collision {
 	return collisionsNarrowPhase(collisionsBroadPhase(list))
 }
-*/
 
-func (list EntityList) Collisions() <-chan Collision {
+func (list EntityList) SlowCollisions() <-chan Collision {
 	out := make(chan Collision)
 
 	go func() {
