@@ -18,7 +18,6 @@ type Engine struct {
 	Events <-chan protocol.Event
 
 	eventsOut         chan<- protocol.Event
-	logEvents         []LogEvent
 	tickInterval      time.Duration
 	entities          EntityList
 	lastTick          time.Time
@@ -62,7 +61,6 @@ func NewEngine() (engine *Engine) {
 		nextId:            idChannel,
 	}
 
-	engine.Reset()
 	return
 }
 
@@ -72,15 +70,20 @@ func (engine *Engine) Reset() {
 	for i := 0; i < initialCreatureCount; i++ {
 		engine.AddEntity(RandomCreature)
 	}
-	clearGameLog(&engine.logEvents)
+	engine.clearGameLog()
 }
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
-func clearGameLog(logEvents *[]LogEvent) {
-	*logEvents = append(*logEvents, LogEvent{0, 0, 0})
+func (engine *Engine) clearGameLog() {
+	logEvent := LogEvent{0, 0, 0}
+	engine.eventsOut <- protocol.Event{
+		Type: "log",
+		Data: logEvent.Serialize(),
+	}
 }
 
 func (engine *Engine) Run() {
+	engine.Reset()
 	engine.lastTick = time.Now()
 	engine.lastResourceSpawn = time.Now()
 
@@ -90,26 +93,9 @@ func (engine *Engine) Run() {
 			Data: engine.Serialize(),
 		}
 
-		engine.eventsOut <- protocol.Event{
-			Type: "log",
-			Data: engine.SerializeLog(),
-		}
-
-		engine.logEvents = []LogEvent{}
-
 		time.Sleep(engine.tickInterval)
 
 		engine.tick()
-	}
-}
-
-func (engine *Engine) SerializeLog() protocol.LogEvents {
-	lEvents := make([]protocol.LogEvent, len(engine.logEvents))
-	for i, logEvent := range engine.logEvents {
-		lEvents[i] = logEvent.Serialize()
-	}
-	return protocol.LogEvents{
-		LogEvents: lEvents,
 	}
 }
 
@@ -132,15 +118,22 @@ func (engine *Engine) AddEntity(builder func(uint64) Entity) {
 
 // addLogEvent adds to  logEvents which are eventually added to the gameLog
 // Where is the best place to document the number -> eventType mappings?
-func addLogEvent(logEvents *[]LogEvent, a, b Entity) {
+func (engine *Engine) addLogEvent(a, b Entity) {
+	var logEvent LogEvent
 	switch b.(type) {
 	case nil:
 		// I don't know Go well enough to know what to put here, open to suggestions
 	case *Resource:
-		*logEvents = append(*logEvents, LogEvent{1, a.Base().Id, 0})
+		logEvent = LogEvent{1, a.Base().Id, 0}
 	case *Creature:
-		*logEvents = append(*logEvents, LogEvent{2, a.Base().Id, b.Base().Id})
+		logEvent = LogEvent{2, a.Base().Id, b.Base().Id}
 	}
+
+	engine.eventsOut <- protocol.Event{
+		Type: "log",
+		Data: logEvent.Serialize(),
+	}
+
 }
 
 func (engine *Engine) tick() {
@@ -170,11 +163,11 @@ func (engine *Engine) collisionDetection() {
 		if diff > eatRadiusDifference {
 			a.Base().radiusIncrement += b.Base().Radius + b.Base().radiusIncrement
 			b.Base().dying = true
-			addLogEvent(&engine.logEvents, a, b)
+			engine.addLogEvent(a, b)
 		} else if diff < -eatRadiusDifference {
 			b.Base().radiusIncrement += a.Base().Radius + a.Base().radiusIncrement
 			a.Base().dying = true
-			addLogEvent(&engine.logEvents, b, a)
+			engine.addLogEvent(b, a)
 		}
 	}
 

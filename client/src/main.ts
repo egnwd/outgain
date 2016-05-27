@@ -45,11 +45,10 @@ $(function() {
     source.addEventListener("log", function(lEvent) {
 	let data = JSON.parse((<sse.IOnMessageEvent>lEvent).data)
 	console.log("Gets here mate")
-        let update = <IWorldState>data
+        let logEvent = <ILogEvent>data
 
-	for (let logEvent of update.logEvents) {
-            let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
-	    switch (logEvent.logType) {
+        let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
+	switch (logEvent.logType) {
 	    case 0: 
 		gameLog.innerHTML = "A new game has started, good luck!\n"
 	    case 1:
@@ -60,11 +59,11 @@ $(function() {
 		gameLog.innerHTML = gameLog.innerHTML + "Creature "
 		    + logEvent.protagID + " ate creature " + logEvent.antagID + "\n"
 		break
-	    }
-            if (scrollUpdate) {
-              gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight
-            }
-      	}
+	}
+        if (scrollUpdate) {
+          gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight
+         }
+      	
     })
 
     

@@ -18,5 +18,4 @@ export interface ILogEvent {
 export interface IWorldState {
     time: number
     entities: IEntity[]
-    logEvents: ILogEvent[]
 }
