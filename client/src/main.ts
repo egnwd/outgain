@@ -2,20 +2,14 @@
 
 import { IWorldState } from "./protocol";
 import { GameRenderer } from './renderer'
-import { UserPanel } from './gameUI'
+import { UserPanel, ModalPopUp } from './gameUI'
 import * as $ from 'jquery'
-import * as sweetalert from 'sweetalert';
 
 var userPanel = new UserPanel("#user-id", "#user-resources")
 
 $(function() {
     if (!userPanel.isUserAuthenticated()) {
-      sweetalert({
-          title: "<h1 id=\"title\"></h1>",
-          text: "<a href=\"/login\" class=\"btn btn--action\">Login with Github</a>",
-          html: true,
-          showConfirmButton: false
-      })
+      ModalPopUp.mainModal()
     } else {
       userPanel.setUserID()
     }
@@ -26,7 +20,7 @@ $(function() {
     if (!userPanel.isUserAuthenticated()) {
         return
     }
-  
+
     let gameLog = document.getElementById("game-log")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
 

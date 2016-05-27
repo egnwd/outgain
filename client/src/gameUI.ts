@@ -1,4 +1,5 @@
 import * as $ from 'jquery'
+import * as sweetalert from 'sweetalert'
 
 export class UserPanel {
     username: string;
@@ -37,5 +38,33 @@ export class UserPanel {
 
     public isUserAuthenticated() {
       return this.username != ""
+    }
+}
+
+export module ModalPopUp {
+    export function mainModal() {
+      sweetalert({
+          title: "<h1 id=\"title\"></h1>",
+          text: "\
+          <a href=\"/login\" class=\"btn btn--action\">Login with Github</a>\
+          ",
+          html: true,
+          confirmButtonText: "How to Play",
+          closeOnConfirm: false
+      }, function() {
+          howToPlay()
+      })
+    }
+
+    export function howToPlay() {
+      sweetalert({
+          title: "How to Play",
+          text: "<p>This is how you play the game</p>",
+          html: true,
+          confirmButtonText: "Back",
+          closeOnConfirm: false
+      }, function() {
+          mainModal()
+      })
     }
 }
