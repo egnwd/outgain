@@ -3,7 +3,6 @@ package controller
 import (
 	"image"
 	"image/png"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -13,42 +12,50 @@ import (
 )
 
 func SpriteHandler(staticDir string) func(http.ResponseWriter, *http.Request) {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Check if the image exists, otherwise create it
-		outputPath := staticDir + r.URL.String()
-		if _, err := os.Stat(outputPath); err != nil {
-			// Open a reader for the specified file
-			path, err := filepath.Abs(staticDir + "/images/creature.png")
-			if err != nil {
-				log.Println(err)
-			}
-			reader, err := os.Open(path)
-			if err != nil {
-				log.Println(err)
-			}
-			defer reader.Close()
-
-			// Open a writer for the specified output
-			writer, err := os.Create(outputPath)
-			if err != nil {
-				log.Println(err)
-			}
-			defer writer.Close()
-
-			err = createSprite(reader, writer, r.URL.String())
-			if err != nil {
-				log.Println(err)
-			}
+  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// Check if the image exists, otherwise create it
+	outputPath := staticDir + r.URL.String()
+	if _, err := os.Stat(outputPath); err != nil {
+		// Open a reader for the specified file and read the image
+		path, err := filepath.Abs(staticDir + "/images/creature.png")
+		if err != nil {
+			log.Println(err)
+      return
 		}
-		http.ServeFile(w, r, outputPath)
-	})
+		reader, err := os.Open(path)
+		if err != nil {
+			log.Println(err)
+      return
+		}
+		defer reader.Close()
+	  img, _, err := image.Decode(reader)
+	  if err != nil {
+			log.Println(err)
+      return
+	  }
+
+    // Generate the new image
+    newImg, err := createSprite(img, r.URL.String())
+		if err != nil {
+			log.Println(err)
+      return
+		}
+
+		// Open a writer for the specified output and write the new image
+		writer, err := os.Create(outputPath)
+		if err != nil {
+			log.Println(err)
+      return
+		}
+		defer writer.Close()
+	  png.Encode(writer, newImg)
+
+	}
+	http.ServeFile(w, r, outputPath)
+})
 }
 
-func createSprite(reader io.Reader, writer io.Writer, url string) error {
-	img, _, err := image.Decode(reader)
-	if err != nil {
-		return err
-	}
+func createSprite(img image.Image, url string) (image.Image, error) {
 
 	// Find the bounds of the image and create a new one of the same size
 	bounds := img.Bounds()
@@ -63,7 +70,7 @@ func createSprite(reader io.Reader, writer io.Writer, url string) error {
 	col := strings.TrimSuffix(strings.SplitAfter(url, "-")[1], ".png")
 	colVal, err := strconv.ParseUint(col, 16, 32)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// Get individual RGB values from hex colour code
 	r1 := uint8((colVal & 0xff0000) >> 16)
@@ -108,7 +115,5 @@ func createSprite(reader io.Reader, writer io.Writer, url string) error {
 		}
 	}
 
-	// Write new image to file and serve it
-	png.Encode(writer, colouredSprite)
-	return nil
+	return colouredSprite, nil
 }
