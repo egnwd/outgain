@@ -34,5 +34,5 @@ func GetHandler(static string, engine *engine.Engine) http.Handler {
 	get.PathPrefix("/").Handler(
 		http.StripPrefix("/", http.FileServer(http.Dir(static))))
 
-	return handlers.LoggingHandler(os.Stdout, mux)
+	return controller.UpdateMaxAge(handlers.LoggingHandler(os.Stdout, mux))
 }
