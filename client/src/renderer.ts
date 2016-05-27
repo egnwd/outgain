@@ -10,8 +10,11 @@ class Entity {
         this.previous = state
         this.current = state
         if (this.current.sprite != null) {
-            this.img = new Image()
-            this.img.src = this.current.sprite
+            let img = new Image()
+            img.src = this.current.sprite
+            img.onload = () => {
+                this.img = img
+            }
         }
     }
 
@@ -33,7 +36,7 @@ class Entity {
         ctx.save()
         ctx.translate(x * scale, y * scale)
 
-        if (this.current.sprite == null) {
+        if (this.img == null) {
             ctx.beginPath()
             ctx.arc(0, 0, radius * scale, 0, 2 * Math.PI, false)
             ctx.fillStyle = color
