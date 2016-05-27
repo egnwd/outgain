@@ -25,8 +25,6 @@ var endpoint = struct {
 	user: "https://api.github.com/user",
 }
 
-const githubScope = "user"
-
 func init() {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Error: %s\n", err.Error())
@@ -41,7 +39,6 @@ func GetOAuthURL(state string) string {
 	values := make(url.Values)
 	values.Add("client_id", c.ClientID)
 	values.Add("redirect_uri", c.RedirectURI)
-	values.Add("scope", githubScope)
 	values.Add("state", state)
 
 	u, _ := url.ParseRequestURI(github.Endpoint.AuthURL)
