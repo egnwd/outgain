@@ -176,7 +176,7 @@ func (creature *Creature) Serialize() protocol.Entity {
 	return protocol.Entity{
 		Id:     creature.Id,
 		Name:   &creature.Name,
-		Sprite: creature.Sprite,
+		Sprite: &creature.Sprite,
 		Color:  creature.Color,
 		X:      creature.X,
 		Y:      creature.Y,
@@ -211,7 +211,7 @@ func (resource *Resource) Serialize() protocol.Entity {
 	return protocol.Entity{
 		Id:     resource.Id,
 		Name:   nil,
-		Sprite: "",
+		Sprite: nil,
 		Color:  resource.Color,
 		X:      resource.X,
 		Y:      resource.Y,

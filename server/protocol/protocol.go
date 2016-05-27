@@ -6,7 +6,7 @@ type Entity struct {
 	Id     uint64  `json:"id"`
 	Name   *string `json:"name"`
 	Color  string  `json:"color"`
-	Sprite string  `json:"sprite"`
+	Sprite *string `json:"sprite"`
 	X      float64 `json:"x"`
 	Y      float64 `json:"y"`
 	Radius float64 `json:"radius"`

@@ -33,7 +33,7 @@ class Entity {
         ctx.save()
         ctx.translate(x * scale, y * scale)
 
-        if (this.current.sprite == "") {
+        if (this.current.sprite == null) {
             ctx.beginPath()
             ctx.arc(0, 0, radius * scale, 0, 2 * Math.PI, false)
             ctx.fillStyle = color
