@@ -1,11 +1,12 @@
 package engine
 
 import (
-	"github.com/egnwd/outgain/server/protocol"
-	"github.com/lucasb-eyer/go-colorful"
 	"math"
 	"math/rand"
 	"strings"
+
+	"github.com/egnwd/outgain/server/protocol"
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 const defaultRadius float64 = 0.5
@@ -20,7 +21,7 @@ type Entity interface {
 }
 
 type EntityBase struct {
-	Id     uint64
+	ID     uint64
 	Color  string
 	X      float64
 	Y      float64
@@ -36,22 +37,27 @@ type EntityBase struct {
 	nextRadius float64
 }
 
+// Left gets the X coordinate of the left hand side
 func (entity *EntityBase) Left() float64 {
 	return entity.X - entity.Radius
 }
 
+// Right gets the X coordinate of the right hand side
 func (entity *EntityBase) Right() float64 {
 	return entity.X + entity.Radius
 }
 
+// Top gets the Y coordinate of the top side
 func (entity *EntityBase) Top() float64 {
 	return entity.Y - entity.Radius
 }
 
+// Bottom gets the Y coordinate of the bottom side
 func (entity *EntityBase) Bottom() float64 {
 	return entity.Y + entity.Radius
 }
 
+// EntityList is shorthand for a slice of Entitys
 type EntityList []Entity
 
 func (list EntityList) Len() int {
@@ -125,7 +131,7 @@ func RandomCreature(id uint64) Entity {
 
 	return &Creature{
 		EntityBase: EntityBase{
-			Id:     id,
+			ID:     id,
 			Color:  color,
 			X:      x,
 			Y:      y,
@@ -176,7 +182,7 @@ func (creature *Creature) Tick(dt float64) {
 
 func (creature *Creature) Serialize() protocol.Entity {
 	return protocol.Entity{
-		Id:     creature.Id,
+		ID:     creature.ID,
 		Name:   &creature.Name,
 		Sprite: &creature.Sprite,
 		Color:  creature.Color,
@@ -197,7 +203,7 @@ type Resource struct {
 func RandomResource(id uint64) Entity {
 	return &Resource{
 		EntityBase: EntityBase{
-			Id:     id,
+			ID:     id,
 			X:      rand.Float64() * gridSize,
 			Y:      rand.Float64() * gridSize,
 			Radius: resourceRadius,
@@ -215,7 +221,7 @@ func (resource *Resource) Tick(dt float64) {
 
 func (resource *Resource) Serialize() protocol.Entity {
 	return protocol.Entity{
-		Id:     resource.Id,
+		ID:     resource.ID,
 		Name:   nil,
 		Sprite: nil,
 		Color:  resource.Color,
