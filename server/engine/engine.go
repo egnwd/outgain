@@ -25,21 +25,6 @@ type Engine struct {
 	nextId            <-chan uint64
 }
 
-type LogEvent struct {
-	logType  int    // e.g. 0 for new game, 1 for creature -> resource etc
-	protagID uint64 // ID of the protagonist (if any)
-	antagID  uint64 // ID of the antagonist (if any)
-}
-
-// Refactor?
-func (logEvent *LogEvent) Serialize() protocol.LogEvent {
-	return protocol.LogEvent{
-		LogType:  logEvent.logType,
-		ProtagID: logEvent.protagID,
-		AntagID:  logEvent.antagID,
-	}
-}
-
 func NewEngine() (engine *Engine) {
 	eventChannel := make(chan protocol.Event)
 	idChannel := make(chan uint64)
@@ -75,10 +60,10 @@ func (engine *Engine) Reset() {
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
 func (engine *Engine) clearGameLog() {
-	logEvent := LogEvent{0, 0, 0}
+	logEvent := protocol.LogEvent{0, 0, 0}
 	engine.eventsOut <- protocol.Event{
 		Type: "log",
-		Data: logEvent.Serialize(),
+		Data: logEvent,
 	}
 }
 
@@ -119,19 +104,18 @@ func (engine *Engine) AddEntity(builder func(uint64) Entity) {
 // addLogEvent adds to  logEvents which are eventually added to the gameLog
 // Where is the best place to document the number -> eventType mappings?
 func (engine *Engine) addLogEvent(a, b Entity) {
-	var logEvent LogEvent
+	var logEvent protocol.LogEvent
 	switch b.(type) {
 	case nil:
 		// I don't know Go well enough to know what to put here, open to suggestions
 	case *Resource:
-		logEvent = LogEvent{1, a.Base().Id, 0}
+		logEvent = protocol.LogEvent{1, a.Base().Id, 0}
 	case *Creature:
-		logEvent = LogEvent{2, a.Base().Id, b.Base().Id}
+		logEvent = protocol.LogEvent{2, a.Base().Id, b.Base().Id}
 	}
-
 	engine.eventsOut <- protocol.Event{
 		Type: "log",
-		Data: logEvent.Serialize(),
+		Data: logEvent,
 	}
 
 }
