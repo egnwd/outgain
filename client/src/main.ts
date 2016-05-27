@@ -45,14 +45,14 @@ $(function() {
 	   //let test = <ILogEvent>update.logEvents[0]
 	    switch (logEvent.logType) {
 	    case 0: 
-		gameLog.innerHTML = gameLog.innerHTML +"\n\n\n\n\n\nA new game has started, good luck!\n"
+		gameLog.innerHTML = "A new game has started, good luck!\n"
 	    case 1:
 		gameLog.innerHTML = gameLog.innerHTML + "Yum, creature " 
 		    + logEvent.protagID + " ate a resource\n";
 		break;
 	    case 2: 
 		gameLog.innerHTML = gameLog.innerHTML + "Creature "
-		    + logEvent.protagID + " ate creature" + logEvent.antagID + "\n"
+		    + logEvent.protagID + " ate creature " + logEvent.antagID + "\n"
 		break;
 	    //defualt:
 	//	gameLog.innerHTML = gameLog.innerHTML + update.logEvents[0].protagID
