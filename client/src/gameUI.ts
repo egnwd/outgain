@@ -61,7 +61,7 @@ export module ModalPopUp {
           title: "How to Play",
           text: "<p>This is how you play the game</p>",
           html: true,
-          confirmButtonText: "Done",
+          confirmButtonText: "Back",
           closeOnConfirm: false
       }, function() {
           mainModal()
