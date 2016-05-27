@@ -15,6 +15,8 @@ const eatRadiusDifference = 0.2
 
 const initialCreatureCount = 10
 
+// Engine stores the information about an instance of the game and controls
+// the events that are occuring within the game
 type Engine struct {
 	Events <-chan protocol.Event
 
@@ -23,9 +25,10 @@ type Engine struct {
 	entities          EntityList
 	lastTick          time.Time
 	lastResourceSpawn time.Time
-	nextId            <-chan uint64
+	nextID            <-chan uint64
 }
 
+// NewEngine returns a fresh instance of a game engine
 func NewEngine() (engine *Engine) {
 	eventChannel := make(chan protocol.Event)
 	idChannel := make(chan uint64)
@@ -33,7 +36,7 @@ func NewEngine() (engine *Engine) {
 		var id uint64 = 0
 		for {
 			idChannel <- id
-			id += 1
+			id++
 		}
 	}()
 
@@ -44,12 +47,13 @@ func NewEngine() (engine *Engine) {
 		lastTick:          time.Now(),
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
-		nextId:            idChannel,
+		nextID:            idChannel,
 	}
 
 	return
 }
 
+// Reset clears the game log and resets the creatures
 func (engine *Engine) Reset() {
 	engine.entities = EntityList{}
 
@@ -61,7 +65,7 @@ func (engine *Engine) Reset() {
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
 func (engine *Engine) clearGameLog() {
-	logEvent := protocol.LogEvent{0, 0, 0}
+	logEvent := protocol.LogEvent{LogType: 0, ProtagID: 0, AntagID: 0}
 	engine.eventsOut <- protocol.Event{
 		Type: "log",
 		Data: logEvent,
@@ -97,8 +101,9 @@ func (engine *Engine) Serialize() protocol.WorldState {
 	}
 }
 
+// AddEntity adds an entity to the engine's list
 func (engine *Engine) AddEntity(builder func(uint64) Entity) {
-	entity := builder(<-engine.nextId)
+	entity := builder(<-engine.nextID)
 	engine.entities = engine.entities.Insert(entity)
 }
 
@@ -110,9 +115,9 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 	case nil:
 		return
 	case *Resource:
-		logEvent = protocol.LogEvent{1, a.Base().Id, 0}
+		logEvent = protocol.LogEvent{LogType: 1, ProtagID: a.Base().ID, AntagID: 0}
 	case *Creature:
-		logEvent = protocol.LogEvent{2, a.Base().Id, b.Base().Id}
+		logEvent = protocol.LogEvent{LogType: 2, ProtagID: a.Base().ID, AntagID: b.Base().ID}
 	}
 	engine.eventsOut <- protocol.Event{
 		Type: "log",

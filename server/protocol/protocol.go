@@ -3,7 +3,7 @@ package protocol
 // client/src/protocol.ts should be kept in sync with this
 
 type Entity struct {
-	Id     uint64  `json:"id"`
+	ID     uint64  `json:"id"`
 	Name   *string `json:"name"`
 	Color  string  `json:"color"`
 	Sprite *string `json:"sprite"`
