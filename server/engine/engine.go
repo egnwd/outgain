@@ -156,9 +156,6 @@ func (engine *Engine) tick() {
 
 	engine.entities.Tick(dt)
 	engine.collisionDetection()
-
-	message := fmt.Sprintf("Test - %s\n", now.String())
-	engine.events = append(engine.events, message)
 }
 
 func (engine *Engine) collisionDetection() {
