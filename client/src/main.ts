@@ -2,42 +2,14 @@
 
 import { IWorldState } from "./protocol";
 import { GameRenderer } from './renderer'
-import { UserPanel } from './gameUI'
+import { UserPanel, ModalPopUp } from './gameUI'
 import * as $ from 'jquery'
-import * as sweetalert from 'sweetalert';
 
 var userPanel = new UserPanel("#user-id", "#user-resources")
 
 $(function() {
     if (!userPanel.isUserAuthenticated()) {
-      let mainModal = function() {
-        sweetalert({
-            title: "<h1 id=\"title\"></h1>",
-            text: "\
-            <a href=\"/login\" class=\"btn btn--action\">Login with Github</a>\
-            ",
-            html: true,
-            confirmButtonText: "How to Play",
-            closeOnConfirm: false
-        }, function() {
-            howtoplay()
-        })
-      }
-
-      let howtoplay = function() {
-        sweetalert({
-            title: "How to Play",
-            text: "<p>This is how you play the game</p>",
-            html: true,
-            confirmButtonText: "Done",
-            closeOnConfirm: false
-        }, function() {
-          mainModal()
-        })
-      }
-
-      mainModal()
-
+      ModalPopUp.mainModal()
     } else {
       userPanel.setUserID()
     }
