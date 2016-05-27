@@ -19,6 +19,9 @@ func GetHandler(static string, engine *engine.Engine) http.Handler {
 
 	get.HandleFunc("/ping", controller.PingHandler)
 
+	get.HandleFunc("/images/creature-{id:[0-9a-fA-F]+}.png",
+		controller.SpriteHandler(static))
+
 	get.HandleFunc("/login", controller.UserLogIn)
 	get.HandleFunc("/logout", controller.Logout)
 	get.HandleFunc("/oauthSignInCallback", controller.OAuthSignInCallback)
