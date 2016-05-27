@@ -17,7 +17,7 @@ func YOverlap(a, b Entity) bool {
 //
 // The order between a and b is irrelevant
 type Collision struct {
-	a, b Entity
+	A, B Entity
 }
 
 // Check whether two entities collide
@@ -84,8 +84,8 @@ func collisionsNarrowPhase(in <-chan Collision) <-chan Collision {
 		defer close(out)
 
 		for candidate := range in {
-			if YOverlap(candidate.a, candidate.b) &&
-				Collide(candidate.a, candidate.b) {
+			if YOverlap(candidate.A, candidate.B) &&
+				Collide(candidate.A, candidate.B) {
 
 				out <- candidate
 			}

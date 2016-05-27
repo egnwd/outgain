@@ -48,7 +48,7 @@ func TestEntityListInsert(t *testing.T) {
 func assertSingleCollision(t *testing.T, expectedA, expectedB uint64, list EntityList) {
 	hadCollision := false
 	for collision := range list.Collisions() {
-		gotA, gotB := collision.a.Base().ID, collision.b.Base().ID
+		gotA, gotB := collision.A.Base().ID, collision.B.Base().ID
 
 		ok := (gotA == expectedA && gotB == expectedB) || (gotA == expectedB && gotB == expectedA)
 		assert.True(t, ok, "Wrong collision reported, expected (%d, %d), got (%d, %d)",
