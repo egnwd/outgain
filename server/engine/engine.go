@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"math"
 	"time"
 
 	"github.com/egnwd/outgain/server/protocol"
@@ -135,23 +136,26 @@ func (engine *Engine) tick() {
 	engine.collisionDetection()
 }
 
+func (engine *Engine) eatEntity(eater, eaten Entity) {
+	eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())
+	eaten.Base().dying = true
+	engine.addLogEvent(eater, eaten)
+}
+
 func (engine *Engine) collisionDetection() {
 	for _, entity := range engine.entities {
 		entity.Base().dying = false
-		entity.Base().radiusIncrement = 0
+		entity.Base().nextRadius = entity.Base().Radius
 	}
 
 	for collision := range engine.entities.Collisions() {
 		a, b := collision.a, collision.b
 		diff := a.Base().Radius - b.Base().Radius
-		if diff > eatRadiusDifference {
-			a.Base().radiusIncrement += b.Base().Radius + b.Base().radiusIncrement
-			b.Base().dying = true
-			engine.addLogEvent(a, b)
-		} else if diff < -eatRadiusDifference {
-			b.Base().radiusIncrement += a.Base().Radius + a.Base().radiusIncrement
-			a.Base().dying = true
-			engine.addLogEvent(b, a)
+
+		if diff >= eatRadiusDifference {
+			engine.eatEntity(a, b)
+		} else if diff <= -eatRadiusDifference {
+			engine.eatEntity(b, a)
 		}
 	}
 
@@ -159,12 +163,13 @@ func (engine *Engine) collisionDetection() {
 		return !entity.Base().dying
 	})
 
-	var resetEngine = false
+	creatureCount := 0
 	for _, entity := range engine.entities {
-		entity.Base().Radius += entity.Base().radiusIncrement
+		entity.Base().Radius = entity.Base().nextRadius
 
-		if entity.Base().Radius > gridSize/2 {
-			resetEngine = true
+		_, isCreature := entity.(*Creature)
+		if isCreature {
+			creatureCount++
 		}
 	}
 
@@ -172,7 +177,7 @@ func (engine *Engine) collisionDetection() {
 	// so sort the list again to maintain the invariant
 	engine.entities.Sort()
 
-	if resetEngine {
+	if creatureCount <= 1 {
 		engine.Reset()
 	}
 }

@@ -10,11 +10,13 @@ import (
 
 const defaultRadius float64 = 0.5
 const resourceRadius float64 = 0.1
+const resourceVolume float64 = 1
 
 type Entity interface {
 	Tick(dt float64)
 	Serialize() protocol.Entity
 	Base() *EntityBase
+	Volume() float64
 }
 
 type EntityBase struct {
@@ -30,8 +32,8 @@ type EntityBase struct {
 	//
 	// Instead we track modifications which need to be performed here,
 	// and perform them afterwards
-	dying           bool
-	radiusIncrement float64
+	dying      bool
+	nextRadius float64
 }
 
 func (entity *EntityBase) Left() float64 {
@@ -184,6 +186,10 @@ func (creature *Creature) Serialize() protocol.Entity {
 	}
 }
 
+func (creature *Creature) Volume() float64 {
+	return creature.nextRadius * creature.nextRadius
+}
+
 type Resource struct {
 	EntityBase
 }
@@ -217,4 +223,8 @@ func (resource *Resource) Serialize() protocol.Entity {
 		Y:      resource.Y,
 		Radius: resource.Radius,
 	}
+}
+
+func (resource *Resource) Volume() float64 {
+	return resourceVolume
 }
