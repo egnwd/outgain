@@ -17,7 +17,7 @@
 .btn:link,
 .btn:visited {
   @include border-radius(.25em);
-  background-color: $btn-colour;
+  background-color: $btn-colour !important;
   color: $blue-lighter;
   display: inline-block;
   letter-spacing: .15em;
@@ -30,13 +30,13 @@
 
 .btn:hover,
 .btn:focus {
-  background-color: $btn-hover-colour;
+  background-color: $btn-hover-colour !important;
   transition: background-color .3s, color .3s;
 }
 
 .btn:active {
   color: darken($blue-lighter, 10%);
-  background-color: $btn-active-colour;
+  background-color: $btn-active-colour !important;
   transition: background-color .3s, color .3s;
 }
 
@@ -57,16 +57,16 @@
 .btn--action {
   &:link,
   &:visited {
-    background-color: $btn-action-colour;
+    background-color: $btn-action-colour !important;
   }
 
   &:hover,
   &:focus {
-    background-color: $btn-action-hover-colour;
+    background-color: $btn-action-hover-colour !important;
   }
 
   &:active {
-    background-color: $btn-action-active-colour;
+    background-color: $btn-action-active-colour !important;
   }
 }
 
@@ -75,16 +75,16 @@
 .btn--success {
   &:link,
   &:visited {
-    background-color: $btn-success-colour;
+    background-color: $btn-success-colour !important;
   }
 
   &:hover,
   &:focus {
-    background-color: $btn-success-hover-colour;
+    background-color: $btn-success-hover-colour !important;
   }
 
   &:active {
-    background-color: $btn-success-active-colour;
+    background-color: $btn-success-active-colour !important;
   }
 }
 
@@ -93,15 +93,15 @@
 .btn--fail {
   &:link,
   &:visited {
-    background-color: $btn-fail-colour;
+    background-color: $btn-fail-colour !important;
   }
 
   &:hover,
   &:focus {
-    background-color: $btn-fail-hover-colour;
+    background-color: $btn-fail-hover-colour !important;
   }
 
   &:active {
-    background-color: $btn-fail-active-colour;
+    background-color: $btn-fail-active-colour !important;
   }
 }

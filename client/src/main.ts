@@ -16,6 +16,23 @@ $(function() {
 })
 
 $(function() {
+  $('#collapse-arrow').click(function() {
+    // Change style
+    $(this).toggleClass('small')
+    $('#game-log').toggleClass('small')
+
+    let swap = $(this).data("text-swap")
+    $(this).data("text-swap", $(this).text());
+    $(this).text(swap);
+
+    let gameLog = document.getElementById("game-log")
+    gameLog.scrollTop = gameLog.scrollHeight;
+
+    return false
+  })
+})
+
+$(function() {
     // Do not render the game if the user is not authenticated
     if (!userPanel.isUserAuthenticated()) {
         return

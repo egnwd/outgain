@@ -30,6 +30,10 @@ p {
   margin-top: 20px;
   padding: 10px;
 
+  &.left {
+    text-align: left !important;
+  }
+
   &.center {
     text-align: center;
   }

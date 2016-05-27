@@ -1,6 +1,7 @@
 @import "partials/base";
 @import "partials/reset";
 
+@import "modules/sweetalert_overrides";
 @import "../node_modules/sweetalert/dev/sweetalert";
 @import "modules/colours";
 
