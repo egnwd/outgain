@@ -107,7 +107,7 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 	var logEvent protocol.LogEvent
 	switch b.(type) {
 	case nil:
-		// I don't know Go well enough to know what to put here, open to suggestions
+		return
 	case *Resource:
 		logEvent = protocol.LogEvent{1, a.Base().Id, 0}
 	case *Creature:
