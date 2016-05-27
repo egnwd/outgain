@@ -5,6 +5,7 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 	"math"
 	"math/rand"
+	"strings"
 )
 
 const defaultRadius float64 = 0.5
@@ -107,7 +108,8 @@ func (list EntityList) Sort() {
 type Creature struct {
 	EntityBase
 
-	Name string
+	Name   string
+	Sprite string
 
 	dx float64
 	dy float64
@@ -117,16 +119,18 @@ func RandomCreature(id uint64) Entity {
 	angle := rand.Float64() * 2 * math.Pi
 	x := rand.Float64() * gridSize
 	y := rand.Float64() * gridSize
+	color := colorful.FastHappyColor().Hex()
 
 	return &Creature{
 		EntityBase: EntityBase{
 			Id:     id,
-			Color:  colorful.FastHappyColor().Hex(),
+			Color:  color,
 			X:      x,
 			Y:      y,
 			Radius: defaultRadius,
 		},
-		Name: "foo",
+		Name:   "foo",
+		Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".png",
 
 		dx: math.Cos(angle),
 		dy: math.Sin(angle),
@@ -172,6 +176,7 @@ func (creature *Creature) Serialize() protocol.Entity {
 	return protocol.Entity{
 		Id:     creature.Id,
 		Name:   &creature.Name,
+		Sprite: creature.Sprite,
 		Color:  creature.Color,
 		X:      creature.X,
 		Y:      creature.Y,
@@ -206,6 +211,7 @@ func (resource *Resource) Serialize() protocol.Entity {
 	return protocol.Entity{
 		Id:     resource.Id,
 		Name:   nil,
+		Sprite: "",
 		Color:  resource.Color,
 		X:      resource.X,
 		Y:      resource.Y,
