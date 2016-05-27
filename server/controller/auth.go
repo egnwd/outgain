@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/egnwd/outgain/server/github"
 	"github.com/gorilla/sessions"
@@ -17,6 +18,7 @@ var store *sessions.CookieStore
 const (
 	stateKey       = "state"
 	usernameKey    = "username"
+	createdKey     = "created"
 	accessTokenKey = "access_token"
 	sessionName    = "session"
 )
@@ -45,6 +47,8 @@ func UserLogIn(w http.ResponseWriter, r *http.Request) {
 	state := id.String()
 
 	session.Values[stateKey] = state
+	session.Values[createdKey] = int(time.Now().Unix())
+
 	log.Printf("Session: %v\n", session.Values)
 	if err := sessions.Save(r, w); err != nil {
 		log.Println(err.Error())
@@ -128,4 +132,24 @@ func CurrentUser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Error(w, "User not logged in", http.StatusUnauthorized)
 	}
+}
+
+// UpdateMaxAge resets the MaxAge of the session to keep the user logged in
+func UpdateMaxAge(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		session, err := store.Get(r, sessionName)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		now := int(time.Now().Unix())
+
+		if created, ok := session.Values[createdKey].(int); ok {
+			session.Options.MaxAge = now - created + store.Options.MaxAge
+			sessions.Save(r, w)
+		}
+
+		h.ServeHTTP(w, r)
+	})
 }
