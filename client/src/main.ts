@@ -50,6 +50,7 @@ $(function() {
 	switch (logEvent.logType) {
 	    case 0: 
 		gameLog.innerHTML = "A new game has started, good luck!\n"
+	        break
 	    case 1:
 		gameLog.innerHTML = gameLog.innerHTML + "Yum, creature " 
 		    + logEvent.protagID + " ate a resource\n"
