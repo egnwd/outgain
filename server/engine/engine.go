@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"fmt"
+	"log"
 	"math"
 	"time"
 
@@ -153,14 +155,44 @@ func (engine *Engine) collisionDetection() {
 		entity.Base().nextRadius = entity.Base().Radius
 	}
 
+	// We currently run both the slow and fast collision algorithms, and
+	// compare their outputs to find collision missed by the fast one due
+	// to bugs. Once we're confident enough with the results of the fast
+	// one we can switch fully to this one.
+	collisions := []Collision{}
 	for collision := range engine.entities.Collisions() {
-		a, b := collision.a, collision.b
+		collisions = append(collisions, collision)
+
+		a, b := collision.A, collision.B
 		diff := a.Base().Radius - b.Base().Radius
 
 		if diff >= eatRadiusDifference {
 			engine.eatEntity(a, b)
 		} else if diff <= -eatRadiusDifference {
 			engine.eatEntity(b, a)
+		}
+	}
+
+	for collision := range engine.entities.SlowCollisions() {
+		found := false
+		for _, c := range collisions {
+			if (c.A == collision.A && c.B == collision.B) ||
+				(c.A == collision.B && c.B == collision.A) {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			message := fmt.Sprintf("WARN Collision false negative: (%d %d),",
+				collision.A.Base().ID, collision.B.Base().ID)
+
+			for _, e := range engine.entities {
+				message += fmt.Sprintf(" dummyEntity(%d, %.2f, %.2f, %.2f),",
+					e.Base().ID, e.Base().X, e.Base().Y, e.Base().Radius)
+			}
+
+			log.Println(message)
 		}
 	}
 
