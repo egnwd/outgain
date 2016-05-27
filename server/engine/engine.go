@@ -90,11 +90,26 @@ func (engine *Engine) Run() {
 			Data: engine.Serialize(),
 		}
 
+		engine.eventsOut <- protocol.Event{
+			Type: "log",
+			Data: engine.SerializeLog(),
+		}
+
 		engine.logEvents = []LogEvent{}
 
 		time.Sleep(engine.tickInterval)
 
 		engine.tick()
+	}
+}
+
+func (engine *Engine) SerializeLog() protocol.LogEvents {
+	lEvents := make([]protocol.LogEvent, len(engine.logEvents))
+	for i, logEvent := range engine.logEvents {
+		lEvents[i] = logEvent.Serialize()
+	}
+	return protocol.LogEvents{
+		LogEvents: lEvents,
 	}
 }
 
@@ -104,15 +119,9 @@ func (engine *Engine) Serialize() protocol.WorldState {
 		entities[i] = entity.Serialize()
 	}
 
-	lEvents := make([]protocol.LogEvent, len(engine.logEvents))
-	for i, logEvent := range engine.logEvents {
-		lEvents[i] = logEvent.Serialize()
-	}
-
 	return protocol.WorldState{
-		Time:      uint64(engine.lastTick.UnixNano()) / 1e6,
-		Entities:  entities,
-		LogEvents: lEvents,
+		Time:     uint64(engine.lastTick.UnixNano()) / 1e6,
+		Entities: entities,
 	}
 }
 

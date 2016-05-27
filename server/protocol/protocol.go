@@ -17,10 +17,13 @@ type LogEvent struct {
 	AntagID  uint64 `json:"antagID"`
 }
 
+type LogEvents struct {
+	LogEvents []LogEvent `json:"logEvents"`
+}
+
 type WorldState struct {
 	Time      uint64     `json:"time"`
 	Entities  []Entity   `json:"entities"`
-	LogEvents []LogEvent `json:"logEvents"`
 }
 
 type Event struct {

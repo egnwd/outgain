@@ -39,31 +39,35 @@ $(function() {
 
         let update = <IWorldState>data
 	
-	
-      	for (let logEvent of update.logEvents) {
-          let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
-	   //let test = <ILogEvent>update.logEvents[0]
+        renderer.pushState(update)
+    })
+
+    source.addEventListener("log", function(lEvent) {
+	let data = JSON.parse((<sse.IOnMessageEvent>lEvent).data)
+	console.log("Gets here mate")
+        let update = <IWorldState>data
+
+	for (let logEvent of update.logEvents) {
+            let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
 	    switch (logEvent.logType) {
 	    case 0: 
 		gameLog.innerHTML = "A new game has started, good luck!\n"
 	    case 1:
 		gameLog.innerHTML = gameLog.innerHTML + "Yum, creature " 
-		    + logEvent.protagID + " ate a resource\n";
-		break;
+		    + logEvent.protagID + " ate a resource\n"
+		break
 	    case 2: 
 		gameLog.innerHTML = gameLog.innerHTML + "Creature "
 		    + logEvent.protagID + " ate creature " + logEvent.antagID + "\n"
-		break;
-	    //defualt:
-	//	gameLog.innerHTML = gameLog.innerHTML + update.logEvents[0].protagID
+		break
 	    }
             if (scrollUpdate) {
-              gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight;
+              gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight
             }
       	}
-
-        renderer.pushState(update)
     })
+
+    
 
     window.addEventListener("resize", () => renderer.onResize())
     window.requestAnimationFrame(function draw() {
