@@ -8,6 +8,7 @@ import (
 	"github.com/mitchellh/go-mruby"
 	"io"
 	"log"
+	"net/rpc"
 	"os"
 )
 
@@ -23,7 +24,7 @@ type Runner struct {
 func NewRunner(input io.Reader) (runner *Runner, err error) {
 	mrb := mruby.NewMrb()
 	defer func() {
-		if runner == nil {
+		if err != nil {
 			mrb.Close()
 		}
 	}()
@@ -59,7 +60,7 @@ func (runner *Runner) Tick(state protocol.WorldState, resp *struct{}) error {
 	return nil
 }
 
-func (runner *Runner) Close() {
+func (runner *Runner) close() {
 	runner.mrb.Close()
 }
 
@@ -68,11 +69,14 @@ func execRunner() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	defer runner.close()
 
-	defer runner.Close()
-
-	state := protocol.WorldState{}
-	if err = runner.Tick(state, nil); err != nil {
+	server := rpc.NewServer()
+	if err = server.Register(runner); err != nil {
 		log.Fatalln(err)
 	}
+
+	// Use inherited FD 3
+	conn := os.NewFile(3, "")
+	server.ServeConn(conn)
 }
