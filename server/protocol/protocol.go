@@ -18,6 +18,13 @@ type WorldState struct {
 	LogEvents []string `json:"logEvents"`
 }
 
+type WorldDiff struct {
+	Time         uint64   `json:"time"`
+	PreviousTime uint64   `json:"previousTime"`
+	Modified     []Entity `json:"modified"`
+	Removed      []uint64 `json:"removed"`
+}
+
 type Event struct {
 	Type string
 	Data interface{}

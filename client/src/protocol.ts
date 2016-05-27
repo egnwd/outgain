@@ -15,3 +15,10 @@ export interface IWorldState {
     entities: IEntity[]
     logEvents : string[]
 }
+
+export interface IWorldDiff {
+    time: number
+    previousTime: number
+    modified: IEntity[]
+    removed: number[]
+}

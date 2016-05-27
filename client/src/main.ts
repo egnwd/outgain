@@ -1,6 +1,6 @@
 /// <reference path="sse.d.ts" />
 
-import { IWorldState } from "./protocol";
+import { IWorldState, IWorldDiff } from "./protocol";
 import { GameRenderer } from './renderer'
 import { UserPanel, ModalPopUp } from './gameUI'
 import * as $ from 'jquery'
@@ -59,6 +59,11 @@ $(function() {
       	}
 
         renderer.pushState(update)
+    })
+
+    source.addEventListener("diff", function(event) {
+        let data = JSON.parse((<sse.IOnMessageEvent>event).data)
+        renderer.applyDiff(<IWorldDiff>data)
     })
 
     window.addEventListener("resize", () => renderer.onResize())
