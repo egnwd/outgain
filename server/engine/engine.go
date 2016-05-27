@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/egnwd/outgain/server/protocol"
@@ -19,7 +18,6 @@ type Engine struct {
 	Events <-chan protocol.Event
 
 	eventsOut         chan<- protocol.Event
-	events            []string
 	tickInterval      time.Duration
 	entities          EntityList
 	lastTick          time.Time
@@ -48,7 +46,6 @@ func NewEngine() (engine *Engine) {
 		nextId:            idChannel,
 	}
 
-	engine.Reset()
 	return
 }
 
@@ -58,9 +55,20 @@ func (engine *Engine) Reset() {
 	for i := 0; i < initialCreatureCount; i++ {
 		engine.AddEntity(RandomCreature)
 	}
+	engine.clearGameLog()
+}
+
+// clearGameLog should clear the current game-log (or make it clear that a new game has begun)
+func (engine *Engine) clearGameLog() {
+	logEvent := protocol.LogEvent{0, 0, 0}
+	engine.eventsOut <- protocol.Event{
+		Type: "log",
+		Data: logEvent,
+	}
 }
 
 func (engine *Engine) Run() {
+	engine.Reset()
 	engine.lastTick = time.Now()
 	engine.lastResourceSpawn = time.Now()
 
@@ -69,8 +77,6 @@ func (engine *Engine) Run() {
 			Type: "state",
 			Data: engine.Serialize(),
 		}
-
-		engine.events = []string{}
 
 		time.Sleep(engine.tickInterval)
 
@@ -85,15 +91,33 @@ func (engine *Engine) Serialize() protocol.WorldState {
 	}
 
 	return protocol.WorldState{
-		Time:      uint64(engine.lastTick.UnixNano()) / 1e6,
-		Entities:  entities,
-		LogEvents: engine.events,
+		Time:     uint64(engine.lastTick.UnixNano()) / 1e6,
+		Entities: entities,
 	}
 }
 
 func (engine *Engine) AddEntity(builder func(uint64) Entity) {
 	entity := builder(<-engine.nextId)
 	engine.entities = engine.entities.Insert(entity)
+}
+
+// addLogEvent adds to  logEvents which are eventually added to the gameLog
+// Where is the best place to document the number -> eventType mappings?
+func (engine *Engine) addLogEvent(a, b Entity) {
+	var logEvent protocol.LogEvent
+	switch b.(type) {
+	case nil:
+		return
+	case *Resource:
+		logEvent = protocol.LogEvent{1, a.Base().Id, 0}
+	case *Creature:
+		logEvent = protocol.LogEvent{2, a.Base().Id, b.Base().Id}
+	}
+	engine.eventsOut <- protocol.Event{
+		Type: "log",
+		Data: logEvent,
+	}
+
 }
 
 func (engine *Engine) tick() {
@@ -109,9 +133,6 @@ func (engine *Engine) tick() {
 
 	engine.entities.Tick(dt)
 	engine.collisionDetection()
-
-	message := fmt.Sprintf("Test - %s\n", now.String())
-	engine.events = append(engine.events, message)
 }
 
 func (engine *Engine) collisionDetection() {
@@ -126,9 +147,11 @@ func (engine *Engine) collisionDetection() {
 		if diff > eatRadiusDifference {
 			a.Base().radiusIncrement += b.Base().Radius + b.Base().radiusIncrement
 			b.Base().dying = true
+			engine.addLogEvent(a, b)
 		} else if diff < -eatRadiusDifference {
 			b.Base().radiusIncrement += a.Base().Radius + a.Base().radiusIncrement
 			a.Base().dying = true
+			engine.addLogEvent(b, a)
 		}
 	}
 

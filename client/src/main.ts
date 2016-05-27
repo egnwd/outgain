@@ -1,6 +1,6 @@
 /// <reference path="sse.d.ts" />
 
-import { IWorldState } from "./protocol";
+import { IWorldState, ILogEvent } from "./protocol";
 import { GameRenderer } from './renderer'
 import { UserPanel, ModalPopUp } from './gameUI'
 import * as $ from 'jquery'
@@ -49,17 +49,35 @@ $(function() {
         let data = JSON.parse((<sse.IOnMessageEvent>event).data)
 
         let update = <IWorldState>data
-
-      	for (let logEvent of update.logEvents) {
-            let update = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
-            gameLog.innerHTML = gameLog.innerHTML + logEvent
-            if (update) {
-              gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight;
-            }
-      	}
-
+	
         renderer.pushState(update)
     })
+
+    source.addEventListener("log", function(lEvent) {
+	let data = JSON.parse((<sse.IOnMessageEvent>lEvent).data)
+        let logEvent = <ILogEvent>data
+
+        let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
+	switch (logEvent.logType) {
+	    case 0: 
+		gameLog.innerHTML = "A new game has started, good luck!\n"
+	        break
+	    case 1:
+		gameLog.innerHTML = gameLog.innerHTML + "Yum, creature " 
+		    + logEvent.protagID + " ate a resource\n"
+		break
+	    case 2: 
+		gameLog.innerHTML = gameLog.innerHTML + "Creature "
+		    + logEvent.protagID + " ate creature " + logEvent.antagID + "\n"
+		break
+	}
+        if (scrollUpdate) {
+            gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight
+        }
+      	
+    })
+
+    
 
     window.addEventListener("resize", () => renderer.onResize())
     window.requestAnimationFrame(function draw() {
