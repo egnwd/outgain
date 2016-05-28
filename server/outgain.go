@@ -9,10 +9,15 @@ import (
 	"os"
 	"strings"
 
+	"github.com/docker/docker/pkg/reexec"
 	"github.com/egnwd/outgain/server/routes"
 )
 
 func main() {
+	if reexec.Init() {
+		return
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
