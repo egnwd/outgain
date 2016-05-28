@@ -3,9 +3,11 @@ package runner
 import (
 	"golang.org/x/sys/unix"
 	"io"
+	"log"
 	"net/rpc"
 	"os"
 	"os/exec"
+	"runtime"
 
 	"github.com/egnwd/outgain/server/protocol"
 )
@@ -15,6 +17,8 @@ type RunnerClient struct {
 	cmd    *exec.Cmd
 }
 
+// StartRunner creates a new process to execute the AI runner.
+// `code` is used as the AI's source.
 func StartRunner(code string) (client *RunnerClient, err error) {
 	fds, err := unix.Socketpair(unix.AF_LOCAL, unix.SOCK_STREAM, 0)
 	if err != nil {
@@ -50,16 +54,34 @@ func StartRunner(code string) (client *RunnerClient, err error) {
 
 	io.WriteString(stdin, code)
 
-	return &RunnerClient{
-		client: rpc.NewClient(clientFile),
-		cmd:    cmd,
-	}, nil
+	client = new(RunnerClient)
+	client.client = rpc.NewClient(clientFile)
+	client.cmd = cmd
+
+	runtime.SetFinalizer(client, func(client *RunnerClient) {
+		client.Close()
+	})
+
+	return client, nil
 }
 
-func (client *RunnerClient) Tick(state protocol.WorldState) error {
-	return client.client.Call("Runner.Tick", state, nil)
+// Tick runs a tick in the AI runner, and waits for the result
+func (client *RunnerClient) Tick(state protocol.WorldState) (TickResult, error) {
+	var result TickResult
+	err := client.client.Call("Runner.Tick", state, &result)
+
+	return result, err
 }
 
-func (client *RunnerClient) Close() error {
-	return client.client.Close()
+// Close closes the connection to the AI runner
+func (client *RunnerClient) Close() {
+	if err := client.client.Close(); err != nil {
+		log.Print("Error closing runner: ", err)
+	}
+	if err := client.cmd.Process.Kill(); err != nil {
+		log.Print("Error killing runner: ", err)
+	}
+	go func() {
+		client.cmd.Wait()
+	}()
 }

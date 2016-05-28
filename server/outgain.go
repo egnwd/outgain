@@ -11,7 +11,6 @@ import (
 
 	"github.com/docker/docker/pkg/reexec"
 	"github.com/egnwd/outgain/server/routes"
-	_ "github.com/egnwd/outgain/server/runner"
 )
 
 func main() {
