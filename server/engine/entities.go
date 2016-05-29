@@ -138,7 +138,7 @@ func RandomCreature(id uint64) Entity {
 			Radius: defaultRadius,
 		},
 		Name:   "foo",
-		Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".png",
+		Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".svg",
 
 		dx: math.Cos(angle),
 		dy: math.Sin(angle),

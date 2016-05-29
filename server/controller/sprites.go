@@ -9,7 +9,33 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/ajstarks/svgo"
+	"github.com/gorilla/mux"
 )
+
+const creaturePath = `M59.5,28.2c-1.4,0-2.7,1-3.4,2h-2.8c-0.4-4.9-2.2-8.4-4.7-11.6l2.2-2.2c1.2,0.2,2.5-0.2,3.4-1.1
+	c1.6-1.6,1.6-4,0-5.5c-1.6-1.6-4-1.6-5.5,0c-1,1-1.4,2.4-1,3.7l-2.2,2c-3.3-2.7-6.7-4.3-11.6-4.8v-3c1-0.7,1.9-1.9,1.9-3.3
+	c0-2.2-1.7-3.9-3.8-3.9s-3.7,1.8-3.7,3.9c0,1.4,0.9,2.6,1.9,3.3v3c-4.9,0.4-8.4,2.2-11.6,4.7l-2.1-2.1c0.3-1.3-0.1-2.7-1.1-3.7
+	c-1.6-1.6-4-1.6-5.5,0c-1.6,1.6-1.6,4,0,5.5c0.9,0.9,2.2,1.3,3.4,1.1l2.2,2.3c-2.7,3.3-4.3,6.7-4.8,11.6H7.6c-0.7-1-1.9-2-3.4-2
+	c-2.2,0-3.9,1.7-3.9,3.8s1.8,3.7,3.9,3.7c1.3,0,2.4-0.7,3.2-1.7h3c0.4,4.9,2.2,8.5,4.7,11.6l-1.9,1.9c-1.3-0.3-2.7,0.1-3.7,1.1
+	c-1.6,1.6-1.6,4,0,5.5c1.6,1.6,4,1.6,5.5,0c0.9-0.9,1.3-2.2,1.1-3.4l2.1-2c3.3,2.7,6.7,4.3,11.6,4.8v2.7c-1,0.7-1.9,1.9-1.9,3.3
+	c0,2.2,1.7,3.9,3.8,3.9s3.7-1.8,3.7-3.9c0-1.4-0.9-2.6-1.9-3.3v-2.7c4.9-0.4,8.4-2.2,11.6-4.7l2.1,2c-0.2,1.2,0.2,2.5,1.1,3.4
+	c1.6,1.6,4,1.6,5.5,0c1.6-1.6,1.6-4,0-5.5c-1-1-2.4-1.3-3.7-1l-1.9-2c2.7-3.3,4.3-6.7,4.8-11.6h3c0.7,1,1.9,1.7,3.2,1.7
+	c2.2,0,3.9-1.7,3.9-3.8C63.5,29.8,61.7,28.2,59.5,28.2z`
+
+func SVGSpriteHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "image/svg+xml")
+	const size = 64
+	vars := mux.Vars(r)
+	colour := vars["colour"]
+
+	creature := svg.New(w)
+	creature.Start(size, size)
+	style := "fill:#" + colour
+	creature.Path(creaturePath, style)
+	creature.End()
+}
 
 func SpriteHandler(staticDir string) func(http.ResponseWriter, *http.Request) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
