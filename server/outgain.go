@@ -18,6 +18,10 @@ func main() {
 		port = "8080"
 	}
 
+	db, err := openDb()
+
+	fmt.Println(db, err, "\n")  // Otherwise get error as db, err unused
+
 	staticDir := flag.String("static-dir", "client/dist", "")
 	redirectPlainHTTP := flag.Bool("redirect-plain-http", false, "")
 	flag.Parse()
