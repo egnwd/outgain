@@ -2,10 +2,9 @@ package database
 
 import (
 	"database/sql"
-	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/lib/pq"
 
-	"log"
 	"os"
 )
 
@@ -22,10 +21,4 @@ func OpenDb() (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
-}
-
-func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Error: %s\n", err.Error())
-	}
 }
