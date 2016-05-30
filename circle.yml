@@ -8,6 +8,8 @@ dependencies:
     - '~/.npm'
     - 'client/node_modules'
   override:
+    - sudo apt-get install libseccomp-dev libseccomp2
+
     - mkdir -p "/home/ubuntu/.go_workspace/src/$IMPORT_PATH"
     - rsync -azC --delete ./ "/home/ubuntu/.go_workspace/src/$IMPORT_PATH/"
 
