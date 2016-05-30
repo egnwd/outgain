@@ -19,9 +19,14 @@ mkdir -p "$TARGET_DIR"
 
 cp -r client/dist "$TARGET_DIR/static"
 cp server/server "$TARGET_DIR"
+cp sandbox/sandbox "$TARGET_DIR"
 
 cat > "$TARGET_DIR/start.sh" <<EOF
 #!/usr/bin/env bash
-exec ./server -static-dir ./static -redirect-plain-http
+set -eux
+exec ./server \
+    -redirect-plain-http \
+    -static-dir=./static \
+    -sandbox=trace -sandbox-bin=./sandbox
 EOF
 chmod +x "$TARGET_DIR/start.sh"

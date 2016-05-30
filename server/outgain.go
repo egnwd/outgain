@@ -1,16 +1,17 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"github.com/egnwd/outgain/server/engine"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
-	"github.com/docker/docker/pkg/reexec"
+	"github.com/egnwd/outgain/server/config"
+	"github.com/egnwd/outgain/server/engine"
 	"github.com/egnwd/outgain/server/routes"
+
+	"github.com/docker/docker/pkg/reexec"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
@@ -18,26 +19,34 @@ func main() {
 		return
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	config := config.ParseArgs()
+
+	if config.SandboxMode == "" {
+		log.Println("WARNING: sandbox disabled.")
+		log.Println("Server is vulnerable to malicious user AIs.")
+	} else if config.SandboxMode != "trace" &&
+		config.SandboxMode != "kill" &&
+		config.SandboxMode != "error" {
+
+		log.Fatal("Invalid sandbox mode: ", config.SandboxMode)
+	} else if config.SandboxBin == "" {
+		log.Fatal("Sandbox enabled but no sandbox binary given")
+	} else if config.SandboxMode == "trace" {
+		log.Println("WARNING: sandbox mode \"trace\" is insecure.")
+		log.Println("Server is vulnerable to malicious user AIs.")
 	}
 
-	staticDir := flag.String("static-dir", "client/dist", "")
-	redirectPlainHTTP := flag.Bool("redirect-plain-http", false, "")
-	flag.Parse()
+	engine := engine.NewEngine(config)
 
-	engine := engine.NewEngine()
-
-	handler := routes.GetHandler(*staticDir, engine)
-	if *redirectPlainHTTP {
+	handler := routes.GetHandler(config.StaticDir, engine)
+	if config.RedirectPlainHTTP {
 		handler = redirectPlainHTTPMiddleware(handler)
 	}
 
 	go engine.Run()
 
-	log.Printf("Listening on port %s", port)
-	http.ListenAndServe(":"+port, handler)
+	log.Printf("Listening on port %d", config.Port)
+	http.ListenAndServe(fmt.Sprintf(":%d", config.Port), handler)
 }
 
 func redirectPlainHTTPMiddleware(next http.Handler) http.Handler {

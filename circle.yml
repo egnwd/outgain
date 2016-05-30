@@ -1,6 +1,7 @@
 machine:
   environment:
     IMPORT_PATH: "github.com/egnwd/$CIRCLE_PROJECT_REPONAME"
+    GOFLAGS: "--ldflags=-extldflags\\ -static"
 
 dependencies:
   cache_directories:
@@ -14,6 +15,8 @@ dependencies:
     - npm install -g gulp
 
     - ./build_all.sh
+    - make:
+        pwd: sandbox
 
 test:
   override:

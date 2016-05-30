@@ -19,17 +19,41 @@ import (
 )
 
 func init() {
-	reexec.Register("ai-runner", func() {
-		// Execute the runner, reading the AI source from stdin, and server
-		// on inherited FD 3
-		ExecRunner(bufio.NewReader(os.Stdin), os.NewFile(3, "connection"))
-	})
+	reexec.Register("ai-runner", mainRunner)
+}
+
+func readSeed(random io.Reader) (int, error) {
+	bigSeed, err := rand.Int(random, big.NewInt(math.MaxInt64))
+	if err != nil {
+		return 0, err
+	}
+
+	return int(bigSeed.Int64()), nil
+}
+
+func mainRunner() {
+	// AI source is read from stdin
+	// We also inherit FDs from the engine :
+	// FD 3 is the socket
+	// FD 4 is /dev/random
+
+	input := bufio.NewReader(os.Stdin)
+	connection := os.NewFile(3, "connection")
+	random := os.NewFile(4, "/dev/random")
+	defer random.Close()
+
+	seed, err := readSeed(random)
+	if err != nil {
+		log.Fatal("Error reading seed : ", err)
+	}
+
+	ExecRunner(input, connection, seed)
 }
 
 // ExecRunner starts a new AI runner, reading the AI source from
 // `input`, and exposes a `net/rpc` interface on `conn`
-func ExecRunner(input io.Reader, conn io.ReadWriteCloser) {
-	runner, err := NewRunner(input)
+func ExecRunner(input io.Reader, conn io.ReadWriteCloser, seed int) {
+	runner, err := NewRunner(input, seed)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -53,7 +77,7 @@ type Runner struct {
 }
 
 // NewRunner creates a new AI runner, loading the AI's source from `input`.
-func NewRunner(input io.Reader) (runner *Runner, err error) {
+func NewRunner(input io.Reader, seed int) (runner *Runner, err error) {
 	runner = new(Runner)
 	runner.mrb = mruby.NewMrb()
 	defer func() {
@@ -67,17 +91,17 @@ func NewRunner(input io.Reader) (runner *Runner, err error) {
 
 	runner.mrb.ObjectClass().DefineMethod("move", runner.moveMethod(), mruby.ArgsReq(2))
 
-	if err := runner.seedRNG(); err != nil {
-		return nil, fmt.Errorf("seed: %v", err)
+	if _, err = runner.mrb.TopSelf().Call("srand", mruby.Int(seed)); err != nil {
+		return nil, fmt.Errorf("mruby srand: %v", err)
 	}
 
 	bytes, err := ioutil.ReadAll(input)
 	if err != nil {
-		return nil, fmt.Errorf("read: %v", err)
+		return nil, fmt.Errorf("source read: %v", err)
 	}
 
 	if _, err := runner.mrb.LoadString(string(bytes)); err != nil {
-		return nil, fmt.Errorf("load: %v", err)
+		return nil, fmt.Errorf("mruby load: %v", err)
 	}
 
 	return runner, nil
@@ -120,18 +144,6 @@ func valueToFloat(v *mruby.MrbValue) (float64, error) {
 	default:
 		return 0, fmt.Errorf("Expected number")
 	}
-}
-
-// seedRNG initializes mruby's RNG's seed, using the OS' random source
-func (runner *Runner) seedRNG() error {
-	bigSeed, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
-	if err != nil {
-		return err
-	}
-	seed := int(bigSeed.Int64())
-
-	_, err = runner.mrb.TopSelf().Call("srand", mruby.Int(seed))
-	return err
 }
 
 // moveMethod is exposed as `move` to the AI.

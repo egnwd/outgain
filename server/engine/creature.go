@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"strings"
 
+	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/protocol"
 	"github.com/egnwd/outgain/server/runner"
 
@@ -41,27 +42,29 @@ def run
 end
 `
 
-func RandomCreature(id uint64) Entity {
-	x := rand.Float64() * gridSize
-	y := rand.Float64() * gridSize
-	color := colorful.FastHappyColor().Hex()
+func RandomCreature(config *config.Config) func(id uint64) Entity {
+	return func(id uint64) Entity {
+		x := rand.Float64() * gridSize
+		y := rand.Float64() * gridSize
+		color := colorful.FastHappyColor().Hex()
 
-	client, err := runner.StartRunner(creatureAI)
-	if err != nil {
-		log.Fatalln(err)
-	}
+		client, err := runner.StartRunner(config, creatureAI)
+		if err != nil {
+			log.Fatalln(err)
+		}
 
-	return &Creature{
-		EntityBase: EntityBase{
-			ID:     id,
-			Color:  color,
-			X:      x,
-			Y:      y,
-			Radius: defaultRadius,
-		},
-		Name:   "foo",
-		Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".png",
-		runner: client,
+		return &Creature{
+			EntityBase: EntityBase{
+				ID:     id,
+				Color:  color,
+				X:      x,
+				Y:      y,
+				Radius: defaultRadius,
+			},
+			Name:   "foo",
+			Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".png",
+			runner: client,
+		}
 	}
 }
 
@@ -106,4 +109,8 @@ func (creature *Creature) Serialize() protocol.Entity {
 
 func (creature *Creature) Volume() float64 {
 	return creature.nextRadius * creature.nextRadius
+}
+
+func (creature *Creature) Close() {
+	creature.runner.Close()
 }

@@ -4,6 +4,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/protocol"
 )
 
@@ -26,10 +27,11 @@ type Engine struct {
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextID            <-chan uint64
+	config            *config.Config
 }
 
 // NewEngine returns a fresh instance of a game engine
-func NewEngine() (engine *Engine) {
+func NewEngine(config *config.Config) (engine *Engine) {
 	eventChannel := make(chan protocol.Event)
 	idChannel := make(chan uint64)
 	go func() {
@@ -48,6 +50,7 @@ func NewEngine() (engine *Engine) {
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
 		nextID:            idChannel,
+		config:            config,
 	}
 
 	return
@@ -55,10 +58,14 @@ func NewEngine() (engine *Engine) {
 
 // Reset clears the game log and resets the creatures
 func (engine *Engine) Reset() {
+	for _, entity := range engine.entities {
+		entity.Close()
+	}
+
 	engine.entities = EntityList{}
 
 	for i := 0; i < initialCreatureCount; i++ {
-		engine.AddEntity(RandomCreature)
+		engine.AddEntity(RandomCreature(engine.config))
 	}
 	engine.clearGameLog()
 }

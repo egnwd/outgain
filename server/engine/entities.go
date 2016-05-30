@@ -16,6 +16,7 @@ type Entity interface {
 	Serialize() protocol.Entity
 	Base() *EntityBase
 	Volume() float64
+	Close()
 }
 
 type EntityBase struct {
@@ -85,6 +86,7 @@ func (list EntityList) Filter(filter func(Entity) bool) EntityList {
 	count := list.Len()
 	for i := 0; i < count; i++ {
 		if !filter(list[i]) {
+			list[i].Close()
 			list.Swap(i, count-1)
 			count--
 		}
@@ -147,4 +149,7 @@ func (resource *Resource) Serialize() protocol.Entity {
 
 func (resource *Resource) Volume() float64 {
 	return resourceVolume
+}
+
+func (resource *Resource) Close() {
 }

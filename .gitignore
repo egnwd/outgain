@@ -3,9 +3,11 @@ client/node_modules
 client/typings
 server/server
 server/libmruby.a
+sandbox/sandbox
 app
 slug.tgz
 .tags
 .tags1
 .env
 *.psd
+.vagrant
