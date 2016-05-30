@@ -20,7 +20,7 @@ func main() {
 	}
 
 	db, err := database.OpenDb()
-	
+
 	_ = db
 
 	if err != nil {
