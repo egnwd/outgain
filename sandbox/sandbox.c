@@ -46,8 +46,7 @@ void setup_seccomp(uint32_t action) {
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(mprotect), 0);
 
     // Futexes
-    seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(futex), 1, SCMP_A1(SCMP_CMP_EQ, FUTEX_WAIT));
-    seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(futex), 1, SCMP_A1(SCMP_CMP_EQ, FUTEX_WAKE));
+    seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(futex), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(set_robust_list), 0);
 
     // Signal handlers
