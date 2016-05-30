@@ -19,9 +19,8 @@ func GetHandler(static string, engine *engine.Engine) http.Handler {
 
 	get.HandleFunc("/ping", controller.PingHandler)
 
-	get.HandleFunc("/images/creature-{colour:[0-9a-fA-F]+}.png",
-		controller.SpriteHandler(static))
-	get.HandleFunc("/images/creature-{colour:[0-9a-fA-F]+}.svg", controller.SVGSpriteHandler)
+	get.Handle("/images/creature-{colour:[0-9a-fA-F]+}.svg",
+		controller.SVGSpriteHandler(static))
 
 	get.HandleFunc("/login", controller.UserLogIn)
 	get.HandleFunc("/logout", controller.Logout)
