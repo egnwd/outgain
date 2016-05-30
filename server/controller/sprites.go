@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -43,7 +44,6 @@ func SVGSpriteHandler(staticDir string) http.Handler {
 		const styleComment = "<!-- style -->"
 		replace := strings.NewReplacer(styleComment, s.String())
 		newSvg := replace.Replace(string(body))
-		// ioutil.WriteFile("/tmp/creature", []byte(newSvg), 0644)
 		fmt.Fprint(w, newSvg)
 	})
 }
@@ -51,23 +51,48 @@ func SVGSpriteHandler(staticDir string) http.Handler {
 func generateStyle(colour string) style {
 	outline := attribute{class: "outline", fill: "FFFFFF"}
 
-	outerEnv := attribute{class: "outer-envelope", fill: colour}
-	innerEnv := attribute{class: "inner-envelope", fill: colour}
+	outerEnv := attribute{class: "outer-envelope", fill: shiftColour(colour, 0.4)}
+	innerEnv := attribute{class: "inner-envelope", fill: shiftColour(colour, -0.2)}
 
-	body1 := attribute{class: "body-1", fill: colour}
-	body2 := attribute{class: "body-2", fill: colour}
-	body3 := attribute{class: "body-3", fill: colour}
-	body4 := attribute{class: "body-4", fill: colour}
-	body5 := attribute{class: "body-5", fill: colour}
-	body6 := attribute{class: "body-6", fill: colour}
+	body1 := attribute{class: "body-1", fill: shiftColour(colour, 0)}
+	body2 := attribute{class: "body-2", fill: shiftColour(colour, 0.1)}
+	body3 := attribute{class: "body-3", fill: shiftColour(colour, 0.2)}
+	body4 := attribute{class: "body-4", fill: shiftColour(colour, 0.3)}
+	body5 := attribute{class: "body-5", fill: shiftColour(colour, 0.4)}
 
 	return style{
 		attributes: []attribute{
 			outline,
 			outerEnv, innerEnv,
-			body1, body2, body3, body4, body5, body6,
+			body1, body2, body3, body4, body5,
 		},
 	}
+}
+
+func shiftColour(colour string, correctionFactor float32) string {
+	c, _ := strconv.ParseInt(colour, 16, 64)
+
+	const rShift, gShift = 16, 8
+	const max = 0xFF
+
+	red := float32(c >> 16)
+	green := float32((c >> 8) & max)
+	blue := float32(c & max)
+
+	if correctionFactor < 0 {
+		correctionFactor++
+		red *= correctionFactor
+		green *= correctionFactor
+		blue *= correctionFactor
+	} else {
+		red = (max-red)*correctionFactor + red
+		green = (max-green)*correctionFactor + green
+		blue = (max-blue)*correctionFactor + blue
+	}
+
+	value := ((int(red) & max) << 16) + ((int(green) & max) << 8) + (int(blue) & max)
+
+	return fmt.Sprintf("%X", value)
 }
 
 func (a attribute) String() string {
