@@ -2,20 +2,32 @@ package main
 
 import (
 	"database/sql"
+	"github.com/joho/godotenv"
 	"github.com/lib/pq"
+
 	"log"
 	"os"
 )
 
-func openDb() (*sql.DB, error) {
+func openDb() *sql.DB {
 	url := os.Getenv("DATABASE_URL")
-	connection, _ := pq.ParseURL(url)
-	connection += " sslmode=require"
 
-	db, err := sql.Open("postgres", connection)
+	//url := DATABASE_URL
+	url, _ = pq.ParseURL(url)
+	url += " sslmode=require"
+
+	log.Println(url)
+
+	db, err := sql.Open("postgres", url)
 	if err != nil {
 		log.Println(err)
 	}
 
-	return db, err
+	return db
+}
+
+func init() {
+	if err := godotenv.Load("db.yml"); err != nil {
+		log.Printf("Error: %s\n", err.Error())
+	}
 }
