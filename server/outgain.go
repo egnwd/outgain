@@ -20,10 +20,11 @@ func main() {
 	}
 
 	db, err := database.OpenDb()
+	
+	_ = db
 
 	if err != nil {
 		log.Fatal(err)
-		log.Fatal(db) // need to use db somewhere or an error is thrown
 	}
 
 	staticDir := flag.String("static-dir", "client/dist", "")
