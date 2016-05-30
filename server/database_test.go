@@ -26,7 +26,7 @@ func TestDatabase(t *testing.T) {
 
 	assert.Nil(t, err, "error should be nil")
 	assert.Equal(t, username, "plietar", "username is set to plietar in the database setup")
-	assert.Equal(t, score, -14, "score is set to -14 in the database setup")
+	assert.Equal(t, score, -12, "score is set to -14 in the database setup")
 
 	err = rows.Err()
 	assert.Nil(t, err, "error should be nil")
