@@ -11,8 +11,6 @@ import (
 
 func openDb() *sql.DB {
 	url := os.Getenv("DATABASE_URL")
-
-	//url := DATABASE_URL
 	url, _ = pq.ParseURL(url)
 	url += " sslmode=require"
 
@@ -38,7 +36,7 @@ func testDatabase(db *sql.DB) {
 		username string
 		score    int
 	)
-	
+
 	if err != nil {
 		log.Fatal(err)
 	}
