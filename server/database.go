@@ -27,7 +27,7 @@ func openDb() *sql.DB {
 }
 
 func init() {
-	if err := godotenv.Load("db.yml"); err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Printf("Error: %s\n", err.Error())
 	}
 }

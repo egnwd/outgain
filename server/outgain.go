@@ -26,6 +26,27 @@ func main() {
 
 	fmt.Println(err)
 
+	rows, err := db.Query("SELECT USERNAME, SCORE FROM LEADERBOARD")
+	var (
+		username string
+		score    int
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&username, &score)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println(username, score)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	staticDir := flag.String("static-dir", "client/dist", "")
 	redirectPlainHTTP := flag.Bool("redirect-plain-http", false, "")
 	flag.Parse()
