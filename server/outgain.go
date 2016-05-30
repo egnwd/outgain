@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/egnwd/outgain/server/database"
 	"github.com/egnwd/outgain/server/routes"
 )
 
@@ -18,7 +19,7 @@ func main() {
 		port = "8080"
 	}
 
-	db, err := openDb()
+	db, err := database.OpenDb()
 
 	if err != nil {
 		log.Fatal(err)

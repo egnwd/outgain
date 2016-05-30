@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestDatabase(t *testing.T) {
-	db, err := openDb()
+	db, err := OpenDb()
 	require.Nil(t, err, "error should be nil")
 	_, err = db.Query("CREATE TABLE leaderboardTest(username text, score int)")
 	require.Nil(t, err, "error should be nil")

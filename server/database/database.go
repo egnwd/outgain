@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func openDb() (*sql.DB, error) {
+func OpenDb() (*sql.DB, error) {
 	url := os.Getenv("DATABASE_URL")
 
 	url, err := pq.ParseURL(url)
