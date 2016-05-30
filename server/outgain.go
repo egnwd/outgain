@@ -25,7 +25,6 @@ func main() {
 		log.Fatal(db) // need to use db somewhere or an error is thrown
 	}
 
-
 	staticDir := flag.String("static-dir", "client/dist", "")
 	redirectPlainHTTP := flag.Bool("redirect-plain-http", false, "")
 	flag.Parse()

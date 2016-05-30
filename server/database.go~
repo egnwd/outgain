@@ -1,0 +1,19 @@
+package server
+
+import (
+  "github.com/lib/pq"
+  "database/sql"
+)
+
+func openDb() (*sql.DB, error) {
+	url := os.Getenv("DATABASE_URL")
+	connection, _ := pq.ParseURL(url)
+	connection += " sslmode=require"
+
+	db, err := sql.Open("postgres", connection)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return db, err
+}

@@ -1,0 +1,39 @@
+package main
+
+import (
+	"github.com/stretchr/testify/assert"
+	"sort"
+	"testing"
+)
+
+func testDatabase(t *testing.T) {
+	rows, err := db.Query("SELECT * FROM test")
+	var (
+		id string
+		val    int
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err := rows.Scan(&id, &val)
+	assert.Nil(err, "error should be nil")
+	defer rows.Close()
+	err := rows.Scan(&id, &val)
+	assert.Nil(err, "error should be nil")
+
+	assert.Equal(
+	defer rows.Close()
+	for rows.Next() {
+		
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println(id, val)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
