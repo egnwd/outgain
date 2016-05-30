@@ -24,10 +24,6 @@ dependencies:
     - go build -v:
         pwd: server
 
-database:
-  override:
-    - psql -u ubuntu circle_test < test_database_setup.sql
-
 test:
   override:
     - test -z "$(gofmt -l .)":
