@@ -101,6 +101,7 @@ void setup_seccomp(uint32_t action) {
     // These may be issued in various context, so we shouldn't die on them,
     // merely block them by return -EPERM
     // The Go runtime probes IP support by creating dummy sockets.
+    seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EPERM), SCMP_SYS(open), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EPERM), SCMP_SYS(openat), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EPERM), SCMP_SYS(access), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ERRNO(EPERM), SCMP_SYS(readlink), 0);
