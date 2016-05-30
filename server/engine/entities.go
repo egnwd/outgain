@@ -9,7 +9,7 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 )
 
-const defaultRadius float64 = 0.5
+const defaultRadius float64 = 0.35
 const resourceRadius float64 = 0.1
 const resourceVolume float64 = 1
 
