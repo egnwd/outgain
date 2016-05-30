@@ -54,7 +54,7 @@ func generateStyle(colour string) style {
 	outerEnv := attribute{class: "outer-envelope", fill: shiftColour(colour, 0.4)}
 	innerEnv := attribute{class: "inner-envelope", fill: shiftColour(colour, -0.2)}
 
-	body1 := attribute{class: "body-1", fill: shiftColour(colour, 0)}
+	body1 := attribute{class: "body-1", fill: colour}
 	body2 := attribute{class: "body-2", fill: shiftColour(colour, 0.1)}
 	body3 := attribute{class: "body-3", fill: shiftColour(colour, 0.2)}
 	body4 := attribute{class: "body-4", fill: shiftColour(colour, 0.3)}
