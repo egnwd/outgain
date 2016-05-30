@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -Werror
+CFLAGS=-Wall -Wextra -Werror -std=c99
 LDFLAGS=-lseccomp -static
 SRCS=sandbox.c
 TARGET=sandbox
