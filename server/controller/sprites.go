@@ -75,8 +75,8 @@ func shiftColour(colour string, correctionFactor float32) string {
 	const rShift, gShift = 16, 8
 	const max = 0xFF
 
-	red := float32(c >> 16)
-	green := float32((c >> 8) & max)
+	red := float32(c >> rShift)
+	green := float32((c >> gShift) & max)
 	blue := float32(c & max)
 
 	if correctionFactor < 0 {
@@ -90,9 +90,11 @@ func shiftColour(colour string, correctionFactor float32) string {
 		blue = (max-blue)*correctionFactor + blue
 	}
 
-	value := ((int(red) & max) << 16) + ((int(green) & max) << 8) + (int(blue) & max)
+	newRed := ((int(red) & max) << rShift)
+	newGreen := ((int(green) & max) << gShift)
+	newBlue := (int(blue) & max)
 
-	return fmt.Sprintf("%X", value)
+	return fmt.Sprintf("%X", newRed+newGreen+newBlue)
 }
 
 func (a attribute) String() string {
