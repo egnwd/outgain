@@ -18,9 +18,13 @@ func main() {
 		port = "8080"
 	}
 
-	db := openDb()
+	db, err := openDb()
 
-	testDatabase(db)
+	if err != nil {
+		log.Fatal(err)
+		log.Fatal(db) // need to use db somewhere or an error is thrown
+	}
+
 
 	staticDir := flag.String("static-dir", "client/dist", "")
 	redirectPlainHTTP := flag.Bool("redirect-plain-http", false, "")
