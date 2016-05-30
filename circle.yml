@@ -1,6 +1,7 @@
 machine:
   environment:
     IMPORT_PATH: "github.com/egnwd/$CIRCLE_PROJECT_REPONAME"
+    DATABASE_URL: "postgres://ubuntu:@127.0.0.1:5432/circle_test"    
 
 dependencies:
   cache_directories:
@@ -22,6 +23,10 @@ dependencies:
         pwd: server
     - go build -v:
         pwd: server
+
+database:
+  override:
+    - psql -u ubuntu circle_test < test_database_setup.sql
 
 test:
   override:
