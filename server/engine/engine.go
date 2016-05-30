@@ -125,7 +125,6 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 		Type: "log",
 		Data: logEvent,
 	}
-
 }
 
 func (engine *Engine) tick() {

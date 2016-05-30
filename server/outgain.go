@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/egnwd/outgain/server/database"
 	"github.com/egnwd/outgain/server/routes"
 )
 
@@ -16,6 +17,14 @@ func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
+	}
+
+	db, err := database.OpenDb()
+
+	_ = db
+
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	staticDir := flag.String("static-dir", "client/dist", "")
