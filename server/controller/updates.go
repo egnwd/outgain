@@ -2,10 +2,11 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/egnwd/outgain/server/engine"
-	"gopkg.in/antage/eventsource.v1"
 	"log"
 	"net/http"
+
+	"github.com/egnwd/outgain/server/engine"
+	"gopkg.in/antage/eventsource.v1"
 )
 
 func UpdatesHandler(engine *engine.Engine) http.Handler {

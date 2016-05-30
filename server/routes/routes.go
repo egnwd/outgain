@@ -34,7 +34,7 @@ func GetHandler(static string, engine *engine.Engine) http.Handler {
 	post.HandleFunc("/lobbies/join", controller.LobbiesJoin)
 
 	// Game View
-	get.HandleFunc("/lobbies/{id:[0-9]+}", controller.LobbiesGame)
+	get.Handle("/lobbies/{id:[0-9]+}", controller.LobbiesGame(static))
 	get.Handle("/updates/{id:[0-9]+}", controller.UpdatesHandler(engine))
 	get.HandleFunc("/leave", controller.Leave)
 

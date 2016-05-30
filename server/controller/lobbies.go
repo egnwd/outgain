@@ -8,8 +8,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-
-	"github.com/gorilla/mux"
 )
 
 func LobbiesView(w http.ResponseWriter, r *http.Request) {
@@ -41,15 +39,14 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 	log.Printf("User: %s Joined Lobby: %s", username, id)
 }
 
-func LobbiesGame(w http.ResponseWriter, r *http.Request) {
-	if !IsUserAuthorised(r) {
-		u := fmt.Sprintf("http://%s/", r.Host)
-		http.Redirect(w, r, u, http.StatusFound)
-		return
-	}
+func LobbiesGame(staticDir string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !IsUserAuthorised(r) {
+			u := fmt.Sprintf("http://%s/", r.Host)
+			http.Redirect(w, r, u, http.StatusFound)
+			return
+		}
 
-	vars := mux.Vars(r)
-	id := vars["id"]
-
-	fmt.Fprintln(w, id)
+		http.ServeFile(w, r, staticDir+"/game-view.html")
+	})
 }
