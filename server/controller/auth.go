@@ -35,6 +35,18 @@ func init() {
 	}
 }
 
+func LogInPage(staticDir string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if _, err := GetUserName(r); err != nil {
+			log.Println("Here?")
+			http.ServeFile(w, r, staticDir+"/index.html")
+		} else {
+			u := fmt.Sprintf("http://%s/lobbies", r.Host)
+			http.Redirect(w, r, u, http.StatusFound)
+		}
+	})
+}
+
 // UserLogIn signs the user in and sets up a session
 func UserLogIn(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, sessionName)
@@ -98,7 +110,7 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 		log.Println(err.Error())
 	}
 
-	u := fmt.Sprintf("http://%s/", r.Host)
+	u := fmt.Sprintf("http://%s/lobbies", r.Host)
 
 	http.Redirect(w, r, u, http.StatusFound)
 }
@@ -152,4 +164,27 @@ func UpdateMaxAge(h http.Handler) http.Handler {
 
 		h.ServeHTTP(w, r)
 	})
+}
+
+func IsUserAuthorised(r *http.Request) bool {
+	session, _ := store.Get(r, sessionName)
+
+	if _, ok := session.Values[usernameKey]; ok {
+		return true
+	}
+
+	return false
+}
+
+func GetUserName(r *http.Request) (string, error) {
+	session, err := store.Get(r, sessionName)
+	if err != nil {
+		return "", err
+	}
+
+	if username, ok := session.Values[usernameKey]; ok {
+		return username.(string), nil
+	}
+
+	return "", fmt.Errorf("User not logged in")
 }

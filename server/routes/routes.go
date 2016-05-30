@@ -15,20 +15,28 @@ func GetHandler(static string, engine *engine.Engine) http.Handler {
 	mux := mux.NewRouter()
 
 	get := mux.Methods(http.MethodGet).Subrouter()
-	// post := mux.Methods(http.MethodPost).Subrouter()
+	post := mux.Methods(http.MethodPost).Subrouter()
 
 	get.HandleFunc("/ping", controller.PingHandler)
 
 	get.HandleFunc("/images/creature-{id:[0-9a-fA-F]+}.png",
 		controller.SpriteHandler(static))
 
+	get.Handle("/", controller.LogInPage(static))
+
 	get.HandleFunc("/login", controller.UserLogIn)
 	get.HandleFunc("/logout", controller.Logout)
 	get.HandleFunc("/oauthSignInCallback", controller.OAuthSignInCallback)
 	get.HandleFunc("/currentUser", controller.CurrentUser)
 
+	// Lobbies
+	get.HandleFunc("/lobbies", controller.LobbiesView)
+	post.HandleFunc("/lobbies/join", controller.LobbiesJoin)
+
+	// Game View
+	get.HandleFunc("/lobbies/{id:[0-9]+}", controller.LobbiesGame)
+	get.Handle("/updates/{id:[0-9]+}", controller.UpdatesHandler(engine))
 	get.HandleFunc("/leave", controller.Leave)
-	get.Handle("/updates", controller.UpdatesHandler(engine))
 
 	// FIXME: Wrap the FileServer in a Handler that hooks w upon writing
 	// 404 to the Header
