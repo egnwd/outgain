@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"strconv"
-	"strings"
 
 	"github.com/egnwd/outgain/server/lobby"
 )
@@ -24,11 +24,16 @@ func LobbiesView(w http.ResponseWriter, r *http.Request) {
 	form := url.Values{}
 	form.Add("id", fmt.Sprintf("%d", id))
 
-	u := fmt.Sprintf("http://%s/lobbies/join", r.Host)
-	http.Post(u, "application/x-www-form-urlencoded", strings.NewReader(form.Encode()))
+	rawurl := fmt.Sprintf("http://%s/lobbies/join", r.Host)
 
-	u = fmt.Sprintf("http://%s/lobbies/%d", r.Host, id)
-	http.Redirect(w, r, u, http.StatusFound)
+	jar, _ := cookiejar.New(nil)
+	u, _ := url.Parse(rawurl)
+	jar.SetCookies(u, r.Cookies())
+	c := &http.Client{Jar: jar}
+	c.PostForm(rawurl, form)
+
+	rawurl = fmt.Sprintf("http://%s/lobbies/%d", r.Host, id)
+	http.Redirect(w, r, rawurl, http.StatusFound)
 }
 
 func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +53,11 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username, _ := GetUserName(r)
+	username, err := GetUserName(r)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 	user := lobby.NewUser(username)
 	l.AddUser(user)
 
