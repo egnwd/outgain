@@ -1,5 +1,8 @@
 'use strict';
 
+require("any-promise/register/bluebird")
+require("util").debuglog = require("debuglog")
+
 var gulp = require('gulp');
 var browserify = require('browserify');
 var tsify = require('tsify');
