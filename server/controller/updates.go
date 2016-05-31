@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -26,8 +25,6 @@ func UpdatesHandler() http.Handler {
 		}
 
 		eng := l.Engine.(*engine.Engine)
-
-		fmt.Printf("\n%#v\n\n", eng)
 
 		events := eventsource.New(nil, nil)
 		go func() {

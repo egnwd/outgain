@@ -123,7 +123,7 @@ type Creature struct {
 	dy float64
 }
 
-func RandomCreature(id uint64) Entity {
+func RandomCreature(id uint64, name string) Entity {
 	angle := rand.Float64() * 2 * math.Pi
 	x := rand.Float64() * gridSize
 	y := rand.Float64() * gridSize
@@ -137,7 +137,7 @@ func RandomCreature(id uint64) Entity {
 			Y:      y,
 			Radius: defaultRadius,
 		},
-		Name:   "foo",
+		Name:   name,
 		Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".png",
 
 		dx: math.Cos(angle),
@@ -200,7 +200,7 @@ type Resource struct {
 	EntityBase
 }
 
-func RandomResource(id uint64) Entity {
+func RandomResource(id uint64, _ string) Entity {
 	return &Resource{
 		EntityBase: EntityBase{
 			ID:     id,

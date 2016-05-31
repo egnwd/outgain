@@ -50,15 +50,20 @@ func NewTestLobby(e engine.Engineer, size int) (lobby *Lobby) {
 	return
 }
 
+//This is just for testing until it's fully implemented
+var baseID = uint64(rand.Uint32())
+
 func newID() uint64 {
-	id := uint64(rand.Uint32())
-	_, ok := lobbies[id]
-	for ok {
-		id = uint64(rand.Uint32())
-		_, ok = lobbies[id]
+	baseID++
+	return baseID
+}
+
+func (lobby *Lobby) startEngine() {
+	for _, guest := range lobby.Guests.list {
+		lobby.Engine.AddEntity(guest.name, engine.RandomCreature)
 	}
 
-	return id
+	go lobby.Engine.Run()
 }
 
 // GetLobby returns the Lobby with id: `id` and if it does not exist it returns

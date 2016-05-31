@@ -28,6 +28,8 @@ type Engine struct {
 	nextID            <-chan uint64
 }
 
+type builderFunc func(uint64, string) Entity
+
 // NewEngine returns a fresh instance of a game engine
 func NewEngine() (engine *Engine) {
 	eventChannel := make(chan protocol.Event)
@@ -57,9 +59,6 @@ func NewEngine() (engine *Engine) {
 func (engine *Engine) Reset() {
 	engine.entities = EntityList{}
 
-	for i := 0; i < initialCreatureCount; i++ {
-		engine.AddEntity(RandomCreature)
-	}
 	engine.clearGameLog()
 }
 
@@ -73,7 +72,7 @@ func (engine *Engine) clearGameLog() {
 }
 
 func (engine *Engine) Run() {
-	engine.Reset()
+	engine.clearGameLog()
 	engine.lastTick = time.Now()
 	engine.lastResourceSpawn = time.Now()
 
@@ -102,8 +101,8 @@ func (engine *Engine) Serialize() protocol.WorldState {
 }
 
 // AddEntity adds an entity to the engine's list
-func (engine *Engine) AddEntity(builder func(uint64) Entity) {
-	entity := builder(<-engine.nextID)
+func (engine *Engine) AddEntity(name string, builder builderFunc) {
+	entity := builder(<-engine.nextID, name)
 	engine.entities = engine.entities.Insert(entity)
 }
 
@@ -134,7 +133,7 @@ func (engine *Engine) tick() {
 	if now.Sub(engine.lastResourceSpawn) > resourceSpawnInterval {
 		engine.lastResourceSpawn = now
 
-		engine.AddEntity(RandomResource)
+		engine.AddEntity("", RandomResource)
 	}
 
 	engine.entities.Tick(dt)

@@ -49,8 +49,8 @@ func (g *guest) GetName() string {
 func generalPopulation(size int) guestList {
 	var bots guestList
 
-	for i := 0; i < size; i++ {
-		name := fmt.Sprintf("Bot %d", i+1)
+	for i := size; i > 0; i-- {
+		name := fmt.Sprintf("Bot %d", i)
 		bots.list = append(bots.list, &NewBot(name).guest)
 	}
 
@@ -76,7 +76,7 @@ func (lobby *Lobby) AddUser(user *User) error {
 
 	lobby.Guests.list = newGuests
 	if lobby.Guests.userSize == 1 {
-		go lobby.Engine.Run()
+		lobby.startEngine()
 	}
 	return nil
 }
