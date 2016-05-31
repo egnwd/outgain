@@ -32,25 +32,28 @@ class Entity {
         let radius = this.current.radius
         let color = this.current.color
         let name = this.current.name
+	let entityType = this.current.entityType
+
+	
 
         ctx.save()
         ctx.translate(x * scale, y * scale)
 
-        if (this.img == null && name == null) {
+        if (this.img == null && entityType == 1) {
             ctx.beginPath()
             ctx.arc(0, 0, radius * scale, 0, 2 * Math.PI, false)
             ctx.fillStyle = color
             ctx.fill()
             ctx.closePath()
-        } else if (this.img == null && name != null){
+        } else if (this.img == null && entityType == 2){
             ctx.fillRect(0, 0, 20, 20)
             ctx.fillStyle = color
-	} else {
+	} else if (this.img != null) {
             var size = radius * scale * 2
             ctx.drawImage(this.img, -size / 2, -size / 2, size, size)
         }
 
-        if (name != null && name != "spike") {
+        if (name != null) {
             ctx.scale(2, 2)
             ctx.textAlign = "center"
             ctx.textBaseline = 'middle'

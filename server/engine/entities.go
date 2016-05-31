@@ -15,6 +15,12 @@ const resourceVolume float64 = 1
 const spikeRadius float64 = 0.1
 const spikeVolume float64 = 1
 
+const (
+	creatureEnum = iota
+	resourceEnum 
+	spikeEnum    
+)
+
 type Entity interface {
 	Tick(dt float64)
 	Serialize() protocol.Entity
@@ -184,13 +190,14 @@ func (creature *Creature) Tick(dt float64) {
 
 func (creature *Creature) Serialize() protocol.Entity {
 	return protocol.Entity{
-		ID:     creature.ID,
-		Name:   &creature.Name,
-		Sprite: &creature.Sprite,
-		Color:  creature.Color,
-		X:      creature.X,
-		Y:      creature.Y,
-		Radius: creature.Radius,
+		ID:         creature.ID,
+		Name:       &creature.Name,
+		Sprite:     &creature.Sprite,
+		Color:      creature.Color,
+		X:          creature.X,
+		Y:          creature.Y,
+		Radius:     creature.Radius,
+		EntityType: creatureEnum,
 	}
 }
 
@@ -223,13 +230,14 @@ func (resource *Resource) Tick(dt float64) {
 
 func (resource *Resource) Serialize() protocol.Entity {
 	return protocol.Entity{
-		ID:     resource.ID,
-		Name:   nil,
-		Sprite: nil,
-		Color:  resource.Color,
-		X:      resource.X,
-		Y:      resource.Y,
-		Radius: resource.Radius,
+		ID:         resource.ID,
+		Name:       nil,
+		Sprite:     nil,
+		Color:      resource.Color,
+		X:          resource.X,
+		Y:          resource.Y,
+		Radius:     resource.Radius,
+		EntityType: resourceEnum,
 	}
 }
 
@@ -261,15 +269,15 @@ func (spike *Spike) Tick(dt float64) {
 }
 
 func (spike *Spike) Serialize() protocol.Entity {
-	name := "spike"
 	return protocol.Entity{
-		ID:     spike.ID,
-		Name:   &name, 
-		Sprite: nil,
-		Color:  spike.Color,
-		X:      spike.X,
-		Y:      spike.Y,
-		Radius: spike.Radius,
+		ID:         spike.ID,
+		Name:       nil,
+		Sprite:     nil,
+		Color:      spike.Color,
+		X:          spike.X,
+		Y:          spike.Y,
+		Radius:     spike.Radius,
+		EntityType: spikeEnum,
 	}
 }
 
