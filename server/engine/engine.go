@@ -120,6 +120,8 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 		logEvent = protocol.LogEvent{LogType: 1, ProtagID: a.Base().ID, AntagID: 0}
 	case *Creature:
 		logEvent = protocol.LogEvent{LogType: 2, ProtagID: a.Base().ID, AntagID: b.Base().ID}
+	case *Spike:
+		logEvent = protocol.LogEvent{LogType: 3, ProtagID: a.Base().ID, AntagID: 0}
 	}
 	engine.eventsOut <- protocol.Event{
 		Type: "log",
@@ -137,6 +139,7 @@ func (engine *Engine) tick() {
 		engine.lastResourceSpawn = now
 
 		engine.AddEntity(RandomResource)
+		engine.AddEntity(RandomSpike)
 	}
 
 	engine.entities.Tick(dt)
@@ -147,6 +150,10 @@ func (engine *Engine) eatEntity(eater, eaten Entity) {
 	eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())
 	eaten.Base().dying = true
 	engine.addLogEvent(eater, eaten)
+	switch eaten.(type) {
+	case *Spike:
+		eater.Base().dying = true;
+	}
 }
 
 func (engine *Engine) collisionDetection() {

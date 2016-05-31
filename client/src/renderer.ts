@@ -36,18 +36,21 @@ class Entity {
         ctx.save()
         ctx.translate(x * scale, y * scale)
 
-        if (this.img == null) {
+        if (this.img == null && name == null) {
             ctx.beginPath()
             ctx.arc(0, 0, radius * scale, 0, 2 * Math.PI, false)
             ctx.fillStyle = color
             ctx.fill()
             ctx.closePath()
-        } else {
+        } else if (this.img == null && name != null){
+            ctx.fillRect(0, 0, 20, 20)
+            ctx.fillStyle = color
+	} else {
             var size = radius * scale * 2
             ctx.drawImage(this.img, -size / 2, -size / 2, size, size)
         }
 
-        if (name != null) {
+        if (name != null && name != "spike") {
             ctx.scale(2, 2)
             ctx.textAlign = "center"
             ctx.textBaseline = 'middle'

@@ -12,6 +12,8 @@ import (
 const defaultRadius float64 = 0.5
 const resourceRadius float64 = 0.1
 const resourceVolume float64 = 1
+const spikeRadius float64 = 0.1
+const spikeVolume float64 = 1
 
 type Entity interface {
 	Tick(dt float64)
@@ -233,4 +235,44 @@ func (resource *Resource) Serialize() protocol.Entity {
 
 func (resource *Resource) Volume() float64 {
 	return resourceVolume
+}
+
+type Spike struct {
+	EntityBase
+}
+
+func RandomSpike(id uint64) Entity {
+	return &Spike{
+		EntityBase: EntityBase{
+			ID:     id,
+			X:      rand.Float64() * gridSize, // Update these so that it's not on a player
+			Y:      rand.Float64() * gridSize,
+			Radius: spikeRadius,
+			Color:  colorful.FastHappyColor().Hex(),
+		},
+	}
+}
+
+func (spike *Spike) Base() *EntityBase {
+	return &spike.EntityBase
+}
+
+func (spike *Spike) Tick(dt float64) {
+}
+
+func (spike *Spike) Serialize() protocol.Entity {
+	name := "spike"
+	return protocol.Entity{
+		ID:     spike.ID,
+		Name:   &name, 
+		Sprite: nil,
+		Color:  spike.Color,
+		X:      spike.X,
+		Y:      spike.Y,
+		Radius: spike.Radius,
+	}
+}
+
+func (spike *Spike) Volume() float64 {
+	return spikeVolume
 }
