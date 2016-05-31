@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/egnwd/outgain/server/lobby"
-	"github.com/egnwd/outgain/server/user"
 )
 
 func LobbiesView(w http.ResponseWriter, r *http.Request) {
@@ -50,7 +49,7 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	username, _ := GetUserName(r)
-	user := user.NewUser(username)
+	user := lobby.NewUser(username)
 	l.AddUser(user)
 
 	log.Printf("User: %s Joined Lobby: %d", username, id)

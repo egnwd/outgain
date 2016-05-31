@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/egnwd/outgain/server/engine"
 	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
 	"gopkg.in/antage/eventsource.v1"
@@ -19,11 +20,12 @@ func UpdatesHandler() http.Handler {
 
 		l, ok := lobby.GetLobby(uint64(id))
 		if !ok {
+			log.Println("Lobby doesn't exist")
 			http.Error(w, "Lobby doesn't exist", http.StatusInternalServerError)
 			return
 		}
 
-		eng := l.Engine
+		eng := l.Engine.(*engine.Engine)
 
 		fmt.Printf("\n%#v\n\n", eng)
 
