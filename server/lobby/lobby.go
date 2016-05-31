@@ -5,7 +5,6 @@ import (
 	"math/rand"
 
 	"github.com/egnwd/outgain/server/engine"
-	"github.com/egnwd/outgain/server/user"
 )
 
 const lobbySize int = 10
@@ -16,18 +15,18 @@ var lobbies = make(map[uint64]*Lobby)
 type Lobby struct {
 	ID     uint64
 	Engine engine.Engineer
-	Users  user.List
+	Guests []guest
 	size   int
 }
 
-// NewLobby creates a new lobby with its own engine and list of users
+// NewLobby creates a new lobby with its own engine and list of guests
 func NewLobby() (lobby *Lobby) {
 	e := engine.NewEngine()
 	id := newID()
 	lobby = &Lobby{
 		ID:     id,
 		Engine: e,
-		Users:  user.List{},
+		Guests: []guest{},
 	}
 
 	lobbies[lobby.ID] = lobby
@@ -35,13 +34,14 @@ func NewLobby() (lobby *Lobby) {
 	return
 }
 
-// NewLobby creates a new lobby with its own engine and list of users
+// NewTestLobby creates a new lobby with a test engine, a specific
+// size and list of guests
 func NewTestLobby(e engine.Engineer, size int) (lobby *Lobby) {
 	id := newID()
 	lobby = &Lobby{
 		ID:     id,
 		Engine: e,
-		Users:  user.List{},
+		Guests: []guest{},
 		size:   size,
 	}
 
@@ -64,17 +64,19 @@ func newID() uint64 {
 // AddUser adds the specified user to the lobby, returning an error if the
 // lobby is already at capacity, and running the engine if the user is
 // the first to join
-func (lobby *Lobby) AddUser(user *user.User) error {
-	if len(lobby.Users) == lobbySize {
+func (lobby *Lobby) AddUser(user *User) error {
+	if len(lobby.Guests) == lobbySize {
 		return errors.New("Lobby full")
 	}
-	lobby.Users = append(lobby.Users, user)
-	if len(lobby.Users) == 1 {
+	lobby.Guests = append(lobby.Guests, user.guest)
+	if len(lobby.Guests) == 1 {
 		go lobby.Engine.Run()
 	}
 	return nil
 }
 
+// GetLobby returns the Lobby with id: `id` and if it does not exist it returns
+// `(nil, false)`
 func GetLobby(id uint64) (*Lobby, bool) {
 	l, ok := lobbies[id]
 	return l, ok
