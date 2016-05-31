@@ -92,5 +92,7 @@ func GetLobbyIDs() []uint64 {
   for id := range lobbies {
     ids = append(ids, id)
   }
+  // TODO: delete next line, only for testing
+  ids = []uint64{1, 5, 8}
   return ids
 }
