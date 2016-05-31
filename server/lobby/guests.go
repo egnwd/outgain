@@ -1,5 +1,10 @@
 package lobby
 
+import (
+	"errors"
+	"fmt"
+)
+
 const (
 	userType = iota
 	botType  = iota
@@ -8,6 +13,11 @@ const (
 type guest struct {
 	Type int
 	name string
+}
+
+type guestList struct {
+	list     []*guest
+	userSize int
 }
 
 // User identified by unique GitHub name
@@ -34,4 +44,39 @@ func NewBot(name string) *Bot {
 // GetName returns the name of the user
 func (g *guest) GetName() string {
 	return g.name
+}
+
+func generalPopulation(size int) guestList {
+	var bots guestList
+
+	for i := 0; i < size; i++ {
+		name := fmt.Sprintf("Bot %d", i+1)
+		bots.list = append(bots.list, &NewBot(name).guest)
+	}
+
+	return bots
+}
+
+// AddUser adds the specified user to the lobby, returning an error if the
+// lobby is already at capacity, and running the engine if the user is
+// the first to join
+func (lobby *Lobby) AddUser(user *User) error {
+	lobbyGuests := lobby.Guests.list
+
+	// Check for bot to remove
+	bot, newGuests := lobbyGuests[0], lobbyGuests[1:]
+	if bot.Type != botType {
+		return errors.New("Lobby full")
+	}
+
+	i := len(lobbyGuests) - (lobby.Guests.userSize + 1)
+	newGuest := []*guest{&user.guest}
+	newGuests = append(newGuests[:i], append(newGuest, newGuests[i:]...)...)
+	lobby.Guests.userSize++
+
+	lobby.Guests.list = newGuests
+	if lobby.Guests.userSize == 1 {
+		go lobby.Engine.Run()
+	}
+	return nil
 }

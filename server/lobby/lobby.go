@@ -1,7 +1,6 @@
 package lobby
 
 import (
-	"errors"
 	"math/rand"
 
 	"github.com/egnwd/outgain/server/engine"
@@ -15,7 +14,7 @@ var lobbies = make(map[uint64]*Lobby)
 type Lobby struct {
 	ID     uint64
 	Engine engine.Engineer
-	Guests []guest
+	Guests guestList
 	size   int
 }
 
@@ -26,7 +25,8 @@ func NewLobby() (lobby *Lobby) {
 	lobby = &Lobby{
 		ID:     id,
 		Engine: e,
-		Guests: []guest{},
+		Guests: generalPopulation(lobbySize),
+		size:   lobbySize,
 	}
 
 	lobbies[lobby.ID] = lobby
@@ -41,7 +41,7 @@ func NewTestLobby(e engine.Engineer, size int) (lobby *Lobby) {
 	lobby = &Lobby{
 		ID:     id,
 		Engine: e,
-		Guests: []guest{},
+		Guests: generalPopulation(size),
 		size:   size,
 	}
 
@@ -59,20 +59,6 @@ func newID() uint64 {
 	}
 
 	return id
-}
-
-// AddUser adds the specified user to the lobby, returning an error if the
-// lobby is already at capacity, and running the engine if the user is
-// the first to join
-func (lobby *Lobby) AddUser(user *User) error {
-	if len(lobby.Guests) == lobbySize {
-		return errors.New("Lobby full")
-	}
-	lobby.Guests = append(lobby.Guests, user.guest)
-	if len(lobby.Guests) == 1 {
-		go lobby.Engine.Run()
-	}
-	return nil
 }
 
 // GetLobby returns the Lobby with id: `id` and if it does not exist it returns
