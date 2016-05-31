@@ -1,119 +1,112 @@
 package controller
 
 import (
-	"image"
-	"image/png"
-	"log"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
-func SpriteHandler(staticDir string) func(http.ResponseWriter, *http.Request) {
+type attribute struct {
+	class, fill string
+}
+
+type style struct {
+	attributes []attribute
+}
+
+func SVGSpriteHandler(staticDir string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Check if the image exists, otherwise create it
-		outputPath := staticDir + r.URL.String()
-		if _, err := os.Stat(outputPath); err != nil {
-			// Open a reader for the specified file and read the image
-			path, err := filepath.Abs(staticDir + "/images/creature.png")
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			reader, err := os.Open(path)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			defer reader.Close()
-			img, _, err := image.Decode(reader)
-			if err != nil {
-				log.Println(err)
-				return
-			}
+		w.Header().Set("Content-Type", "image/svg+xml")
+		const size = 64
+		vars := mux.Vars(r)
+		colour := vars["colour"]
 
-			// Generate the new image
-			newImg, err := createSprite(img, r.URL.String())
-			if err != nil {
-				log.Println(err)
-				return
-			}
+		s := generateStyle(colour)
 
-			// Open a writer for the specified output and write the new image
-			writer, err := os.Create(outputPath)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			defer writer.Close()
-			png.Encode(writer, newImg)
-
+		svg, err := os.Open(staticDir + "/images/creature-base.svg")
+		if err != nil {
+			fmt.Println("Error opening file:", err)
+			return
 		}
-		http.ServeFile(w, r, outputPath)
+		body, err := ioutil.ReadAll(svg)
+		if err != nil {
+			fmt.Println("Error reading file:", err)
+			return
+		}
+		defer svg.Close()
+
+		// Find & Replace style
+		const styleComment = "<!-- style -->"
+		replace := strings.NewReplacer(styleComment, s.String())
+		newSvg := replace.Replace(string(body))
+		fmt.Fprint(w, newSvg)
 	})
 }
 
-func createSprite(img image.Image, url string) (image.Image, error) {
+func generateStyle(colour string) style {
+	outline := attribute{class: "outline", fill: "FFFFFF"}
 
-	// Find the bounds of the image and create a new one of the same size
-	bounds := img.Bounds()
-	minX, minY := bounds.Min.X, bounds.Min.Y
-	maxX, maxY := bounds.Max.X, bounds.Max.Y
-	colouredSprite := image.NewNRGBA(bounds)
-	// Used for manipulating the new image's pixel RGBA values
-	stride := colouredSprite.Stride
-	pixels := colouredSprite.Pix
+	outerEnv := attribute{class: "outer-envelope", fill: shiftColour(colour, 0.4)}
+	innerEnv := attribute{class: "inner-envelope", fill: shiftColour(colour, -0.2)}
 
-	// Extract hex code of colour from the URL and convert to an integer
-	col := strings.TrimSuffix(strings.SplitAfter(url, "-")[1], ".png")
-	colVal, err := strconv.ParseUint(col, 16, 32)
-	if err != nil {
-		return nil, err
+	body1 := attribute{class: "body-1", fill: colour}
+	body2 := attribute{class: "body-2", fill: shiftColour(colour, 0.1)}
+	body3 := attribute{class: "body-3", fill: shiftColour(colour, 0.2)}
+	body4 := attribute{class: "body-4", fill: shiftColour(colour, 0.3)}
+	body5 := attribute{class: "body-5", fill: shiftColour(colour, 0.4)}
+
+	return style{
+		attributes: []attribute{
+			outline,
+			outerEnv, innerEnv,
+			body1, body2, body3, body4, body5,
+		},
 	}
-	// Get individual RGB values from hex colour code
-	r1 := uint8((colVal & 0xff0000) >> 16)
-	g1 := uint8((colVal & 0x00ff00) >> 8)
-	b1 := uint8(colVal & 0x0000ff)
+}
 
-	// Iterate through pixels and colourise them
-	for i := minX; i < maxX; i++ {
-		for j := minY; j < maxY; j++ {
-			// Get RGBA value from original image
-			// Colour values are 8 bit, extended to 32, so conversion is safe
-			r32, g32, b32, a32 := img.At(i, j).RGBA()
-			r0 := uint8(r32)
-			g0 := uint8(g32)
-			b0 := uint8(b32)
-			a0 := uint8(a32)
-			current := (j-minY)*stride + (i-minX)*4
-			// Set new pixel values, retaining white border
-			if r0 == g0 && r0 == b0 && r0 == 0xff {
-				pixels[current] = r0
-				pixels[current+1] = g0
-				pixels[current+2] = b0
-				pixels[current+3] = a0
-			} else {
-				// Uncomment to make colours more saturated
-				/*
-				   if (r1 >= g1 && r1 >= b1) {
-				     r1 = 0xff
-				   }
-				   if (g1 >= r1 && g1 >= b1) {
-				     g1 = 0xff
-				   }
-				   if (b1 >= r1 && b1 >= g1) {
-				     b1 = 0xff
-				   }
-				*/
-				pixels[current] = r0/2 + r1/2
-				pixels[current+1] = g0/2 + g1/2
-				pixels[current+2] = b0/2 + b1/2
-				pixels[current+3] = a0
-			}
-		}
+func shiftColour(colour string, correctionFactor float32) string {
+	c, _ := strconv.ParseInt(colour, 16, 64)
+
+	const rShift, gShift = 16, 8
+	const max = 0xFF
+
+	red := float32(c >> rShift)
+	green := float32((c >> gShift) & max)
+	blue := float32(c & max)
+
+	if correctionFactor < 0 {
+		correctionFactor++
+		red *= correctionFactor
+		green *= correctionFactor
+		blue *= correctionFactor
+	} else {
+		red = (max-red)*correctionFactor + red
+		green = (max-green)*correctionFactor + green
+		blue = (max-blue)*correctionFactor + blue
 	}
 
-	return colouredSprite, nil
+	newRed := ((int(red) & max) << rShift)
+	newGreen := ((int(green) & max) << gShift)
+	newBlue := (int(blue) & max)
+
+	return fmt.Sprintf("%X", newRed+newGreen+newBlue)
+}
+
+func (a attribute) String() string {
+	return fmt.Sprintf(".%s { fill:#%s; }", a.class, a.fill)
+}
+
+func (s style) String() string {
+	var attributes string
+
+	for _, a := range s.attributes {
+		attributes += a.String()
+	}
+
+	return fmt.Sprintf(`<style type="text/css">%s</style>`, attributes)
 }

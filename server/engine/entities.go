@@ -9,7 +9,7 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 )
 
-const defaultRadius float64 = 0.5
+const defaultRadius float64 = 0.35
 const resourceRadius float64 = 0.1
 const resourceVolume float64 = 1
 
@@ -138,7 +138,7 @@ func RandomCreature(id uint64) Entity {
 			Radius: defaultRadius,
 		},
 		Name:   "foo",
-		Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".png",
+		Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".svg",
 
 		dx: math.Cos(angle),
 		dy: math.Sin(angle),
