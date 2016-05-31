@@ -33,7 +33,7 @@ func NewEngine() (engine *Engine) {
 	eventChannel := make(chan protocol.Event)
 	idChannel := make(chan uint64)
 	go func() {
-		var id uint64 = 0
+		var id uint64
 		for {
 			idChannel <- id
 			id++

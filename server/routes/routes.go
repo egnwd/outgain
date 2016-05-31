@@ -5,13 +5,12 @@ import (
 	"os"
 
 	"github.com/egnwd/outgain/server/controller"
-	"github.com/egnwd/outgain/server/engine"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
 //GetHandler returns a mux that maps routes to controller actions
-func GetHandler(static string, engine *engine.Engine) http.Handler {
+func GetHandler(static string) http.Handler {
 	mux := mux.NewRouter()
 
 	get := mux.Methods(http.MethodGet).Subrouter()
@@ -19,7 +18,7 @@ func GetHandler(static string, engine *engine.Engine) http.Handler {
 
 	get.HandleFunc("/ping", controller.PingHandler)
 
-	get.HandleFunc("/images/creature-{id:[0-9a-fA-F]+}.png",
+	get.Handle("/images/creature-{id:[0-9a-fA-F]+}.png",
 		controller.SpriteHandler(static))
 
 	get.Handle("/", controller.LogInPage(static))
@@ -35,7 +34,7 @@ func GetHandler(static string, engine *engine.Engine) http.Handler {
 
 	// Game View
 	get.Handle("/lobbies/{id:[0-9]+}", controller.LobbiesGame(static))
-	get.Handle("/updates/{id:[0-9]+}", controller.UpdatesHandler(engine))
+	get.Handle("/updates/{id:[0-9]+}", controller.UpdatesHandler())
 	get.HandleFunc("/leave", controller.Leave)
 
 	// FIXME: Wrap the FileServer in a Handler that hooks w upon writing
