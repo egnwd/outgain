@@ -37,7 +37,7 @@ func init() {
 
 func LogInPage(staticDir string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if _, err := GetUserName(r); err != nil {
+		if !IsUserAuthorised(r) {
 			http.ServeFile(w, r, staticDir+"/index.html")
 		} else {
 			u := fmt.Sprintf("http://%s/lobbies", r.Host)
