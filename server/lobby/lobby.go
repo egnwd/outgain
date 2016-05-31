@@ -14,9 +14,10 @@ var lobbies = make(map[uint64]*Lobby)
 
 // Lobby runs its own instance of an engine, and keeps track of its users
 type Lobby struct {
-	Engine *engine.Engine
-	Users  user.List
 	ID     uint64
+	Engine engine.Engineer
+	Users  user.List
+	size   int
 }
 
 // NewLobby creates a new lobby with its own engine and list of users
@@ -24,9 +25,24 @@ func NewLobby() (lobby *Lobby) {
 	e := engine.NewEngine()
 	id := newID()
 	lobby = &Lobby{
+		ID:     id,
 		Engine: e,
 		Users:  user.List{},
+	}
+
+	lobbies[lobby.ID] = lobby
+
+	return
+}
+
+// NewLobby creates a new lobby with its own engine and list of users
+func NewTestLobby(e engine.Engineer, size int) (lobby *Lobby) {
+	id := newID()
+	lobby = &Lobby{
 		ID:     id,
+		Engine: e,
+		Users:  user.List{},
+		size:   size,
 	}
 
 	lobbies[lobby.ID] = lobby

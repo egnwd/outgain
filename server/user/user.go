@@ -13,3 +13,8 @@ type List []*User
 func NewUser(name string) *User {
 	return &User{name: name}
 }
+
+// GetName returns the name of the user
+func (u *User) GetName() string {
+	return u.name
+}
