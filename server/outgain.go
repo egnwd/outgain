@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/egnwd/outgain/server/engine"
 	"log"
 	"net/http"
 	"os"
@@ -22,14 +21,10 @@ func main() {
 	redirectPlainHTTP := flag.Bool("redirect-plain-http", false, "")
 	flag.Parse()
 
-	engine := engine.NewEngine()
-
-	handler := routes.GetHandler(*staticDir, engine)
+	handler := routes.GetHandler(*staticDir)
 	if *redirectPlainHTTP {
 		handler = redirectPlainHTTPMiddleware(handler)
 	}
-
-	go engine.Run()
 
 	log.Printf("Listening on port %s", port)
 	http.ListenAndServe(":"+port, handler)

@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func SpriteHandler(staticDir string) func(http.ResponseWriter, *http.Request) {
+func SpriteHandler(staticDir string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if the image exists, otherwise create it
 		outputPath := staticDir + r.URL.String()
