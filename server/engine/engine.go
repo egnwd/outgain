@@ -106,6 +106,24 @@ func (engine *Engine) Serialize() protocol.WorldState {
 // AddEntity adds an entity to the engine's list
 func (engine *Engine) AddEntity(builder func(uint64) Entity) {
 	entity := builder(<-engine.nextID)
+	switch entity.(type) {
+	case *Spike:
+		for {
+			collides := false
+			for _, candidateCreature := range engine.entities {
+				if Collide(entity, candidateCreature) {
+					collides = true
+					break
+				}
+			}
+
+			if !collides {
+				break
+			}
+			entity = builder(<-engine.nextID)
+		}
+	default:
+	}
 	engine.entities = engine.entities.Insert(entity)
 }
 
@@ -152,7 +170,7 @@ func (engine *Engine) eatEntity(eater, eaten Entity) {
 	engine.addLogEvent(eater, eaten)
 	switch eaten.(type) {
 	case *Spike:
-		eater.Base().dying = true;
+		eater.Base().dying = true
 	}
 }
 

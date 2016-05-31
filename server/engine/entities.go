@@ -17,8 +17,8 @@ const spikeVolume float64 = 1
 
 const (
 	creatureEnum = iota
-	resourceEnum 
-	spikeEnum    
+	resourceEnum
+	spikeEnum
 )
 
 type Entity interface {
