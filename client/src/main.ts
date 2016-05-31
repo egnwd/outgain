@@ -70,6 +70,9 @@ $(function() {
 		gameLog.innerHTML = gameLog.innerHTML + "Creature "
 		    + logEvent.protagID + " ate creature " + logEvent.antagID + "\n"
 		break
+	    case 3:
+	        gameLog.innerHTML = gameLog.innerHTML + "Oh no, creature " 
+		    + logEvent.protagID + " hit a spike!\n"
 	}
         if (scrollUpdate) {
             gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight
