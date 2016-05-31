@@ -14,13 +14,10 @@ import (
 
 func UpdatesHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("In")
 		vars := mux.Vars(r)
 		id, _ := strconv.ParseUint(vars["id"], 10, 64)
-		log.Printf("ID: %d\n", id)
 
 		l, ok := lobby.GetLobby(uint64(id))
-		log.Printf("Lobby: %#v\n", l)
 		if !ok {
 			http.Error(w, "Lobby doesn't exist", http.StatusInternalServerError)
 			return

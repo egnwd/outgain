@@ -60,7 +60,6 @@ func UserLogIn(w http.ResponseWriter, r *http.Request) {
 	session.Values[stateKey] = state
 	session.Values[createdKey] = int(time.Now().Unix())
 
-	log.Printf("Session: %v\n", session.Values)
 	if err := sessions.Save(r, w); err != nil {
 		log.Println(err.Error())
 	}
@@ -81,8 +80,6 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 
 	state := r.FormValue("state")
 	code := r.FormValue("code")
-
-	log.Printf("Session: %v\n", session.Values)
 
 	if state != session.Values[stateKey] {
 		errorMessage := fmt.Sprintf("%d: Invalid state,\n\texpected: %s\n\tactual:%s",
