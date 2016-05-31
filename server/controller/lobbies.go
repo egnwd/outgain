@@ -1,6 +1,7 @@
 package controller
 
 import (
+  "encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,9 +18,26 @@ func LobbiesView(staticDir string) http.Handler {
 			http.Redirect(w, r, u, http.StatusFound)
 			return
 		}
-
 		http.ServeFile(w, r, staticDir+"/lobbies.html")
 	})
+}
+
+// LobbiesPeek peeks at the lobby IDs in use and returns them as a JSON
+func LobbiesPeek(w http.ResponseWriter, r *http.Request) {
+	if !IsUserAuthorised(r) {
+		u := fmt.Sprintf("http://%s/", r.Host)
+		http.Redirect(w, r, u, http.StatusFound)
+		return
+	}
+
+  IDs := lobby.GetLobbyIDs()
+  js, err := json.Marshal(IDs)
+  if err != nil {
+    log.Println(err.Error())
+    return
+  }
+  w.Header().Set("Content-Type", "application/json")
+  w.Write(js)
 }
 
 func LobbiesJoin(w http.ResponseWriter, r *http.Request) {

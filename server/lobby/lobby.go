@@ -85,3 +85,12 @@ func DestroyLobby(lobby *Lobby) {
 	lobby.Engine = nil
 	delete(lobbies, lobby.ID)
 }
+
+// GetLobbyIDs returns an array of all the IDs in the lobbies map
+func GetLobbyIDs() []uint64 {
+  ids := make([]uint64, 0, len(lobbies))
+  for id := range lobbies {
+    ids = append(ids, id)
+  }
+  return ids
+}

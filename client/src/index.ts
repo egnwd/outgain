@@ -1,3 +1,4 @@
+import { UserPanel } from './gameUI'
 import * as $ from 'jquery'
 import * as sweetalert from 'sweetalert'
 
@@ -30,6 +31,33 @@ module ModalPopUp {
     }
 }
 
+var userPanel = new UserPanel("#user-id", "#user-resources")
+
 $(function() {
-  ModalPopUp.mainModal()
+  if (!userPanel.isUserAuthenticated()) {
+    ModalPopUp.mainModal()
+  } else {
+    userPanel.setUserID()
+  }
+})
+
+$(function() {
+  // Create HTML table showing all lobby IDs with clickable rows
+
+  // Get lobby IDs from server
+  let lobbies = JSON.parse(new EventSource("/peekLobbies"))
+
+  // Generate table of lobby IDs
+  let table = "<table><thead><tr><th class=\"right\">Lobbies</th></tr></thead>"
+  for (var i = 0; i < lobbies.length; i++) {
+    table += "<tr><td class=\"right\">" + lobbies[i] + "</td></tr>"
+  }
+  table += "</table>"
+  document.write(table)
+
+  // TODO: Make clickable row function
+
+
+  // TODO: Row click -> create html table of players in that lobby with join button
+  // TODO: Join click -> add user to selected lobby, redirect to game view
 })

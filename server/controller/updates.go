@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/egnwd/outgain/server/engine"
+  "github.com/egnwd/outgain/server/engine"
 	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
 	"gopkg.in/antage/eventsource.v1"

@@ -106,7 +106,8 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 		log.Println(err.Error())
 	}
 
-	u := fmt.Sprintf("http://%s/lobbies", r.Host)
+	//u := fmt.Sprintf("http://%s/lobbies", r.Host)
+	u := fmt.Sprintf("http://%s/", r.Host)
 
 	http.Redirect(w, r, u, http.StatusFound)
 }
