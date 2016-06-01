@@ -45,27 +45,22 @@ $(function() {
   // Create HTML table showing all lobby IDs with clickable rows
 
   // Get lobby IDs from server
-  let lobbies = $.ajax({
+  $.ajax({
     url: "/peekLobbies",
     dataType: 'json'
-  }).responseJSON
+  })
+  .done(function(data) {
+    let lobbies = data
 
+    // Generate table of lobby IDs
+    let table = "<table><thead><tr><th class=\"right\">Lobbies</th></tr></thead>"
+    for (var i = 0; i < lobbies.length; i++) {
+      table += "<tr><td class=\"right\">" + lobbies[i] + "</td></tr>"
+    }
+    table += "</table>"
+    document.getElementById("lobbiesTable").innerHTML = table
+  })
 
-
-  /*
-  // Get lobby IDs from server
-  let js = new EventSource("/peekLobbies")
-  console.log(js)
-  let lobbies = JSON.parse(js)
-  */
-
-  // Generate table of lobby IDs
-  let table = "<table><thead><tr><th class=\"right\">Lobbies</th></tr></thead>"
-  for (var i = 0; i < lobbies.length; i++) {
-    table += "<tr><td class=\"right\">" + lobbies[i] + "</td></tr>"
-  }
-  table += "</table>"
-  document.getElementById("lobbiesTable").innerHTML = table
 
   // TODO: Make clickable row function
 
