@@ -53,13 +53,16 @@ $(function() {
     let lobbies = data
 
     // Generate table of lobby IDs
-    let table = "<table id=\"lobbies\"><thead><tr><th class=\"right\">"
-        + "Lobbies</th></tr></thead>"
+    let table = "<table id='lobbies'><thead><tr><th class='right'>"
+            + "Lobbies<a class='btn'>+</a></th></tr></thead>"
     for (var i = 0; i < lobbies.length; i++) {
-      table += "<tr><td class=\"right\">" + lobbies[i] + "</td></tr>"
+      table += "<tr><td class='right'>" + lobbies[i] + "</td></tr>"
+    }
+    if (lobbies.length == 0) {
+      table += "<tr><td class='right'>No available lobbies</td></tr>"
     }
     table += "</table>"
-    document.getElementById("lobbiesTable").innerHTML = table
+    document.getElementById("lobbies-table").innerHTML = table
 
     // Add clickable functions to table rows
     let rows = document.getElementById("lobbies").getElementsByTagName("tr")
@@ -69,15 +72,13 @@ $(function() {
         return function() { 
           let id = row.getElementsByTagName("td")[0].innerHTML
           // TODO: replace with proper onclick function
+          // Keep in mind filler row when lobbies.length == 0
           alert("id:" + id)
         }
       }
       curr.onclick = createClickHandler(curr);
     }
   })
-
-  // TODO: Make clickable row function
-
 
   // TODO: Row click -> create html table of players in that lobby with join button
   // TODO: Join click -> add user to selected lobby, redirect to game view
