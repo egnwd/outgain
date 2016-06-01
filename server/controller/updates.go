@@ -35,7 +35,6 @@ func UpdatesHandler() http.Handler {
 				} else {
 					events.SendEventMessage(string(packet), event.Type, "")
 					if event.Type == "shutdown" {
-						defer events.Close()
 						eng.Shutdown()
 						lobby.DestroyLobby(l)
 					}

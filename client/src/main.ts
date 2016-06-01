@@ -51,7 +51,6 @@ $(function() {
     })
 
     source.addEventListener("shutdown", function() {
-        source.close()
         window.location.href = "http://" + window.document.location.host + "/lobbies";
     })
 
