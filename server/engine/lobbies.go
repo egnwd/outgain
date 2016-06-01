@@ -1,15 +1,15 @@
 package engine
 
 import (
-  "errors"
+	"errors"
 )
 
 const lobbySize int = 10
 
 // A user, identified by unique GitHub name
 type User struct {
-  name      string
-  resources int
+	name      string
+	resources int
 }
 
 // Slice of users
@@ -17,8 +17,8 @@ type UserList []User
 
 // Each lobby runs its own instance of an engine, and keeps track of its users
 type Lobby struct {
-  engine *Engine
-  users  UserList
+	engine *Engine
+	users  UserList
 	nextID <-chan uint64
 }
 
@@ -33,10 +33,10 @@ func NewLobby() (lobby *Lobby) {
 		}
 	}()
 
-  e := NewEngine()
+	e := NewEngine()
 
 	lobby = &Lobby{
-    engine: e,
+		engine: e,
 		users:  UserList{},
 		nextID: idChannel,
 	}
@@ -47,12 +47,12 @@ func NewLobby() (lobby *Lobby) {
 // Adds the specified user to the lobby, returning an error if the lobby is
 // already at capacity, and running the engine if the user is the first to join
 func AddUser(lobby *Lobby, user User) error {
-  if len(lobby.users) == lobbySize {
-    return errors.New("Lobby full")
-  }
-  lobby.users = append(lobby.users, user)
-  if len(lobby.users) == 1 {
-    lobby.engine.Run()
-  }
-  return nil
+	if len(lobby.users) == lobbySize {
+		return errors.New("Lobby full")
+	}
+	lobby.users = append(lobby.users, user)
+	if len(lobby.users) == 1 {
+		lobby.engine.Run()
+	}
+	return nil
 }

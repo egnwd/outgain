@@ -59,6 +59,7 @@ $(function() {
       table += "<tr><td class='left'>" + lobbies[i] + "</td>"
           + "<td class='right'>></td></tr>"
     }
+    // Find way to ignore this from onclick functions before uncommenting
     /*
     if (lobbies.length == 0) {
       table += "<tr><td class='left'>No available lobbies</td></tr>"
@@ -67,23 +68,19 @@ $(function() {
     table += "</table>"
     document.getElementById("lobbies-table").innerHTML = table
 
-    // Add clickable functions to table rows
+    // Add onclick function to lobbies table rows
     let rows = document.getElementById("lobbies").getElementsByTagName("tr")
     for (i = 1; i < rows.length; i++) {
       let curr = rows[i]
       curr.onclick = createClickHandler(curr)
     }
   })
-
-  // TODO: Row click -> create html table of players in that lobby with join button
-  // TODO: Join click -> add user to selected lobby, redirect to game view
 })
 
 function createClickHandler(row) {
   return function() { 
+    // Get lobby id from row
     let id = row.getElementsByTagName("td")[0].innerHTML
-    // TODO: replace with proper onclick function
-    // Keep in mind filler row when lobbies.length == 0
 
     // Get users in lobby from server
     let lobbyUrl = "/getUsers-" + id
@@ -104,6 +101,7 @@ function createClickHandler(row) {
       if (users.length == 0) {
         table += "<tr><td class='left'>No players in lobby</td></tr>"
       }
+      // TODO: button redirect
       table += "<tr><td class='right'><a class='btn'>Join Lobby"
           + "</a></td></tr></table>"
       document.getElementById("players-table").innerHTML = table

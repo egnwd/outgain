@@ -1,7 +1,7 @@
 package lobby
 
 import (
-  "log"
+	"log"
 
 	"github.com/egnwd/outgain/server/engine"
 )
@@ -40,7 +40,7 @@ func NewLobby() (lobby *Lobby) {
 	}
 
 	lobbies[lobby.ID] = lobby
-  log.Println("test")
+	log.Println("test")
 
 	return
 }
@@ -93,9 +93,9 @@ func DestroyLobby(lobby *Lobby) {
 
 // GetLobbyIDs returns an array of all the IDs in the lobbies map
 func GetLobbyIDs() []uint64 {
-  ids := make([]uint64, 0, len(lobbies))
-  for id := range lobbies {
-    ids = append(ids, id)
-  }
-  return ids
+	ids := make([]uint64, 0, len(lobbies))
+	for id := range lobbies {
+		ids = append(ids, id)
+	}
+	return ids
 }
