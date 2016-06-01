@@ -8,7 +8,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/egnwd/outgain/server/lobby"
 	"github.com/egnwd/outgain/server/routes"
 )
 
@@ -26,8 +25,6 @@ func main() {
 	if *redirectPlainHTTP {
 		handler = redirectPlainHTTPMiddleware(handler)
 	}
-
-	lobby.NewLobby()
 
 	log.Printf("Listening on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, handler))

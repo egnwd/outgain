@@ -14,6 +14,16 @@ type Lobby struct {
 	size   int
 }
 
+// GenerateOneLobby is temporary until lobbies is fully working
+// TODO: Remove once lobbies are working
+func GenerateOneLobby() (lobby *Lobby) {
+	for _, lobby := range lobbies {
+		return lobby
+	}
+
+	return NewLobby()
+}
+
 // NewLobby creates a new lobby with its own engine and list of guests
 func NewLobby() (lobby *Lobby) {
 	e := engine.NewEngine()
@@ -66,4 +76,12 @@ func (lobby *Lobby) startEngine() {
 func GetLobby(id uint64) (*Lobby, bool) {
 	l, ok := lobbies[id]
 	return l, ok
+}
+
+// DestroyLobby removes looby from the global map
+func DestroyLobby(lobby *Lobby) {
+	lobby.Guests.list = []*guest{}
+	lobby.Guests.userSize = 0
+	lobby.Engine = nil
+	delete(lobbies, lobby.ID)
 }

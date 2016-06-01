@@ -34,6 +34,11 @@ func UpdatesHandler() http.Handler {
 					log.Printf("JSON serialization failed %v", err)
 				} else {
 					events.SendEventMessage(string(packet), event.Type, "")
+					if event.Type == "shutdown" {
+						eng.Shutdown()
+						lobby.DestroyLobby(l)
+						events.Close()
+					}
 				}
 			}
 		}()

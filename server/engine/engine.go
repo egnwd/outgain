@@ -61,12 +61,15 @@ func NewEngine() (engine *Engine) {
 }
 
 // Shutdown stops the engine
+func (engine *Engine) Shutdown() {
+	engine.kill <- true
+}
+
 func (engine *Engine) shutdown() {
 	engine.eventsOut <- protocol.Event{
 		Type: "shutdown",
-		Data: []byte("shutdown"),
+		Data: []byte{},
 	}
-	engine.kill <- true
 }
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
@@ -97,6 +100,7 @@ GameLoop:
 
 		select {
 		case <-engine.kill:
+			close(engine.eventsOut)
 			break GameLoop
 		default:
 		}
