@@ -13,9 +13,10 @@ type Entity struct {
 }
 
 type LogEvent struct {
-	LogType  int    `json:"logType"`
-	ProtagID uint64 `json:"protagID"`
-	AntagID  uint64 `json:"antagID"`
+	LogType    int    `json:"logType"`
+	ProtagName string `json:"protagName"`
+	AntagName  string `json:"antagName"`
+	Resources  int    `json:"resources"`
 }
 
 type WorldState struct {

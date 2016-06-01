@@ -19,6 +19,8 @@ type Entity interface {
 	Serialize() protocol.Entity
 	Base() *EntityBase
 	Volume() float64
+	GetName() string
+	GetResources() int
 }
 
 type EntityBase struct {
@@ -125,7 +127,7 @@ type Creature struct {
 }
 
 func (creature *Creature) incrementScore(eaten Entity) {
-
+	creature.Guest.AddResources(1)
 }
 
 func RandomCreature(id uint64, guest *guest.Guest) Entity {
@@ -148,6 +150,14 @@ func RandomCreature(id uint64, guest *guest.Guest) Entity {
 		dx: math.Cos(angle),
 		dy: math.Sin(angle),
 	}
+}
+
+func (creature *Creature) GetName() string {
+	return creature.Guest.GetName()
+}
+
+func (creature *Creature) GetResources() int {
+	return creature.Guest.GetResources()
 }
 
 func (creature *Creature) Base() *EntityBase {
@@ -215,6 +225,14 @@ func RandomResource(id uint64, _ *guest.Guest) Entity {
 			Color:  colorful.FastHappyColor().Hex(),
 		},
 	}
+}
+
+func (resource *Resource) GetName() string {
+	return ""
+}
+
+func (resource *Resource) GetResources() int {
+	return 0
 }
 
 func (resource *Resource) Base() *EntityBase {
