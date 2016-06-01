@@ -12,7 +12,7 @@ import (
 const defaultRadius float64 = 0.5
 const resourceRadius float64 = 0.1
 const resourceVolume float64 = 1
-const spikeRadius float64 = 0.1
+const spikeRadius float64 = 0.2
 const spikeVolume float64 = 1
 
 const (

@@ -39,15 +39,14 @@ class Entity {
         ctx.save()
         ctx.translate(x * scale, y * scale)
 
-        if (this.img == null && entityType == 1) {
+        if (entityType == 1) {
             ctx.beginPath()
             ctx.arc(0, 0, radius * scale, 0, 2 * Math.PI, false)
             ctx.fillStyle = color
             ctx.fill()
             ctx.closePath()
-        } else if (this.img == null && entityType == 2){
-            ctx.fillRect(0, 0, 20, 20)
-            ctx.fillStyle = color
+        } else if (entityType == 2){
+	    drawStar(ctx, 0, 0, 12, radius * scale, radius /2 * scale)
 	} else if (this.img != null) {
             var size = radius * scale * 2
             ctx.drawImage(this.img, -size / 2, -size / 2, size, size)
@@ -63,6 +62,35 @@ class Entity {
 
         ctx.restore()
     }
+}
+
+function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+    var rot = Math.PI / 2 * 3
+    var x = cx
+    var y = cy
+    var step = Math.PI / spikes
+
+    ctx.strokeSyle = "#000"
+    ctx.beginPath()
+    ctx.moveTo(cx, cy - outerRadius)
+    for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius
+        y = cy + Math.sin(rot) * outerRadius
+        ctx.lineTo(x, y)
+        rot += step
+
+        x = cx + Math.cos(rot) * innerRadius
+        y = cy + Math.sin(rot) * innerRadius
+        ctx.lineTo(x, y)
+        rot += step
+    }
+    ctx.lineTo(cx, cy - outerRadius)
+    ctx.closePath()
+    ctx.lineWidth=5
+    ctx.strokeStyle='blue'
+    ctx.stroke()
+    ctx.fillStyle='skyblue'
+    ctx.fill()
 }
 
 export class GameRenderer {
