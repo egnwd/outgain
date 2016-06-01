@@ -1,11 +1,15 @@
 package engine
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/egnwd/outgain/server/guest"
+)
 
 // Engineer is a mock interface for testing without real engines
 type Engineer interface {
 	Run()
-	AddEntity(name string, builder builderFunc)
+	AddEntity(name *guest.Guest, builder builderFunc)
 }
 
 // MockEngine allows us to use an engine without acutally running a simulation
@@ -18,6 +22,6 @@ func (m *MockEngine) Run() {
 }
 
 // AddEntity prints a message saying that the Entity has been added to the engine
-func (m *MockEngine) AddEntity(_ string, _ builderFunc) {
+func (m *MockEngine) AddEntity(_ *guest.Guest, _ builderFunc) {
 	fmt.Println("Added Entity...")
 }

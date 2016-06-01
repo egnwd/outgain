@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"strings"
 
+	"github.com/egnwd/outgain/server/guest"
 	"github.com/egnwd/outgain/server/protocol"
 	"github.com/lucasb-eyer/go-colorful"
 )
@@ -116,14 +117,18 @@ func (list EntityList) Sort() {
 type Creature struct {
 	EntityBase
 
-	Name   string
+	Guest  *guest.Guest
 	Sprite string
 
 	dx float64
 	dy float64
 }
 
-func RandomCreature(id uint64, name string) Entity {
+func (creature *Creature) incrementScore(eaten Entity) {
+
+}
+
+func RandomCreature(id uint64, guest *guest.Guest) Entity {
 	angle := rand.Float64() * 2 * math.Pi
 	x := rand.Float64() * gridSize
 	y := rand.Float64() * gridSize
@@ -137,7 +142,7 @@ func RandomCreature(id uint64, name string) Entity {
 			Y:      y,
 			Radius: defaultRadius,
 		},
-		Name:   name,
+		Guest:  guest,
 		Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".png",
 
 		dx: math.Cos(angle),
@@ -183,7 +188,7 @@ func (creature *Creature) Tick(dt float64) {
 func (creature *Creature) Serialize() protocol.Entity {
 	return protocol.Entity{
 		ID:     creature.ID,
-		Name:   &creature.Name,
+		Name:   &creature.Guest.Name,
 		Sprite: &creature.Sprite,
 		Color:  creature.Color,
 		X:      creature.X,
@@ -200,7 +205,7 @@ type Resource struct {
 	EntityBase
 }
 
-func RandomResource(id uint64, _ string) Entity {
+func RandomResource(id uint64, _ *guest.Guest) Entity {
 	return &Resource{
 		EntityBase: EntityBase{
 			ID:     id,

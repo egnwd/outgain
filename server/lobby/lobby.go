@@ -1,10 +1,22 @@
 package lobby
 
-import "github.com/egnwd/outgain/server/engine"
+import (
+	"errors"
+	"fmt"
+	"log"
+
+	"github.com/egnwd/outgain/server/engine"
+	"github.com/egnwd/outgain/server/guest"
+)
 
 const lobbySize int = 10
 
 var lobbies = make(map[uint64]*Lobby)
+
+type guestList struct {
+	list     []*guest.Guest
+	userSize int
+}
 
 // Lobby runs its own instance of an engine, and keeps track of its users
 type Lobby struct {
@@ -65,7 +77,7 @@ func newID() uint64 {
 
 func (lobby *Lobby) startEngine() {
 	for _, guest := range lobby.Guests.list {
-		lobby.Engine.AddEntity(guest.name, engine.RandomCreature)
+		lobby.Engine.AddEntity(guest, engine.RandomCreature)
 	}
 
 	go lobby.Engine.Run()
@@ -80,8 +92,56 @@ func GetLobby(id uint64) (*Lobby, bool) {
 
 // DestroyLobby removes looby from the global map
 func DestroyLobby(lobby *Lobby) {
-	lobby.Guests.list = []*guest{}
+	lobby.Guests.list = []*guest.Guest{}
 	lobby.Guests.userSize = 0
 	lobby.Engine = nil
 	delete(lobbies, lobby.ID)
+}
+
+func generalPopulation(size int) guestList {
+	var bots guestList
+
+	for i := size; i > 0; i-- {
+		name := fmt.Sprintf("Bot %d", i)
+		bots.list = append(bots.list, guest.NewBot(name))
+	}
+
+	return bots
+}
+
+func (lobby *Lobby) ContainsUser(name string) bool {
+	for _, g := range lobby.Guests.list {
+		if g.Name == name {
+			return true
+		}
+	}
+
+	return false
+}
+
+// AddUser adds the specified user to the lobby, returning an error if the
+// lobby is already at capacity, and running the engine if the user is
+// the first to join
+func (lobby *Lobby) AddUser(user *guest.Guest) error {
+	// TODO: Assert User
+	lobbyGuests := lobby.Guests.list
+
+	// Check for bot to remove
+	bot, newGuests := lobbyGuests[0], lobbyGuests[1:]
+	if bot.Type != guest.BotType {
+		return errors.New("Lobby full")
+	}
+
+	i := len(lobbyGuests) - (lobby.Guests.userSize + 1)
+	newGuest := []*guest.Guest{user}
+	newGuests = append(newGuests[:i], append(newGuest, newGuests[i:]...)...)
+	lobby.Guests.userSize++
+
+	log.Printf("%d\n", lobby.Guests.userSize)
+
+	lobby.Guests.list = newGuests
+	if lobby.Guests.userSize == 1 {
+		lobby.startEngine()
+	}
+	return nil
 }

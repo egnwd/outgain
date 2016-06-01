@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/egnwd/outgain/server/guest"
 	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
 )
@@ -48,7 +49,7 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 		log.Println(err.Error())
 		return
 	}
-	user := lobby.NewUser(username)
+	user := guest.NewUser(username)
 	l.AddUser(user)
 
 	log.Printf("User: %s Joined Lobby: %d", username, id)

@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/egnwd/outgain/server/guest"
 	"github.com/egnwd/outgain/server/protocol"
 )
 
@@ -32,7 +33,7 @@ type Engine struct {
 	sync.WaitGroup
 }
 
-type builderFunc func(uint64, string) Entity
+type builderFunc func(uint64, *guest.Guest) Entity
 
 // NewEngine returns a fresh instance of a game engine
 func NewEngine() (engine *Engine) {
@@ -120,8 +121,8 @@ func (engine *Engine) Serialize() protocol.WorldState {
 }
 
 // AddEntity adds an entity to the engine's list
-func (engine *Engine) AddEntity(name string, builder builderFunc) {
-	entity := builder(<-engine.nextID, name)
+func (engine *Engine) AddEntity(guest *guest.Guest, builder builderFunc) {
+	entity := builder(<-engine.nextID, guest)
 	engine.entities = engine.entities.Insert(entity)
 }
 
@@ -152,7 +153,7 @@ func (engine *Engine) tick() {
 	if now.Sub(engine.lastResourceSpawn) > resourceSpawnInterval {
 		engine.lastResourceSpawn = now
 
-		engine.AddEntity("", RandomResource)
+		engine.AddEntity(nil, RandomResource)
 	}
 
 	engine.entities.Tick(dt)
@@ -163,6 +164,8 @@ func (engine *Engine) eatEntity(eater, eaten Entity) {
 	eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())
 	eaten.Base().dying = true
 	engine.addLogEvent(eater, eaten)
+
+	eater.(*Creature).incrementScore(eaten)
 }
 
 func (engine *Engine) collisionDetection() {
