@@ -3,6 +3,7 @@ package lobby
 import (
 	"errors"
 	"fmt"
+	"log"
 )
 
 const (
@@ -83,6 +84,8 @@ func (lobby *Lobby) AddUser(user *User) error {
 	newGuest := []*guest{&user.guest}
 	newGuests = append(newGuests[:i], append(newGuest, newGuests[i:]...)...)
 	lobby.Guests.userSize++
+
+	log.Printf("%d\n", lobby.Guests.userSize)
 
 	lobby.Guests.list = newGuests
 	if lobby.Guests.userSize == 1 {

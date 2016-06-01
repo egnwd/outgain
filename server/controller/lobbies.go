@@ -18,6 +18,9 @@ func LobbiesView(staticDir string) http.Handler {
 			return
 		}
 
+		l := lobby.GenerateOneLobby()
+		log.Printf("Lobby: %d\n", l.ID)
+
 		http.ServeFile(w, r, staticDir+"/lobbies.html")
 	})
 }
@@ -33,11 +36,9 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(id)
-
 	l, ok := lobby.GetLobby(id)
 	if !ok {
-		log.Println("Join: No Lobby")
+		log.Printf("Join: No Lobby (%d)\n", id)
 		http.Error(w, "Lobby doesn't exist", http.StatusBadRequest)
 		return
 	}
