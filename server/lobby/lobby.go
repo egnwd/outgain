@@ -93,6 +93,6 @@ func GetLobbyIDs() []uint64 {
     ids = append(ids, id)
   }
   // TODO: delete next line, only for testing
-  ids = []uint64{1, 5, 8}
+  ids = []uint64{1, 5, 8, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3124912401240912491}
   return ids
 }

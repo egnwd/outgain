@@ -53,13 +53,14 @@ $(function() {
     let lobbies = data
 
     // Generate table of lobby IDs
-    let table = "<table id='lobbies'><thead><tr><th class='right'>"
-            + "Lobbies<a class='btn'>+</a></th></tr></thead>"
+    let table = "<table id='lobbies'><thead><tr><th class='left'>Lobbies</th>" 
+          + "<th class='right'><a class='btn'>+</a></th></tr></thead>"
     for (var i = 0; i < lobbies.length; i++) {
-      table += "<tr><td class='right'>" + lobbies[i] + "</td></tr>"
+      table += "<tr><td class='left'>" + lobbies[i] + "</td>"
+          + "<td class='right'>></td></tr>"
     }
     if (lobbies.length == 0) {
-      table += "<tr><td class='right'>No available lobbies</td></tr>"
+      table += "<tr><td class='left'>No available lobbies</td></tr>"
     }
     table += "</table>"
     document.getElementById("lobbies-table").innerHTML = table
