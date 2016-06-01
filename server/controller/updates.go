@@ -19,14 +19,14 @@ func UpdatesHandler() http.Handler {
 
 		l, ok := lobby.GetLobby(uint64(id))
 		if !ok {
-			log.Println("Lobby doesn't exist")
+			log.Println("Updates: Lobby doesn't exist")
 			http.Error(w, "Lobby doesn't exist", http.StatusInternalServerError)
 			return
 		}
 
 		eng := l.Engine.(*engine.Engine)
-
 		events := eventsource.New(nil, nil)
+
 		go func() {
 			for event := range eng.Events {
 				packet, err := json.Marshal(event.Data)
