@@ -29,7 +29,7 @@ func GetHandler(static string) http.Handler {
 	get.HandleFunc("/currentUser", controller.CurrentUser)
 
 	// Lobbies
-	get.HandleFunc("/lobbies", controller.LobbiesView)
+	get.Handle("/lobbies", controller.LobbiesView(static))
 	post.HandleFunc("/lobbies/join", controller.LobbiesJoin)
 
 	// Game View
