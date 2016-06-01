@@ -1,6 +1,10 @@
 package lobby
 
-import "github.com/egnwd/outgain/server/engine"
+import (
+  "log"
+
+	"github.com/egnwd/outgain/server/engine"
+)
 
 const lobbySize int = 10
 
@@ -36,6 +40,7 @@ func NewLobby() (lobby *Lobby) {
 	}
 
 	lobbies[lobby.ID] = lobby
+  log.Println("test")
 
 	return
 }
@@ -92,7 +97,5 @@ func GetLobbyIDs() []uint64 {
   for id := range lobbies {
     ids = append(ids, id)
   }
-  // TODO: delete next line, only for testing
-  ids = []uint64{1, 5, 8, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3124912401240912491}
   return ids
 }

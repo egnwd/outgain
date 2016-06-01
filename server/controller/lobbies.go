@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+  "strings"
 
 	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
@@ -32,6 +33,38 @@ func LobbiesPeek(w http.ResponseWriter, r *http.Request) {
 
   IDs := lobby.GetLobbyIDs()
   js, err := json.Marshal(IDs)
+  if err != nil {
+    log.Println(err.Error())
+    return
+  }
+  w.Header().Set("Content-Type", "application/json")
+  w.Write(js)
+}
+
+func LobbiesGetUsers(w http.ResponseWriter, r *http.Request) {
+	if !IsUserAuthorised(r) {
+		u := fmt.Sprintf("http://%s/", r.Host)
+		http.Redirect(w, r, u, http.StatusFound)
+		return
+	}
+
+  // Get lobby ID from URL
+  ID, err := strconv.Atoi(strings.SplitAfter(r.URL.String(), "-")[1])
+  if err != nil {
+    log.Println(err.Error())
+    return
+  }
+  l, ok := lobby.GetLobby(uint64(ID))
+  if !ok {
+    // TODO: lobby no longer exists
+    return
+  }
+  users := l.Guests.list
+  usernames := make([]string, 0, len(users))
+  for _, user := range users {
+    usernames = append(usernames, user.GetName())
+  }
+  js, err := json.Marshal(usernames)
   if err != nil {
     log.Println(err.Error())
     return

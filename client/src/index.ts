@@ -54,14 +54,16 @@ $(function() {
 
     // Generate table of lobby IDs
     let table = "<table id='lobbies'><thead><tr><th class='left'>Lobbies</th>" 
-          + "<th class='right'><a class='btn'>+</a></th></tr></thead>"
+          + "<th class='right'><a class='btn'>+</a></th></thead>"
     for (var i = 0; i < lobbies.length; i++) {
       table += "<tr><td class='left'>" + lobbies[i] + "</td>"
           + "<td class='right'>></td></tr>"
     }
+    /*
     if (lobbies.length == 0) {
       table += "<tr><td class='left'>No available lobbies</td></tr>"
     }
+    */
     table += "</table>"
     document.getElementById("lobbies-table").innerHTML = table
 
@@ -69,15 +71,7 @@ $(function() {
     let rows = document.getElementById("lobbies").getElementsByTagName("tr")
     for (i = 1; i < rows.length; i++) {
       let curr = rows[i]
-      let createClickHandler = function(row) {
-        return function() { 
-          let id = row.getElementsByTagName("td")[0].innerHTML
-          // TODO: replace with proper onclick function
-          // Keep in mind filler row when lobbies.length == 0
-          alert("id:" + id)
-        }
-      }
-      curr.onclick = createClickHandler(curr);
+      curr.onclick = createClickHandler(curr)
     }
   })
 
@@ -85,8 +79,34 @@ $(function() {
   // TODO: Join click -> add user to selected lobby, redirect to game view
 })
 
-$(function() {
-  $(".lobby").click(function() {
-    console.log("row clicked")
-  })
-})
+function createClickHandler(row) {
+  return function() { 
+    let id = row.getElementsByTagName("td")[0].innerHTML
+    // TODO: replace with proper onclick function
+    // Keep in mind filler row when lobbies.length == 0
+
+    // Get users in lobby from server
+    let lobbyUrl = "/getUsers-" + id
+    $.ajax({
+      url: lobbyUrl,
+      dataType: 'json'
+    })
+    .done(function(data) {
+      let users = data
+
+      // Generate table of users in specified lobby
+      // TODO: When lobbies have names include them here
+      let table = "<table id='players'><thead><tr><th class='left'>"
+              + "Lobby name here" + "</th></thead>"
+      for (var i = 0; i < users.length; i++) {
+        table += "<tr><td class='left'>" + users[i] + "</td>"
+      }
+      if (users.length == 0) {
+        table += "<tr><td class='left'>No players in lobby</td></tr>"
+      }
+      table += "<tr><td class='right'><a class='btn'>Join Lobby"
+          + "</a></td></tr></table>"
+      document.getElementById("players-table").innerHTML = table
+    })
+  }
+}
