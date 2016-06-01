@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/egnwd/outgain/server/engine"
 	"github.com/egnwd/outgain/server/lobby"
@@ -35,9 +36,10 @@ func UpdatesHandler() http.Handler {
 				} else {
 					events.SendEventMessage(string(packet), event.Type, "")
 					if event.Type == "shutdown" {
+						time.Sleep(10 * time.Second)
+						events.Close()
 						eng.Shutdown()
 						lobby.DestroyLobby(l)
-						events.Close()
 					}
 				}
 			}
