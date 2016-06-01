@@ -165,12 +165,16 @@ func (engine *Engine) tick() {
 }
 
 func (engine *Engine) eatEntity(eater, eaten Entity) {
-	eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())
 	eaten.Base().dying = true
 	engine.addLogEvent(eater, eaten)
 	switch eaten.(type) {
 	case *Spike:
-		eater.Base().dying = true
+		if eater.Base().nextRadius <= defaultRadius {
+			eater.Base().dying = true
+		} 
+		eater.Base().nextRadius = math.Sqrt(eater.Volume() / 2)
+	default:
+		eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())	
 	}
 }
 
