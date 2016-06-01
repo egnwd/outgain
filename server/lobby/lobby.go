@@ -1,10 +1,6 @@
 package lobby
 
-import (
-	"math/rand"
-
-	"github.com/egnwd/outgain/server/engine"
-)
+import "github.com/egnwd/outgain/server/engine"
 
 const lobbySize int = 10
 
@@ -51,10 +47,9 @@ func NewTestLobby(e engine.Engineer, size int) (lobby *Lobby) {
 }
 
 //This is just for testing until it's fully implemented
-var baseID = uint64(rand.Uint32())
+const baseID uint64 = 2019968050
 
 func newID() uint64 {
-	baseID++
 	return baseID
 }
 
