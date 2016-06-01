@@ -57,6 +57,16 @@ func generalPopulation(size int) guestList {
 	return bots
 }
 
+func (lobby *Lobby) ContainsUser(name string) bool {
+	for _, g := range lobby.Guests.list {
+		if g.name == name {
+			return true
+		}
+	}
+
+	return false
+}
+
 // AddUser adds the specified user to the lobby, returning an error if the
 // lobby is already at capacity, and running the engine if the user is
 // the first to join
