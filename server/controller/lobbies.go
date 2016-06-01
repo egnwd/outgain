@@ -4,36 +4,22 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/cookiejar"
-	"net/url"
 	"strconv"
 
 	"github.com/egnwd/outgain/server/lobby"
+	"github.com/gorilla/mux"
 )
 
-func LobbiesView(w http.ResponseWriter, r *http.Request) {
-	if !IsUserAuthorised(r) {
-		u := fmt.Sprintf("http://%s/", r.Host)
-		http.Redirect(w, r, u, http.StatusFound)
-		return
-	}
+func LobbiesView(staticDir string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !IsUserAuthorised(r) {
+			u := fmt.Sprintf("http://%s/", r.Host)
+			http.Redirect(w, r, u, http.StatusFound)
+			return
+		}
 
-	lobby := lobby.NewLobby()
-	id := lobby.ID
-
-	form := url.Values{}
-	form.Add("id", fmt.Sprintf("%d", id))
-
-	rawurl := fmt.Sprintf("http://%s/lobbies/join", r.Host)
-
-	jar, _ := cookiejar.New(nil)
-	u, _ := url.Parse(rawurl)
-	jar.SetCookies(u, r.Cookies())
-	c := &http.Client{Jar: jar}
-	c.PostForm(rawurl, form)
-
-	rawurl = fmt.Sprintf("http://%s/lobbies/%d", r.Host, id)
-	http.Redirect(w, r, rawurl, http.StatusFound)
+		http.ServeFile(w, r, staticDir+"/lobbies.html")
+	})
 }
 
 func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
@@ -47,8 +33,11 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Println(id)
+
 	l, ok := lobby.GetLobby(id)
 	if !ok {
+		log.Println("Join: No Lobby")
 		http.Error(w, "Lobby doesn't exist", http.StatusBadRequest)
 		return
 	}
@@ -62,13 +51,25 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 	l.AddUser(user)
 
 	log.Printf("User: %s Joined Lobby: %d", username, id)
+
+	rawurl := fmt.Sprintf("http://%s/lobbies/%d", r.Host, id)
+	http.Redirect(w, r, rawurl, http.StatusFound)
 }
 
 func LobbiesGame(staticDir string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// TODO: Check user is a part of this lobby
-		if !IsUserAuthorised(r) {
+		vars := mux.Vars(r)
+		id, _ := strconv.ParseUint(vars["id"], 10, 64)
+
+		l, ok := lobby.GetLobby(id)
+		username, err := GetUserName(r)
+
+		if err != nil {
 			u := fmt.Sprintf("http://%s/", r.Host)
+			http.Redirect(w, r, u, http.StatusFound)
+			return
+		} else if !ok || !l.ContainsUser(username) {
+			u := fmt.Sprintf("http://%s/lobbies", r.Host)
 			http.Redirect(w, r, u, http.StatusFound)
 			return
 		}
