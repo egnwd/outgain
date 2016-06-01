@@ -1,7 +1,9 @@
 package engine
 
 import (
+	"log"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/egnwd/outgain/server/protocol"
@@ -26,6 +28,8 @@ type Engine struct {
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextID            <-chan uint64
+	kill              chan bool
+	sync.WaitGroup
 }
 
 type builderFunc func(uint64, string) Entity
@@ -50,16 +54,19 @@ func NewEngine() (engine *Engine) {
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
 		nextID:            idChannel,
+		kill:              make(chan bool),
 	}
 
 	return
 }
 
-// Reset clears the game log and resets the creatures
-func (engine *Engine) Reset() {
-	engine.entities = EntityList{}
-
-	engine.clearGameLog()
+// Shutdown stops the engine
+func (engine *Engine) shutdown() {
+	engine.eventsOut <- protocol.Event{
+		Type: "shutdown",
+		Data: []byte("shutdown"),
+	}
+	engine.kill <- true
 }
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
@@ -71,11 +78,13 @@ func (engine *Engine) clearGameLog() {
 	}
 }
 
+// Run starts the simulation of the game
 func (engine *Engine) Run() {
 	engine.clearGameLog()
 	engine.lastTick = time.Now()
 	engine.lastResourceSpawn = time.Now()
 
+GameLoop:
 	for {
 		engine.eventsOut <- protocol.Event{
 			Type: "state",
@@ -85,6 +94,12 @@ func (engine *Engine) Run() {
 		time.Sleep(engine.tickInterval)
 
 		engine.tick()
+
+		select {
+		case <-engine.kill:
+			break GameLoop
+		default:
+		}
 	}
 }
 
@@ -182,6 +197,7 @@ func (engine *Engine) collisionDetection() {
 	engine.entities.Sort()
 
 	if creatureCount <= 1 {
-		engine.Reset()
+		log.Println("Shutting Down")
+		engine.shutdown()
 	}
 }
