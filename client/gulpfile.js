@@ -6,7 +6,6 @@ var gulp        = require('gulp'),
     source      = require('vinyl-source-stream'),
     sass        = require('gulp-sass'),
     gulpTypings = require('gulp-typings'),
-    es          = require('event-stream');
 
 var targetDir = __dirname + '/dist';
 
