@@ -96,6 +96,7 @@ func (creature *Creature) Serialize() protocol.Entity {
 		X:      creature.X,
 		Y:      creature.Y,
 		Radius: creature.Radius,
+		EntityType: creatureEnum,
 	}
 }
 

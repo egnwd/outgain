@@ -180,7 +180,7 @@ func (spike *Spike) Base() *EntityBase {
 	return &spike.EntityBase
 }
 
-func (spike *Spike) Tick(dt float64) {
+func (spike *Spike) Tick(state protocol.WorldState, dt float64) {
 }
 
 func (spike *Spike) Serialize() protocol.Entity {
@@ -198,6 +198,9 @@ func (spike *Spike) Serialize() protocol.Entity {
 
 func (spike *Spike) Volume() float64 {
 	return spikeVolume
+}
+
+func (spike *Spike) Close() {
 }
 
 func (resource *Resource) Close() {

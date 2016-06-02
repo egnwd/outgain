@@ -177,6 +177,11 @@ func (engine *Engine) tick() {
 		engine.lastResourceSpawn = now
 
 		engine.AddEntity(RandomResource)
+		engine.AddEntity(RandomSpike)
+		engine.AddEntity(RandomSpike)
+		engine.AddEntity(RandomSpike)
+		engine.AddEntity(RandomSpike)
+		engine.AddEntity(RandomSpike)
 	}
 
 	state := engine.Serialize()
@@ -185,17 +190,22 @@ func (engine *Engine) tick() {
 }
 
 func (engine *Engine) eatEntity(eater, eaten Entity) {
-	eaten.Base().dying = true
-	engine.addLogEvent(eater, eaten)
-
-	switch eaten.(type) {
+	switch eater.(type) {
 	case *Spike:
-		if eater.Base().nextRadius <= defaultRadius {
-			eater.Base().dying = true
+		engine.eatEntity(eaten, eater)
+	default:
+		switch eaten.(type) {
+		case *Spike:
+			if eater.Base().nextRadius <= defaultRadius {
+				eater.Base().dying = true
+			}
+			eater.Base().nextRadius = math.Sqrt(eater.Volume() / 2)
+		default:
+			eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())
 		}
+		eaten.Base().dying = true
+		engine.addLogEvent(eater, eaten)
 	}
-
-	eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())
 }
 
 func (engine *Engine) collisionDetection() {
