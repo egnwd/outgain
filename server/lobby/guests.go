@@ -7,7 +7,7 @@ import (
 
 const (
 	userType = iota
-	botType  = iota
+	botType
 )
 
 type guest struct {
@@ -66,6 +66,10 @@ func (lobby *Lobby) ContainsUser(name string) bool {
 
 	return false
 }
+
+// PRE and POST condition for AddUser and RemoveUser:
+// The order of the guest list is [0, len-userSize) are botType and
+// [len-userSize, len) are userType
 
 // AddUser adds the specified user to the lobby, returning an error if the
 // lobby is already at capacity
