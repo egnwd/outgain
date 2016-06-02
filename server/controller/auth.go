@@ -162,6 +162,17 @@ func UpdateMaxAge(h http.Handler) http.Handler {
 	})
 }
 
+func RequiresAuthentication(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !IsUserAuthorised(r) {
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+
+		h.ServeHTTP(w, r)
+	})
+}
+
 func IsUserAuthorised(r *http.Request) bool {
 	session, _ := store.Get(r, sessionName)
 

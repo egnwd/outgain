@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/egnwd/outgain/server/controller"
+	c "github.com/egnwd/outgain/server/controller"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
@@ -16,35 +16,35 @@ func GetHandler(static string) http.Handler {
 	get := mux.Methods(http.MethodGet).Subrouter()
 	post := mux.Methods(http.MethodPost).Subrouter()
 
-	get.HandleFunc("/ping", controller.PingHandler)
+	get.HandleFunc("/ping", c.PingHandler)
 
 	get.Handle("/images/creature-{id:[0-9a-fA-F]+}.png",
-		controller.SpriteHandler(static))
+		c.SpriteHandler(static))
 
-	get.Handle("/", controller.LogInPage(static))
+	get.Handle("/", c.LogInPage(static))
 
-	get.HandleFunc("/login", controller.UserLogIn)
-	get.HandleFunc("/logout", controller.Logout)
-	get.HandleFunc("/oauthSignInCallback", controller.OAuthSignInCallback)
-	get.HandleFunc("/currentUser", controller.CurrentUser)
+	get.HandleFunc("/login", c.UserLogIn)
+	get.Handle("/logout", c.RequiresAuthentication(c.Logout))
+	get.HandleFunc("/oauthSignInCallback", c.OAuthSignInCallback)
+	get.HandleFunc("/currentUser", c.CurrentUser)
 
 	// Lobbies
-	get.Handle("/lobbies", controller.LobbiesView(static))
-	get.HandleFunc("/peekLobbies", controller.LobbiesPeek)
-	get.HandleFunc("/lobbies/{id:[0-9]+}/users", controller.LobbiesGetUsers)
-	post.HandleFunc("/lobbies/join", controller.LobbiesJoin)
+	get.Handle("/lobbies", c.RequiresAuthentication(c.LobbiesView(static)))
+	get.Handle("/peekLobbies", c.RequiresAuthentication(c.LobbiesPeek))
+	get.Handle("/lobbies/{id:[0-9]+}/users", c.RequiresAuthentication(c.LobbiesGetUsers))
+	post.Handle("/lobbies/join", c.RequiresAuthentication(c.LobbiesJoin))
 
 	// Game View
-	get.Handle("/lobbies/{id:[0-9]+}", controller.LobbiesGame(static))
-	get.Handle("/updates/{id:[0-9]+}", controller.UpdatesHandler())
-	get.HandleFunc("/leave", controller.Leave)
+	get.Handle("/lobbies/{id:[0-9]+}", c.RequiresAuthentication(c.LobbiesGame(static)))
+	get.Handle("/updates/{id:[0-9]+}", c.UpdatesHandler())
+	get.HandleFunc("/leave", c.Leave)
 
 	// FIXME: Wrap the FileServer in a Handler that hooks w upon writing
 	// 404 to the Header
-	mux.NotFoundHandler = http.HandlerFunc(controller.NotFound)
+	mux.NotFoundHandler = http.HandlerFunc(c.NotFound)
 
 	get.PathPrefix("/").Handler(
 		http.StripPrefix("/", http.FileServer(http.Dir(static))))
 
-	return controller.UpdateMaxAge(handlers.LoggingHandler(os.Stdout, mux))
+	return c.UpdateMaxAge(handlers.LoggingHandler(os.Stdout, mux))
 }

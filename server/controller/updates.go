@@ -13,6 +13,7 @@ import (
 )
 
 func UpdatesHandler() http.Handler {
+	// TODO: Must be a member of the lobby
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id, _ := strconv.ParseUint(vars["id"], 10, 64)

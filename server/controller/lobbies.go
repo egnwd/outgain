@@ -13,21 +13,12 @@ import (
 
 func LobbiesView(staticDir string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !IsUserAuthorised(r) {
-			http.Redirect(w, r, "/", http.StatusFound)
-			return
-		}
 		http.ServeFile(w, r, staticDir+"/lobbies.html")
 	})
 }
 
 // LobbiesPeek peeks at the lobby IDs in use and returns them as a JSON
 func LobbiesPeek(w http.ResponseWriter, r *http.Request) {
-	if !IsUserAuthorised(r) {
-		http.Redirect(w, r, "/", http.StatusFound)
-		return
-	}
-
 	// Get IDs of all current lobbies, convert to JSON and return it
 	IDs := lobby.GetLobbyIDs()
 	js, err := json.Marshal(IDs)
@@ -42,11 +33,6 @@ func LobbiesPeek(w http.ResponseWriter, r *http.Request) {
 // LobbiesGetUsers gets all the user names from the lobby specified at the end
 // of the caught URL, and returns them as a JSON
 func LobbiesGetUsers(w http.ResponseWriter, r *http.Request) {
-	if !IsUserAuthorised(r) {
-		http.Redirect(w, r, "/", http.StatusFound)
-		return
-	}
-
 	// Get lobby ID from URL
 	vars := mux.Vars(r)
 	id, _ := strconv.ParseUint(vars["id"], 10, 64)
@@ -117,12 +103,9 @@ func LobbiesGame(staticDir string) http.Handler {
 		id, _ := strconv.ParseUint(vars["id"], 10, 64)
 
 		l, ok := lobby.GetLobby(id)
-		username, err := GetUserName(r)
+		username, _ := GetUserName(r)
 
-		if err != nil {
-			http.Redirect(w, r, "/", http.StatusFound)
-			return
-		} else if !ok || !l.ContainsUser(username) {
+		if !ok || !l.ContainsUser(username) {
 			u := fmt.Sprintf("http://%s/lobbies", r.Host)
 			http.Redirect(w, r, u, http.StatusFound)
 			return
