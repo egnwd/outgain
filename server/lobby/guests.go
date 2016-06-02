@@ -88,9 +88,6 @@ func (lobby *Lobby) AddUser(user *User) error {
 	log.Printf("%d\n", lobby.Guests.userSize)
 
 	lobby.Guests.list = newGuests
-	if lobby.Guests.userSize == 1 {
-		lobby.startEngine()
-	}
 	return nil
 }
 

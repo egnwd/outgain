@@ -83,31 +83,36 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not logged in.", http.StatusUnauthorized)
 	}
 
+	// Get the id of the requested lobby
 	id, err := strconv.ParseUint(r.PostFormValue("id"), 10, 64)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
 
-	l := lobby.GenerateOneLobby()
-	log.Printf("Lobby: %d\n", l.ID)
+	// Get the lobby from the global list
+	l, ok := lobby.GetLobby(id)
+	if !ok {
+		log.Printf("Join: No Lobby (%d)\n", id)
+		http.Error(w, "Lobby doesn't exist", http.StatusBadRequest)
+		return
+	}
 
-	// if !ok {
-	// 	log.Printf("Join: No Lobby (%d)\n", id)
-	// 	http.Error(w, "Lobby doesn't exist", http.StatusBadRequest)
-	// 	return
-	// }
-
+	// Get the username of the authenicated user
 	username, err := GetUserName(r)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
+
+	//Add the user to the lobby
 	user := lobby.NewUser(username)
 	l.AddUser(user)
 
-	log.Printf("User: %s Joined Lobby: %d", username, id)
+	l.Start()
 
+	// Redirect user to the lobby
+	log.Printf("User: %s Joined Lobby: %d", username, id)
 	rawurl := fmt.Sprintf("http://%s/lobbies/%d", r.Host, id)
 	http.Redirect(w, r, rawurl, http.StatusFound)
 }

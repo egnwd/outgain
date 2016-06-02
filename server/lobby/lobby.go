@@ -1,7 +1,7 @@
 package lobby
 
 import (
-	"log"
+	"sync"
 
 	"github.com/egnwd/outgain/server/engine"
 )
@@ -12,10 +12,12 @@ var lobbies = make(map[uint64]*Lobby)
 
 // Lobby runs its own instance of an engine, and keeps track of its users
 type Lobby struct {
-	ID     uint64
-	Engine engine.Engineer
-	Guests guestList
-	size   int
+	ID        uint64
+	Engine    engine.Engineer
+	Guests    guestList
+	size      int
+	isRunning bool
+	sync.Mutex
 }
 
 // GenerateOneLobby is temporary until lobbies is fully working
@@ -40,7 +42,6 @@ func NewLobby() (lobby *Lobby) {
 	}
 
 	lobbies[lobby.ID] = lobby
-	log.Println("test")
 
 	return
 }
@@ -68,12 +69,28 @@ func newID() uint64 {
 	return baseID
 }
 
-func (lobby *Lobby) startEngine() {
-	for _, guest := range lobby.Guests.list {
-		lobby.Engine.AddEntity(guest.name, engine.RandomCreature)
-	}
+func (lobby *Lobby) Start() {
+	lobby.Lock()
+	defer lobby.Unlock()
 
-	go lobby.Engine.Run()
+	if !lobby.isRunning {
+		lobby.isRunning = true
+		go lobby.startEngine()
+	}
+}
+
+func (lobby *Lobby) startEngine() {
+	for lobby.Guests.userSize >= 0 {
+		var entities engine.EntityList
+
+		for _, guest := range lobby.Guests.list {
+			entity := lobby.Engine.CreateEntity(engine.NewCreature(guest.name))
+			entities = append(entities, entity)
+		}
+
+		lobby.Engine.Run(entities)
+		lobby.Start()
+	}
 }
 
 // GetLobby returns the Lobby with id: `id` and if it does not exist it returns
