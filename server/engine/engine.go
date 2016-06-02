@@ -98,7 +98,10 @@ GameLoop:
 			Data: engine.Serialize(),
 		}
 
-		time.Sleep(engine.tickInterval)
+		wakeup := engine.lastTick.Add(engine.tickInterval)
+		if now := time.Now(); wakeup.After(now) {
+			time.Sleep(wakeup.Sub(now))
+		}
 
 		engine.tick()
 
