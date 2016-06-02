@@ -5,6 +5,7 @@ import "github.com/namsral/flag"
 type Config struct {
 	StaticDir         string
 	RedirectPlainHTTP bool
+	SandboxMode       string
 	RunnerBin         string
 	Port              uint
 	DefaultAI         string
@@ -19,6 +20,7 @@ func ParseArgs() (config *Config) {
 	flag.StringVar(&config.RunnerBin, "runner-bin", "./runner/target/release/runner", "")
 	flag.StringVar(&config.DefaultAI, "default-ai", "./default_ai.rb", "")
 	flag.StringVar(&config.BotAI, "bot-ai", "./bot_ai.rb", "")
+	flag.StringVar(&config.SandboxMode, "sandbox", "", "")
 	flag.Parse()
 
 	return

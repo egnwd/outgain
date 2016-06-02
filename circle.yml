@@ -3,6 +3,7 @@ machine:
     IMPORT_PATH: "github.com/egnwd/$CIRCLE_PROJECT_REPONAME"
     DATABASE_URL: "postgres://ubuntu:@127.0.0.1:5432/circle_test"    
     PATH: "$HOME/.cargo/bin:$PATH"
+    CARGO_FLAGS: "--features sandbox"
 
 dependencies:
   cache_directories:
@@ -13,6 +14,8 @@ dependencies:
     - 'runner/target'
 
   override:
+    - sudo apt-get install libseccomp-dev libseccomp2
+
     - mkdir -p "/home/ubuntu/.go_workspace/src/$IMPORT_PATH"
     - rsync -azC --delete ./ "/home/ubuntu/.go_workspace/src/$IMPORT_PATH/"
 

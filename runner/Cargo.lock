@@ -3,7 +3,10 @@ name = "runner"
 version = "0.1.0"
 dependencies = [
  "byteorder 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gcc 0.3.28 (registry+https://github.com/rust-lang/crates.io-index)",
+ "getopts 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "mrusty 0.5.1 (git+https://github.com/plietar/mrusty)",
+ "pkg-config 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "rmp 0.7.3 (git+https://github.com/plietar/msgpack-rust)",
  "rmp-rpc 0.1.0 (git+https://github.com/plietar/rmp-rpc)",
  "rmp-serde 0.9.0 (git+https://github.com/plietar/msgpack-rust)",
@@ -40,6 +43,11 @@ version = "0.3.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "getopts"
+version = "0.2.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "kernel32-sys"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -62,6 +70,11 @@ dependencies = [
  "tar 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "walkdir 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "pkg-config"
+version = "0.3.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "quasi"

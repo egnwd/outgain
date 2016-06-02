@@ -2,11 +2,17 @@
 name = "runner"
 version = "0.1.0"
 authors = ["Paul Lietar <paul@lietar.net>"]
+build = "build.rs"
 
 [dependencies]
 byteorder = "0.3"
 serde = "0.7"
 serde_macros = "0.7"
+getopts = "0.2"
+
+[build-dependencies]
+gcc = "0.3"
+pkg-config = "0.3"
 
 [dependencies.rmp]
 git = "https://github.com/plietar/msgpack-rust"
@@ -23,3 +29,6 @@ version = "0.1"
 [dependencies.mrusty]
 git = "https://github.com/plietar/mrusty"
 version = "0.5"
+
+[features]
+sandbox = []
