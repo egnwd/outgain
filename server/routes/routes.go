@@ -31,7 +31,7 @@ func GetHandler(static string) http.Handler {
 	// Lobbies
 	get.Handle("/lobbies", controller.LobbiesView(static))
 	get.HandleFunc("/peekLobbies", controller.LobbiesPeek)
-	get.HandleFunc("/getUsers-{id:[0-9]+}", controller.LobbiesGetUsers)
+	get.HandleFunc("/lobbies/{id:[0-9]+}/users", controller.LobbiesGetUsers)
 	post.HandleFunc("/lobbies/join", controller.LobbiesJoin)
 
 	// Game View

@@ -12,7 +12,7 @@ $(function() {
     let lobbies = data
 
     // Generate table of lobby IDs
-    let table = "<table id='lobbies'><thead><tr><th class='left'>Lobbies</th>" 
+    let table = "<table id='lobbies'><thead><tr><th class='left'>Lobbies</th>"
           + "<th class='right'><a class='btn'>+</a></th></thead>"
     for (var i = 0; i < lobbies.length; i++) {
       table += "<tr><td class='left'>" + lobbies[i] + "</td>"
@@ -37,12 +37,12 @@ $(function() {
 })
 
 function createClickHandler(row) {
-  return function() { 
+  return function() {
     // Get lobby id from row
     let id = row.getElementsByTagName("td")[0].innerHTML
 
     // Get users in lobby from server
-    let lobbyUrl = "/getUsers-" + id
+    let lobbyUrl = "/lobbies/" + id + "/users"
     $.ajax({
       url: lobbyUrl,
       dataType: 'json'
