@@ -3,13 +3,12 @@
 require("any-promise/register/bluebird")
 require("util").debuglog = require("debuglog")
 
-var gulp = require('gulp');
-var browserify = require('browserify');
-var tsify = require('tsify');
-var source = require('vinyl-source-stream');
-var sass = require('gulp-sass');
-var gulpTypings = require('gulp-typings');
-var moduleImporter = require('sass-module-importer');
+var gulp        = require('gulp'),
+    browserify  = require('browserify'),
+    tsify       = require('tsify'),
+    source      = require('vinyl-source-stream'),
+    sass        = require('gulp-sass'),
+    gulpTypings = require('gulp-typings');
 
 var targetDir = __dirname + '/dist';
 
@@ -21,6 +20,28 @@ gulp.task('scripts', ['typings'], function () {
         .bundle()
         .on('error', logError)
         .pipe(source('bundle.js'))
+        .pipe(gulp.dest(targetDir + '/js'));
+});
+
+gulp.task('popup', ['typings'], function () {
+    return browserify()
+        .add(__dirname + '/typings/index.d.ts')
+        .add(__dirname + '/src/index.ts')
+        .plugin(tsify)
+        .bundle()
+        .on('error', logError)
+        .pipe(source('index.bundle.js'))
+        .pipe(gulp.dest(targetDir + '/js'));
+});
+
+gulp.task('lobbies', ['typings'], function () {
+    return browserify()
+        .add(__dirname + '/typings/index.d.ts')
+        .add(__dirname + '/src/lobbies.ts')
+        .plugin(tsify)
+        .bundle()
+        .on('error', logError)
+        .pipe(source('lobbies.bundle.js'))
         .pipe(gulp.dest(targetDir + '/js'));
 });
 
@@ -49,9 +70,11 @@ gulp.task('images', function () {
         .pipe(gulp.dest(targetDir + '/images'));
 });
 
-gulp.task('all', ['scripts', 'styles', 'html', 'images']);
+gulp.task('all', ['scripts', 'popup', 'lobbies', 'styles', 'html', 'images']);
 
-gulp.task('watch', ['scripts', 'styles', 'html', 'images'], function() {
+gulp.task('watch', ['scripts', 'popup', 'lobbies', 'styles', 'html', 'images'], function() {
+    gulp.watch('./src/**/*.ts', ['popup']);
+    gulp.watch('./src/**/lobbies.ts', ['lobbies']);
     gulp.watch('./src/**/*.ts', ['scripts']);
     gulp.watch('./src/**/*.js', ['scripts']);
     gulp.watch('./style/**/*.scss', ['styles']);

@@ -23,7 +23,7 @@ type Creature struct {
 	runner *runner.RunnerClient
 }
 
-func NewCreature(config *config.Config) func(id uint64) Entity {
+func NewCreature(name string, config *config.Config) func(id uint64) Entity {
 	return func(id uint64) Entity {
 		x := rand.Float64() * gridSize
 		y := rand.Float64() * gridSize
@@ -47,7 +47,7 @@ func NewCreature(config *config.Config) func(id uint64) Entity {
 				Y:      y,
 				Radius: defaultRadius,
 			},
-			Name:   "foo",
+			Name:   name,
 			Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".svg",
 			runner: client,
 		}
