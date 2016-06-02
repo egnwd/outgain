@@ -2,6 +2,7 @@ package engine
 
 import (
 	"math/rand"
+	"sync"
 
 	"github.com/egnwd/outgain/server/protocol"
 	"github.com/lucasb-eyer/go-colorful"
@@ -73,9 +74,16 @@ func (list EntityList) Swap(i, j int) {
 
 // Tick every entity of the list
 func (list EntityList) Tick(state protocol.WorldState, dt float64) {
+	var wg sync.WaitGroup
 	for _, entity := range list {
-		entity.Tick(state, dt)
+		wg.Add(1)
+		go func(entity Entity) {
+			defer wg.Done()
+			entity.Tick(state, dt)
+		}(entity)
 	}
+
+	wg.Wait()
 
 	// Ticking could have moved some entities, so sort the list again to
 	// maintain the invariant
