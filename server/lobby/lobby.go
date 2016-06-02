@@ -85,7 +85,9 @@ func (lobby *Lobby) Start() {
 
 // This must be run in a go routine otherwise it will block the thread
 func (lobby *Lobby) runEngine() {
-	for lobby.Guests.userSize >= 0 {
+	log.Println("Running game in lobby")
+
+	for lobby.Guests.userSize > 0 {
 		var entities engine.EntityList
 
 		for _, guest := range lobby.Guests.list {
@@ -94,9 +96,11 @@ func (lobby *Lobby) runEngine() {
 		}
 
 		lobby.Engine.Run(entities)
-		lobby.Start()
+		log.Println("Finished Running")
+		log.Printf("Users in Game: %d\n", lobby.Guests.userSize)
 	}
 
+	log.Println("Destroying Lobby")
 	lobby.isRunning = false
 	destroyLobby(lobby)
 }
@@ -112,7 +116,6 @@ func GetLobby(id uint64) (*Lobby, bool) {
 func destroyLobby(lobby *Lobby) {
 	lobby.Guests.list = nil
 	lobby.Guests.userSize = 0
-	//lobby.Engine.Close() - for the runner to be shut down
 	lobby.Engine = nil
 	delete(lobbies, lobby.ID)
 }

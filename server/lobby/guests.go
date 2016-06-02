@@ -3,6 +3,7 @@ package lobby
 import (
 	"errors"
 	"fmt"
+	"log"
 )
 
 const (
@@ -88,6 +89,8 @@ func (lobby *Lobby) AddUser(user *User) error {
 	newGuests = append(newGuests[:i], append(newGuest, newGuests[i:]...)...)
 	lobby.Guests.userSize++
 
+	log.Printf("Now has %d users", lobby.Guests.userSize)
+
 	lobby.Guests.list = newGuests
 	return nil
 }
@@ -116,6 +119,8 @@ func (lobby *Lobby) RemoveUser(user *User) error {
 	newGuest := []*guest{&NewBot(name).guest}
 	lobbyGuests = append(newGuest, lobbyGuests...)
 	lobby.Guests.userSize--
+
+	log.Printf("Now has %d users", lobby.Guests.userSize)
 
 	lobby.Guests.list = lobbyGuests
 	return nil

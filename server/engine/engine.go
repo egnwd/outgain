@@ -69,6 +69,7 @@ func (engine *Engine) restartEngine() {
 	engine.entities = EntityList{}
 	engine.clearGameLog()
 
+	log.Println("Restarting Engine")
 	engine.restart = true
 }
 
@@ -83,6 +84,7 @@ func (engine *Engine) clearGameLog() {
 
 // Run starts the simulation of the game
 func (engine *Engine) Run(entities EntityList) {
+	log.Println("Running Engine")
 	engine.entities = entities
 	engine.clearGameLog()
 	engine.lastTick = time.Now()
