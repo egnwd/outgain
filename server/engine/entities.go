@@ -256,7 +256,7 @@ func RandomSpike(id uint64) Entity {
 			X:      rand.Float64() * gridSize, // Update these so that it's not on a player
 			Y:      rand.Float64() * gridSize,
 			Radius: spikeRadius,
-			Color:  colorful.FastHappyColor().Hex(),
+			Color:  "",
 		},
 	}
 }

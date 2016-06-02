@@ -32,24 +32,24 @@ class Entity {
         let radius = this.current.radius
         let color = this.current.color
         let name = this.current.name
-	let entityType = this.current.entityType
+        let entityType = this.current.entityType
 
 	
 
         ctx.save()
         ctx.translate(x * scale, y * scale)
 
-        if (entityType == 1) {
+        if (entityType == 2){
+	    drawStar(ctx, 0, 0, 12, radius * scale, radius /2 * scale)
+	} else if (this.img != null) {
+            var size = radius * scale * 2
+            ctx.drawImage(this.img, -size / 2, -size / 2, size, size)
+        } else {
             ctx.beginPath()
             ctx.arc(0, 0, radius * scale, 0, 2 * Math.PI, false)
             ctx.fillStyle = color
             ctx.fill()
             ctx.closePath()
-        } else if (entityType == 2){
-	    drawStar(ctx, 0, 0, 12, radius * scale, radius /2 * scale)
-	} else if (this.img != null) {
-            var size = radius * scale * 2
-            ctx.drawImage(this.img, -size / 2, -size / 2, size, size)
         }
 
         if (name != null) {

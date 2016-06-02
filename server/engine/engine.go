@@ -170,7 +170,7 @@ func (engine *Engine) eatEntity(eater, eaten Entity) {
 	eaten.Base().dying = true
 	engine.addLogEvent(eater, eaten)
 
-	switch eaten.(type) {	
+	switch eaten.(type) {
 	case *Spike:
 		if eater.Base().nextRadius <= defaultRadius {
 			eater.Base().dying = true
@@ -179,8 +179,6 @@ func (engine *Engine) eatEntity(eater, eaten Entity) {
 	default:
 		eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())
 	}
-	
-
 }
 
 func (engine *Engine) collisionDetection() {
