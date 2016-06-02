@@ -172,10 +172,9 @@ func (engine *Engine) eatEntity(eater, eaten Entity) {
 		if eater.Base().nextRadius <= defaultRadius {
 			eater.Base().dying = true
 		}
-		eater.Base().nextRadius = math.Sqrt(eater.Volume() / 2)
-	default:
-		eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())
 	}
+
+	eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())
 }
 
 func (engine *Engine) collisionDetection() {
