@@ -2,24 +2,43 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/egnwd/outgain/server/engine"
-	"gopkg.in/antage/eventsource.v1"
 	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/egnwd/outgain/server/engine"
+	"github.com/egnwd/outgain/server/lobby"
+	"github.com/gorilla/mux"
+	"gopkg.in/antage/eventsource.v1"
 )
 
-func UpdatesHandler(engine *engine.Engine) http.Handler {
-	events := eventsource.New(nil, nil)
-	go func() {
-		for event := range engine.Events {
-			packet, err := json.Marshal(event.Data)
-			if err != nil {
-				log.Printf("JSON serialization failed %v", err)
-			} else {
-				events.SendEventMessage(string(packet), event.Type, "")
-			}
-		}
-	}()
+func UpdatesHandler() http.Handler {
+	// TODO: Must be a member of the lobby
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id, _ := strconv.ParseUint(vars["id"], 10, 64)
 
-	return events
+		l, ok := lobby.GetLobby(uint64(id))
+		if !ok {
+			log.Println("Updates: Lobby doesn't exist")
+			http.Error(w, "Lobby doesn't exist", http.StatusInternalServerError)
+			return
+		}
+
+		eng := l.Engine.(*engine.Engine)
+		events := eventsource.New(nil, nil)
+
+		go func() {
+			for event := range eng.Events {
+				packet, err := json.Marshal(event.Data)
+				if err != nil {
+					log.Printf("JSON serialization failed %v", err)
+				} else {
+					events.SendEventMessage(string(packet), event.Type, "")
+				}
+			}
+		}()
+
+		events.ServeHTTP(w, r)
+	})
 }

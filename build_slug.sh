@@ -19,9 +19,16 @@ mkdir -p "$TARGET_DIR"
 
 cp -r client/dist "$TARGET_DIR/static"
 cp server/server "$TARGET_DIR"
+cp runner/target/debug/runner "$TARGET_DIR"
+cp default_ai.rb "$TARGET_DIR"
 
 cat > "$TARGET_DIR/start.sh" <<EOF
 #!/usr/bin/env bash
-exec ./server -static-dir ./static -redirect-plain-http
+set -eux
+exec ./server \
+    -redirect-plain-http \
+    -static-dir=./static \
+    -runner-bin=./runner \
+    -default-ai=./default_ai.rb
 EOF
 chmod +x "$TARGET_DIR/start.sh"

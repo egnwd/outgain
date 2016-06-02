@@ -6,6 +6,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/protocol"
 )
 
@@ -28,14 +29,18 @@ type Engine struct {
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextID            <-chan uint64
+	config            *config.Config
+	restart           bool
 }
 
+type builderFunc func(uint64) Entity
+
 // NewEngine returns a fresh instance of a game engine
-func NewEngine() (engine *Engine) {
+func NewEngine(config *config.Config) (engine *Engine) {
 	eventChannel := make(chan protocol.Event)
 	idChannel := make(chan uint64)
 	go func() {
-		var id uint64 = 0
+		var id uint64
 		for {
 			idChannel <- id
 			id++
@@ -50,19 +55,22 @@ func NewEngine() (engine *Engine) {
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
 		nextID:            idChannel,
+		config:            config,
 	}
 
 	return
 }
 
-// Reset clears the game log and resets the creatures
-func (engine *Engine) Reset() {
-	engine.entities = EntityList{}
-
-	for i := 0; i < initialCreatureCount; i++ {
-		engine.AddEntity(RandomCreature)
+// restartEngine puts the engine back to it's original state
+func (engine *Engine) restartEngine() {
+	for _, entity := range engine.entities {
+		entity.Close()
 	}
+
+	engine.entities = EntityList{}
 	engine.clearGameLog()
+
+	engine.restart = true
 }
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
@@ -74,11 +82,14 @@ func (engine *Engine) clearGameLog() {
 	}
 }
 
-func (engine *Engine) Run() {
-	engine.Reset()
+// Run starts the simulation of the game
+func (engine *Engine) Run(entities EntityList) {
+	engine.entities = entities
+	engine.clearGameLog()
 	engine.lastTick = time.Now()
 	engine.lastResourceSpawn = time.Now()
 
+GameLoop:
 	for {
 		engine.eventsOut <- protocol.Event{
 			Type: "state",
@@ -88,6 +99,12 @@ func (engine *Engine) Run() {
 		time.Sleep(engine.tickInterval)
 
 		engine.tick()
+
+		if engine.restart {
+			engine.restart = false
+			break GameLoop
+		}
+
 	}
 }
 
@@ -104,7 +121,12 @@ func (engine *Engine) Serialize() protocol.WorldState {
 }
 
 // AddEntity adds an entity to the engine's list
-func (engine *Engine) AddEntity(builder func(uint64) Entity) {
+func (engine *Engine) AddEntity(builder builderFunc) {
+	engine.entities = engine.entities.Insert(engine.CreateEntity(builder))
+}
+
+// CreateEntity builds an entity using the builder
+func (engine *Engine) CreateEntity(builder builderFunc) Entity {
 	entity := builder(<-engine.nextID)
 	switch entity.(type) {
 	case *Spike:
@@ -122,9 +144,8 @@ func (engine *Engine) AddEntity(builder func(uint64) Entity) {
 			}
 			entity = builder(<-engine.nextID)
 		}
-	default:
 	}
-	engine.entities = engine.entities.Insert(entity)
+	return entity
 }
 
 // addLogEvent adds to  logEvents which are eventually added to the gameLog
@@ -145,7 +166,6 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 		Type: "log",
 		Data: logEvent,
 	}
-
 }
 
 func (engine *Engine) tick() {
@@ -159,7 +179,8 @@ func (engine *Engine) tick() {
 		engine.AddEntity(RandomResource)
 	}
 
-	engine.entities.Tick(dt)
+	state := engine.Serialize()
+	engine.entities.Tick(state, dt)
 	engine.collisionDetection()
 }
 
@@ -254,6 +275,6 @@ func (engine *Engine) collisionDetection() {
 	engine.entities.Sort()
 
 	if creatureCount <= 1 {
-		engine.Reset()
+		engine.restartEngine()
 	}
 }

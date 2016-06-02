@@ -42,6 +42,7 @@ class Entity {
         if (entityType == 2){
 	    drawStar(ctx, 0, 0, 12, radius * scale, radius /2 * scale)
 	} else if (this.img != null) {
+            let bumper = 1.4651162791
             var size = radius * scale * 2
             ctx.drawImage(this.img, -size / 2, -size / 2, size, size)
         } else {

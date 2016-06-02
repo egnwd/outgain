@@ -35,6 +35,17 @@ func init() {
 	}
 }
 
+func LogInPage(staticDir string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !IsUserAuthorised(r) {
+			http.ServeFile(w, r, staticDir+"/index.html")
+		} else {
+			u := fmt.Sprintf("http://%s/lobbies", r.Host)
+			http.Redirect(w, r, u, http.StatusFound)
+		}
+	})
+}
+
 // UserLogIn signs the user in and sets up a session
 func UserLogIn(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, sessionName)
@@ -49,7 +60,6 @@ func UserLogIn(w http.ResponseWriter, r *http.Request) {
 	session.Values[stateKey] = state
 	session.Values[createdKey] = int(time.Now().Unix())
 
-	log.Printf("Session: %v\n", session.Values)
 	if err := sessions.Save(r, w); err != nil {
 		log.Println(err.Error())
 	}
@@ -70,8 +80,6 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 
 	state := r.FormValue("state")
 	code := r.FormValue("code")
-
-	log.Printf("Session: %v\n", session.Values)
 
 	if state != session.Values[stateKey] {
 		errorMessage := fmt.Sprintf("%d: Invalid state,\n\texpected: %s\n\tactual:%s",
@@ -98,7 +106,7 @@ func OAuthSignInCallback(w http.ResponseWriter, r *http.Request) {
 		log.Println(err.Error())
 	}
 
-	u := fmt.Sprintf("http://%s/", r.Host)
+	u := fmt.Sprintf("http://%s/lobbies", r.Host)
 
 	http.Redirect(w, r, u, http.StatusFound)
 }
@@ -152,4 +160,31 @@ func UpdateMaxAge(h http.Handler) http.Handler {
 
 		h.ServeHTTP(w, r)
 	})
+}
+
+func RequireAuth(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !IsUserAuthorised(r) {
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+
+		h.ServeHTTP(w, r)
+	})
+}
+
+func IsUserAuthorised(r *http.Request) bool {
+	session, _ := store.Get(r, sessionName)
+	_, ok := session.Values[usernameKey]
+
+	return ok
+}
+
+func GetUserName(r *http.Request) (string, error) {
+	session, _ := store.Get(r, sessionName)
+	if IsUserAuthorised(r) {
+		return session.Values[usernameKey].(string), nil
+	}
+
+	return "", fmt.Errorf("User not logged in")
 }

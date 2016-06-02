@@ -1,15 +1,13 @@
 package engine
 
 import (
-	"math"
 	"math/rand"
-	"strings"
 
 	"github.com/egnwd/outgain/server/protocol"
 	"github.com/lucasb-eyer/go-colorful"
 )
 
-const defaultRadius float64 = 0.5
+const defaultRadius float64 = 0.35
 const resourceRadius float64 = 0.1
 const resourceVolume float64 = 1
 const spikeRadius float64 = 0.2
@@ -22,10 +20,11 @@ const (
 )
 
 type Entity interface {
-	Tick(dt float64)
+	Tick(state protocol.WorldState, dt float64)
 	Serialize() protocol.Entity
 	Base() *EntityBase
 	Volume() float64
+	Close()
 }
 
 type EntityBase struct {
@@ -81,21 +80,21 @@ func (list EntityList) Swap(i, j int) {
 }
 
 // Tick every entity of the list
-func (list EntityList) Tick(dt float64) {
+func (list EntityList) Tick(state protocol.WorldState, dt float64) {
 	for _, entity := range list {
-		entity.Tick(dt)
+		entity.Tick(state, dt)
 	}
 
 	// Ticking could have moved some entities, so sort the list again to
 	// maintain the invariant
 	list.Sort()
-
 }
 
 func (list EntityList) Filter(filter func(Entity) bool) EntityList {
 	count := list.Len()
 	for i := 0; i < count; i++ {
 		if !filter(list[i]) {
+			list[i].Close()
 			list.Swap(i, count-1)
 			count--
 		}
@@ -121,90 +120,6 @@ func (list EntityList) Sort() {
 	}
 }
 
-type Creature struct {
-	EntityBase
-
-	Name   string
-	Sprite string
-
-	dx float64
-	dy float64
-}
-
-func RandomCreature(id uint64) Entity {
-	angle := rand.Float64() * 2 * math.Pi
-	x := rand.Float64() * gridSize
-	y := rand.Float64() * gridSize
-	color := colorful.FastHappyColor().Hex()
-
-	return &Creature{
-		EntityBase: EntityBase{
-			ID:     id,
-			Color:  color,
-			X:      x,
-			Y:      y,
-			Radius: defaultRadius,
-		},
-		Name:   "foo",
-		Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".png",
-
-		dx: math.Cos(angle),
-		dy: math.Sin(angle),
-	}
-}
-
-func (creature *Creature) Base() *EntityBase {
-	return &creature.EntityBase
-}
-
-func (creature *Creature) Tick(dt float64) {
-	angle := rand.NormFloat64() * math.Pi / 4
-	cos := math.Cos(angle)
-	sin := math.Sin(angle)
-
-	dx := creature.dx*cos - creature.dy*sin
-	dy := creature.dx*sin + creature.dy*cos
-	creature.dx = dx
-	creature.dy = dy
-
-	creature.X += creature.dx * dt
-	creature.Y += creature.dy * dt
-
-	if creature.X-creature.Radius < 0 {
-		creature.X = creature.Radius
-		creature.dx *= -1
-	}
-	if creature.X+creature.Radius > gridSize {
-		creature.X = gridSize - creature.Radius
-		creature.dx *= -1
-	}
-	if creature.Y-creature.Radius < 0 {
-		creature.Y = creature.Radius
-		creature.dy *= -1
-	}
-	if creature.Y+creature.Radius > gridSize {
-		creature.Y = gridSize - creature.Radius
-		creature.dy *= -1
-	}
-}
-
-func (creature *Creature) Serialize() protocol.Entity {
-	return protocol.Entity{
-		ID:         creature.ID,
-		Name:       &creature.Name,
-		Sprite:     &creature.Sprite,
-		Color:      creature.Color,
-		X:          creature.X,
-		Y:          creature.Y,
-		Radius:     creature.Radius,
-		EntityType: creatureEnum,
-	}
-}
-
-func (creature *Creature) Volume() float64 {
-	return creature.nextRadius * creature.nextRadius
-}
-
 type Resource struct {
 	EntityBase
 }
@@ -225,7 +140,7 @@ func (resource *Resource) Base() *EntityBase {
 	return &resource.EntityBase
 }
 
-func (resource *Resource) Tick(dt float64) {
+func (resource *Resource) Tick(state protocol.WorldState, dt float64) {
 }
 
 func (resource *Resource) Serialize() protocol.Entity {
@@ -283,4 +198,7 @@ func (spike *Spike) Serialize() protocol.Entity {
 
 func (spike *Spike) Volume() float64 {
 	return spikeVolume
+}
+
+func (resource *Resource) Close() {
 }

@@ -1,11 +1,16 @@
 machine:
   environment:
     IMPORT_PATH: "github.com/egnwd/$CIRCLE_PROJECT_REPONAME"
+    DATABASE_URL: "postgres://ubuntu:@127.0.0.1:5432/circle_test"    
+    PATH: "$HOME/.cargo/bin:$PATH"
 
 dependencies:
   cache_directories:
     - '~/.npm'
+    - '~/.cargo'
     - 'client/node_modules'
+    - 'runner/target'
+
   override:
     - mkdir -p "/home/ubuntu/.go_workspace/src/$IMPORT_PATH"
     - rsync -azC --delete ./ "/home/ubuntu/.go_workspace/src/$IMPORT_PATH/"
@@ -13,15 +18,9 @@ dependencies:
     - gem install 'platform-api'
     - npm install -g gulp
 
-    - npm install:
-        pwd: client
-    - gulp:
-        pwd: client
+    - curl https://sh.rustup.rs -sSf | bash -s -- -y --no-modify-path --default-toolchain nightly
 
-    - go get -t -d -v ./...:
-        pwd: server
-    - go build -v:
-        pwd: server
+    - ./build_all.sh
 
 test:
   override:

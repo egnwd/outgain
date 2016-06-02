@@ -2,19 +2,12 @@
 
 import { IWorldState, ILogEvent } from "./protocol";
 import { GameRenderer } from './renderer'
-import { UserPanel, ModalPopUp } from './gameUI'
+import { UserPanel } from './gameUI'
 import * as $ from 'jquery'
 
 var userPanel = new UserPanel("#user-id", "#user-resources")
 
-$(function() {
-    if (!userPanel.isUserAuthenticated()) {
-      ModalPopUp.mainModal()
-    } else {
-      userPanel.setUserID()
-    }
-})
-
+// Move to GameUI
 $(function() {
   $('#collapse-arrow').click(function() {
     // Change style
@@ -32,24 +25,31 @@ $(function() {
   })
 })
 
-$(function() {
-    // Do not render the game if the user is not authenticated
-    if (!userPanel.isUserAuthenticated()) {
-        return
-    }
+function getLobbyId() {
+  let url = window.location.href.toString()
+  let re = /([0-9]+)$/g
+  return url.match(re)[0]
+}
 
+$(function() {
+    userPanel.setUserID()
+
+    let idField = document.getElementById("id-field")
     let gameLog = document.getElementById("game-log")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
 
     let renderer = new GameRenderer(canvas)
 
-    let source = new EventSource("/updates")
+    let lobbyId = getLobbyId()
+    idField.setAttribute("value", lobbyId)
+
+    let source = new EventSource("/updates/" + lobbyId)
 
     source.addEventListener("state", function(event) {
         let data = JSON.parse((<sse.IOnMessageEvent>event).data)
 
         let update = <IWorldState>data
-	
+
         renderer.pushState(update)
     })
 

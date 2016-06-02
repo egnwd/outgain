@@ -4,13 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
 
-	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv/autoload"
 	"golang.org/x/oauth2/github"
 )
 
@@ -26,9 +25,6 @@ var endpoint = struct {
 }
 
 func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Error: %s\n", err.Error())
-	}
 	c.ClientID = os.Getenv("GITHUB_CLIENT_ID")
 	c.ClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
 	c.RedirectURI = os.Getenv("GITHUB_REDIRECT_URI")
