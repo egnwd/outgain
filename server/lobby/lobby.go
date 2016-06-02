@@ -3,8 +3,8 @@ package lobby
 import (
 	"sync"
 
-	"github.com/egnwd/outgain/server/engine"
 	"github.com/egnwd/outgain/server/config"
+	"github.com/egnwd/outgain/server/engine"
 )
 
 const lobbySize int = 10
@@ -18,7 +18,7 @@ type Lobby struct {
 	Guests    guestList
 	size      int
 	isRunning bool
-        config    *config.Config
+	config    *config.Config
 	sync.Mutex
 }
 
@@ -41,7 +41,7 @@ func NewLobby(config *config.Config) (lobby *Lobby) {
 		Engine: e,
 		Guests: generalPopulation(lobbySize),
 		size:   lobbySize,
-                config: config,
+		config: config,
 	}
 
 	lobbies[lobby.ID] = lobby
