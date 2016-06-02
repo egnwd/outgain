@@ -1,0 +1,168 @@
+[root]
+name = "runner"
+version = "0.1.0"
+dependencies = [
+ "byteorder 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mrusty 0.5.1 (git+https://github.com/plietar/mrusty)",
+ "rmp 0.7.3 (git+https://github.com/plietar/msgpack-rust)",
+ "rmp-rpc 0.1.0 (git+https://github.com/plietar/rmp-rpc)",
+ "rmp-serde 0.9.0 (git+https://github.com/plietar/msgpack-rust)",
+ "serde 0.7.7 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_macros 0.7.7 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "aster"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "byteorder"
+version = "0.3.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "byteorder"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "filetime"
+version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "libc 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "gcc"
+version = "0.3.28"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "kernel32-sys"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "winapi 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winapi-build 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "libc"
+version = "0.2.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "mrusty"
+version = "0.5.1"
+source = "git+https://github.com/plietar/mrusty#9561f5f66b5bbe76c931cbcde1c1c10182e201f0"
+dependencies = [
+ "gcc 0.3.28 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tar 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "walkdir 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "quasi"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "quasi_codegen"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "aster 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "quasi_macros"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "quasi_codegen 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "quick-error"
+version = "1.0.0"
+source = "git+https://github.com/tailhook/quick-error#cb7a9540c68e07a0c8d921a737d3d268e66ff3b4"
+
+[[package]]
+name = "rmp"
+version = "0.7.3"
+source = "git+https://github.com/plietar/msgpack-rust#5170c45075d65685f64ff800fc2198e6793cc3ed"
+dependencies = [
+ "byteorder 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "rmp-rpc"
+version = "0.1.0"
+source = "git+https://github.com/plietar/rmp-rpc#134509dd0331d99aeca6f93501ae1b302308f2a8"
+dependencies = [
+ "quick-error 1.0.0 (git+https://github.com/tailhook/quick-error)",
+ "rmp 0.7.3 (git+https://github.com/plietar/msgpack-rust)",
+]
+
+[[package]]
+name = "rmp-serde"
+version = "0.9.0"
+source = "git+https://github.com/plietar/msgpack-rust#5170c45075d65685f64ff800fc2198e6793cc3ed"
+dependencies = [
+ "rmp 0.7.3 (git+https://github.com/plietar/msgpack-rust)",
+ "serde 0.7.7 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "serde"
+version = "0.7.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "serde_codegen"
+version = "0.7.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "aster 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quasi 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quasi_macros 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "serde_macros"
+version = "0.7.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "serde_codegen 0.7.7 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "tar"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "filetime 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "walkdir"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winapi 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "winapi"
+version = "0.2.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "winapi-build"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+

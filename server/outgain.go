@@ -1,47 +1,39 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"github.com/egnwd/outgain/server/engine"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
+	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/database"
+	"github.com/egnwd/outgain/server/engine"
 	"github.com/egnwd/outgain/server/routes"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	config := config.ParseArgs()
 
 	db, err := database.OpenDb()
-
 	_ = db
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	staticDir := flag.String("static-dir", "client/dist", "")
-	redirectPlainHTTP := flag.Bool("redirect-plain-http", false, "")
-	flag.Parse()
+	engine := engine.NewEngine(config)
 
-	engine := engine.NewEngine()
-
-	handler := routes.GetHandler(*staticDir, engine)
-	if *redirectPlainHTTP {
+	handler := routes.GetHandler(config.StaticDir, engine)
+	if config.RedirectPlainHTTP {
 		handler = redirectPlainHTTPMiddleware(handler)
 	}
 
 	go engine.Run()
 
-	log.Printf("Listening on port %s", port)
-	http.ListenAndServe(":"+port, handler)
+	log.Printf("Listening on port %d", config.Port)
+	http.ListenAndServe(fmt.Sprintf(":%d", config.Port), handler)
 }
 
 func redirectPlainHTTPMiddleware(next http.Handler) http.Handler {

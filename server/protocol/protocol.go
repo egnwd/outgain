@@ -27,3 +27,13 @@ type Event struct {
 	Type string
 	Data interface{}
 }
+
+type TickRequest struct {
+	WorldState WorldState `json:"world_state"`
+	Player     Entity     `json:"player"`
+}
+
+type TickResult struct {
+	Dx float64 `json:"dx"`
+	Dy float64 `json:"dy"`
+}

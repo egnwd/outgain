@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eux
 
-(cd client; gulp)
-(cd server; go build -v)
+(cd client; npm install && gulp)
+(cd server; go get -t -d -v ./... && go build -v)
+(cd runner; cargo build)
