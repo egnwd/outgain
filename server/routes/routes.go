@@ -37,7 +37,7 @@ func GetHandler(static string) http.Handler {
 	// Game View
 	get.Handle("/lobbies/{id:[0-9]+}", c.RequireAuth(c.LobbiesGame(static)))
 	get.Handle("/updates/{id:[0-9]+}", c.UpdatesHandler())
-	get.HandleFunc("/leave", c.Leave)
+	post.Handle("/lobbies/leave", c.RequireAuth(http.HandlerFunc(c.LobbiesLeave)))
 
 	// FIXME: Wrap the FileServer in a Handler that hooks w upon writing
 	// 404 to the Header

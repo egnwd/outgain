@@ -3,7 +3,6 @@ package lobby
 import (
 	"errors"
 	"fmt"
-	"log"
 )
 
 const (
@@ -69,9 +68,9 @@ func (lobby *Lobby) ContainsUser(name string) bool {
 }
 
 // AddUser adds the specified user to the lobby, returning an error if the
-// lobby is already at capacity, and running the engine if the user is
-// the first to join
+// lobby is already at capacity
 func (lobby *Lobby) AddUser(user *User) error {
+	// TODO: Check for duplicates
 	lobbyGuests := lobby.Guests.list
 
 	// Check for bot to remove
@@ -85,9 +84,36 @@ func (lobby *Lobby) AddUser(user *User) error {
 	newGuests = append(newGuests[:i], append(newGuest, newGuests[i:]...)...)
 	lobby.Guests.userSize++
 
-	log.Printf("%d\n", lobby.Guests.userSize)
-
 	lobby.Guests.list = newGuests
+	return nil
+}
+
+// RemoveUser removes the specified user from the lobby, returning an error if the
+// user is not in the lobby
+func (lobby *Lobby) RemoveUser(user *User) error {
+	// TODO: Check for duplicates
+	lobbyGuests := lobby.Guests.list
+
+	// Remove User
+	var i int
+	for i = len(lobbyGuests) - 1; i > 0; i-- {
+		if lobbyGuests[i].name == user.name {
+			// Memory leaks - Go needs to sort slices out...
+			copy(lobbyGuests[i:], lobbyGuests[i+1:])
+			lobbyGuests[len(lobbyGuests)-1] = nil
+			lobbyGuests = lobbyGuests[:len(lobbyGuests)-1]
+			break
+		}
+	}
+
+	// Add Bot
+	name := fmt.Sprintf("Bot %d", i+1)
+	// This will change in another branch that is getting merged a little later
+	newGuest := []*guest{&NewBot(name).guest}
+	lobbyGuests = append(newGuest, lobbyGuests...)
+	lobby.Guests.userSize--
+
+	lobby.Guests.list = lobbyGuests
 	return nil
 }
 

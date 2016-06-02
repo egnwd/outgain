@@ -8,6 +8,7 @@
   </head>
   <body>
     <div id="lobbies-container">
+      <a href="/logout" class="btn btn--fail">Logout</a>
       <div id="lobbies-table">
         <!-- Generated dynamically -->
       </div>
@@ -20,10 +21,10 @@
           </thead>
         </table>
       </div>
-        <form action="/lobbies/join" method="post">
-          <input id="id-field" type="text" name="id" value="2019968050" style="display: none;">
-          <input type="submit" name="submit" value="Join Lobby" class="btn btn--success">
-        </form>
+      <form action="/lobbies/join" method="post">
+        <input id="id-field" type="text" name="id" value="2019968050" style="display: none;">
+        <input type="submit" name="submit" value="Join Lobby" class="btn btn--success">
+      </form>
     </div>
   </body>
 </html>

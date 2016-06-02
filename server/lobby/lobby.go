@@ -75,6 +75,8 @@ func (lobby *Lobby) startEngine() {
 		lobby.Engine.Run(entities)
 		lobby.Start()
 	}
+
+	lobby.isRunning = false
 }
 
 // GetLobby returns the Lobby with id: `id` and if it does not exist it returns

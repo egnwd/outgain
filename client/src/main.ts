@@ -32,15 +32,18 @@ function getLobbyId() {
 }
 
 $(function() {
-
     userPanel.setUserID()
 
+    let idField = document.getElementById("id-field")
     let gameLog = document.getElementById("game-log")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
 
     let renderer = new GameRenderer(canvas)
 
-    let source = new EventSource("/updates/" + getLobbyId())
+    let lobbyId = getLobbyId()
+    idField.setAttribute("value", lobbyId)
+
+    let source = new EventSource("/updates/" + lobbyId)
 
     source.addEventListener("state", function(event) {
         let data = JSON.parse((<sse.IOnMessageEvent>event).data)
@@ -51,32 +54,31 @@ $(function() {
     })
 
     source.addEventListener("log", function(lEvent) {
-	let data = JSON.parse((<sse.IOnMessageEvent>lEvent).data)
-        let logEvent = <ILogEvent>data
+  	let data = JSON.parse((<sse.IOnMessageEvent>lEvent).data)
+          let logEvent = <ILogEvent>data
 
-        let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
-	switch (logEvent.logType) {
-	    case 0:
-		gameLog.innerHTML = "A new game has started, good luck!\n"
-	        break
-	    case 1:
-		gameLog.innerHTML = gameLog.innerHTML + "Yum, creature "
-		    + logEvent.protagID + " ate a resource\n"
-		break
-	    case 2:
-		gameLog.innerHTML = gameLog.innerHTML + "Creature "
-		    + logEvent.protagID + " ate creature " + logEvent.antagID + "\n"
-		break
-	}
-        if (scrollUpdate) {
-            gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight
-        }
+          let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
+        	switch (logEvent.logType) {
+        	    case 0:
+        		gameLog.innerHTML = "A new game has started, good luck!\n"
+        	        break
+        	    case 1:
+        		gameLog.innerHTML = gameLog.innerHTML + "Yum, creature "
+        		    + logEvent.protagID + " ate a resource\n"
+        		break
+        	    case 2:
+        		gameLog.innerHTML = gameLog.innerHTML + "Creature "
+        		    + logEvent.protagID + " ate creature " + logEvent.antagID + "\n"
+        		break
+        	}
+          if (scrollUpdate) {
+              gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight
+          }
+      })
 
-    })
-
-    window.addEventListener("resize", () => renderer.onResize())
-    window.requestAnimationFrame(function draw() {
-        renderer.render()
-        window.requestAnimationFrame(draw)
-    })
+      window.addEventListener("resize", () => renderer.onResize())
+      window.requestAnimationFrame(function draw() {
+          renderer.render()
+          window.requestAnimationFrame(draw)
+      })
 })

@@ -114,3 +114,40 @@ func LobbiesGame(staticDir string) http.Handler {
 		http.ServeFile(w, r, staticDir+"/game-view.html")
 	})
 }
+
+// LobbiesLeave temporarily logs the user out - this will change in the future
+func LobbiesLeave(w http.ResponseWriter, r *http.Request) {
+	if !IsUserAuthorised(r) {
+		http.Error(w, "Not logged in.", http.StatusUnauthorized)
+	}
+
+	// Get the id of the requested lobby
+	id, err := strconv.ParseUint(r.PostFormValue("id"), 10, 64)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	// Get the lobby from the global list
+	l, ok := lobby.GetLobby(id)
+	if !ok {
+		log.Printf("Join: No Lobby (%d)\n", id)
+		http.Error(w, "Lobby doesn't exist", http.StatusBadRequest)
+		return
+	}
+
+	// Get the username of the authenicated user
+	username, err := GetUserName(r)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	// Remove the user to the lobby
+	user := lobby.NewUser(username)
+	l.RemoveUser(user)
+
+	// Redirect user to the lobby
+	log.Printf("User: %s Left Lobby: %d", username, id)
+	http.Redirect(w, r, "/", http.StatusFound)
+}
