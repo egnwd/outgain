@@ -157,9 +157,6 @@ func (engine *Engine) tick() {
 		engine.lastResourceSpawn = now
 
 		engine.AddEntity(RandomResource)
-		engine.AddEntity(RandomSpike)
-		engine.AddEntity(RandomSpike)
-		engine.AddEntity(RandomSpike)
 	}
 
 	engine.entities.Tick(dt)
