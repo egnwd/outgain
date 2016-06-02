@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
@@ -17,9 +19,63 @@ func LobbiesView(staticDir string) http.Handler {
 			http.Redirect(w, r, u, http.StatusFound)
 			return
 		}
-
 		http.ServeFile(w, r, staticDir+"/lobbies.html")
 	})
+}
+
+// LobbiesPeek peeks at the lobby IDs in use and returns them as a JSON
+func LobbiesPeek(w http.ResponseWriter, r *http.Request) {
+	if !IsUserAuthorised(r) {
+		u := fmt.Sprintf("http://%s/", r.Host)
+		http.Redirect(w, r, u, http.StatusFound)
+		return
+	}
+
+	// Get IDs of all current lobbies, convert to JSON and return it
+	IDs := lobby.GetLobbyIDs()
+	js, err := json.Marshal(IDs)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
+// LobbiesGetUsers gets all the user names from the lobby specified at the end
+// of the caught URL, and returns them as a JSON
+func LobbiesGetUsers(w http.ResponseWriter, r *http.Request) {
+	if !IsUserAuthorised(r) {
+		u := fmt.Sprintf("http://%s/", r.Host)
+		http.Redirect(w, r, u, http.StatusFound)
+		return
+	}
+
+	// Get lobby ID from URL
+	ID, err := strconv.Atoi(strings.SplitAfter(r.URL.String(), "-")[1])
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	l, ok := lobby.GetLobby(uint64(ID))
+	if !ok {
+		// TODO: lobby no longer exists, perhaps refresh page and error popup
+		return
+	}
+	// Get all usernames from lobby
+	users := l.Guests.Iterator()
+	usernames := make([]string, 0, len(users))
+	for _, user := range users {
+		usernames = append(usernames, user.GetName())
+	}
+	// Convert to JSON and return it
+	js, err := json.Marshal(usernames)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
 }
 
 func LobbiesJoin(w http.ResponseWriter, r *http.Request) {

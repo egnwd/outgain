@@ -32,6 +32,17 @@ gulp.task('popup', ['typings'], function () {
         .pipe(gulp.dest(targetDir + '/js'));
 });
 
+gulp.task('lobbies', ['typings'], function () {
+    return browserify()
+        .add(__dirname + '/typings/index.d.ts')
+        .add(__dirname + '/src/lobbies.ts')
+        .plugin(tsify)
+        .bundle()
+        .on('error', logError)
+        .pipe(source('lobbies.bundle.js'))
+        .pipe(gulp.dest(targetDir + '/js'));
+});
+
 var logError = function logError(error) {
   process.stderr.write(error + '\n');
 };
@@ -57,10 +68,11 @@ gulp.task('images', function () {
         .pipe(gulp.dest(targetDir + '/images'));
 });
 
-gulp.task('all', ['scripts', 'popup', 'styles', 'html', 'images']);
+gulp.task('all', ['scripts', 'popup', 'lobbies', 'styles', 'html', 'images']);
 
-gulp.task('watch', ['scripts', 'popup', 'styles', 'html', 'images'], function() {
+gulp.task('watch', ['scripts', 'popup', 'lobbies', 'styles', 'html', 'images'], function() {
     gulp.watch('./src/**/*.ts', ['popup']);
+    gulp.watch('./src/**/lobbies.ts', ['lobbies']);
     gulp.watch('./src/**/*.ts', ['scripts']);
     gulp.watch('./src/**/*.js', ['scripts']);
     gulp.watch('./style/**/*.scss', ['styles']);
