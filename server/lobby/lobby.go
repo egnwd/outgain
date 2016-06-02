@@ -59,11 +59,12 @@ func (lobby *Lobby) Start() {
 
 	if !lobby.isRunning {
 		lobby.isRunning = true
-		go lobby.startEngine()
+		go lobby.runEngine()
 	}
 }
 
-func (lobby *Lobby) startEngine() {
+// This must be run in a go routine otherwise it will block the thread
+func (lobby *Lobby) runEngine() {
 	for lobby.Guests.userSize >= 0 {
 		var entities engine.EntityList
 
@@ -77,6 +78,7 @@ func (lobby *Lobby) startEngine() {
 	}
 
 	lobby.isRunning = false
+	destroyLobby(lobby)
 }
 
 // GetLobby returns the Lobby with id: `id` and if it does not exist it returns
@@ -86,10 +88,11 @@ func GetLobby(id uint64) (*Lobby, bool) {
 	return l, ok
 }
 
-// DestroyLobby removes looby from the global map
-func DestroyLobby(lobby *Lobby) {
-	lobby.Guests.list = []*guest{}
+// destroyLobby removes lobby from the global map
+func destroyLobby(lobby *Lobby) {
+	lobby.Guests.list = nil
 	lobby.Guests.userSize = 0
+	//lobby.Engine.Close() - for the runner to be shut down
 	lobby.Engine = nil
 	delete(lobbies, lobby.ID)
 }
