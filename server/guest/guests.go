@@ -11,6 +11,11 @@ type Guest struct {
 	resources int
 }
 
+type List struct {
+	List     []*Guest
+	UserSize int
+}
+
 // NewUser returns a user with a specified name and no resources
 func NewUser(name string) *Guest {
 	return newGuest(name, UserType)
@@ -36,4 +41,8 @@ func (g *Guest) AddResources(amount int) {
 
 func (g *Guest) GetResources() int {
 	return g.resources
+}
+
+func (guests List) Iterator() []*Guest {
+	return guests.List
 }

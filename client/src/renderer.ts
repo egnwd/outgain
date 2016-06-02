@@ -43,7 +43,8 @@ class Entity {
             ctx.fill()
             ctx.closePath()
         } else {
-            var size = radius * scale * 2
+            let bumper = 1.4651162791
+            var size = radius * scale * 2 * bumper
             ctx.drawImage(this.img, -size / 2, -size / 2, size, size)
         }
 

@@ -1,0 +1,25 @@
+[package]
+name = "runner"
+version = "0.1.0"
+authors = ["Paul Lietar <paul@lietar.net>"]
+
+[dependencies]
+byteorder = "0.3"
+serde = "0.7"
+serde_macros = "0.7"
+
+[dependencies.rmp]
+git = "https://github.com/plietar/msgpack-rust"
+version = "0.7"
+
+[dependencies.rmp-serde]
+git = "https://github.com/plietar/msgpack-rust"
+version = "0.9"
+
+[dependencies.rmp-rpc]
+git = "https://github.com/plietar/rmp-rpc"
+version = "0.1"
+
+[dependencies.mrusty]
+git = "https://github.com/plietar/mrusty"
+version = "0.5"

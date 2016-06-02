@@ -33,3 +33,4 @@ module ModalPopUp {
 $(function() {
   ModalPopUp.mainModal()
 })
+

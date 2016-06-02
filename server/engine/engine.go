@@ -1,12 +1,12 @@
 package engine
 
 import (
+	"fmt"
 	"log"
 	"math"
-	"sync"
 	"time"
 
-	"github.com/egnwd/outgain/server/guest"
+	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/protocol"
 )
 
@@ -29,14 +29,14 @@ type Engine struct {
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextID            <-chan uint64
-	kill              chan bool
-	sync.WaitGroup
+	config            *config.Config
+	restart           bool
 }
 
-type builderFunc func(uint64, *guest.Guest) Entity
+type builderFunc func(uint64) Entity
 
 // NewEngine returns a fresh instance of a game engine
-func NewEngine() (engine *Engine) {
+func NewEngine(config *config.Config) (engine *Engine) {
 	eventChannel := make(chan protocol.Event)
 	idChannel := make(chan uint64)
 	go func() {
@@ -55,22 +55,22 @@ func NewEngine() (engine *Engine) {
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
 		nextID:            idChannel,
-		kill:              make(chan bool),
+		config:            config,
 	}
 
 	return
 }
 
-// Shutdown stops the engine
-func (engine *Engine) Shutdown() {
-	engine.kill <- true
-}
-
-func (engine *Engine) shutdown() {
-	engine.eventsOut <- protocol.Event{
-		Type: "shutdown",
-		Data: []byte{},
+// restartEngine puts the engine back to it's original state
+func (engine *Engine) restartEngine() {
+	for _, entity := range engine.entities {
+		entity.Close()
 	}
+
+	engine.entities = EntityList{}
+	engine.clearGameLog()
+
+	engine.restart = true
 }
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
@@ -83,7 +83,8 @@ func (engine *Engine) clearGameLog() {
 }
 
 // Run starts the simulation of the game
-func (engine *Engine) Run() {
+func (engine *Engine) Run(entities EntityList) {
+	engine.entities = entities
 	engine.clearGameLog()
 	engine.lastTick = time.Now()
 	engine.lastResourceSpawn = time.Now()
@@ -99,12 +100,11 @@ GameLoop:
 
 		engine.tick()
 
-		select {
-		case <-engine.kill:
-			close(engine.eventsOut)
+		if engine.restart {
+			engine.restart = false
 			break GameLoop
-		default:
 		}
+
 	}
 }
 
@@ -121,9 +121,13 @@ func (engine *Engine) Serialize() protocol.WorldState {
 }
 
 // AddEntity adds an entity to the engine's list
-func (engine *Engine) AddEntity(guest *guest.Guest, builder builderFunc) {
-	entity := builder(<-engine.nextID, guest)
-	engine.entities = engine.entities.Insert(entity)
+func (engine *Engine) AddEntity(builder builderFunc) {
+	engine.entities = engine.entities.Insert(engine.CreateEntity(builder))
+}
+
+// CreateEntity builds an entity using the builder
+func (engine *Engine) CreateEntity(builder builderFunc) Entity {
+	return builder(<-engine.nextID)
 }
 
 // addLogEvent adds to  logEvents which are eventually added to the gameLog
@@ -152,7 +156,6 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 		Type: "log",
 		Data: logEvent,
 	}
-
 }
 
 func (engine *Engine) tick() {
@@ -163,10 +166,11 @@ func (engine *Engine) tick() {
 	if now.Sub(engine.lastResourceSpawn) > resourceSpawnInterval {
 		engine.lastResourceSpawn = now
 
-		engine.AddEntity(nil, RandomResource)
+		engine.AddEntity(RandomResource)
 	}
 
-	engine.entities.Tick(dt)
+	state := engine.Serialize()
+	engine.entities.Tick(state, dt)
 	engine.collisionDetection()
 }
 
@@ -184,14 +188,44 @@ func (engine *Engine) collisionDetection() {
 		entity.Base().nextRadius = entity.Base().Radius
 	}
 
+	// We currently run both the slow and fast collision algorithms, and
+	// compare their outputs to find collision missed by the fast one due
+	// to bugs. Once we're confident enough with the results of the fast
+	// one we can switch fully to this one.
+	collisions := []Collision{}
 	for collision := range engine.entities.Collisions() {
-		a, b := collision.a, collision.b
+		collisions = append(collisions, collision)
+
+		a, b := collision.A, collision.B
 		diff := a.Base().Radius - b.Base().Radius
 
 		if diff >= eatRadiusDifference {
 			engine.eatEntity(a, b)
 		} else if diff <= -eatRadiusDifference {
 			engine.eatEntity(b, a)
+		}
+	}
+
+	for collision := range engine.entities.SlowCollisions() {
+		found := false
+		for _, c := range collisions {
+			if (c.A == collision.A && c.B == collision.B) ||
+				(c.A == collision.B && c.B == collision.A) {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			message := fmt.Sprintf("WARN Collision false negative: (%d %d),",
+				collision.A.Base().ID, collision.B.Base().ID)
+
+			for _, e := range engine.entities {
+				message += fmt.Sprintf(" dummyEntity(%d, %.2f, %.2f, %.2f),",
+					e.Base().ID, e.Base().X, e.Base().Y, e.Base().Radius)
+			}
+
+			log.Println(message)
 		}
 	}
 
@@ -214,7 +248,6 @@ func (engine *Engine) collisionDetection() {
 	engine.entities.Sort()
 
 	if creatureCount <= 1 {
-		log.Println("Shutting Down")
-		engine.shutdown()
+		engine.restartEngine()
 	}
 }

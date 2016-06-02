@@ -162,24 +162,28 @@ func UpdateMaxAge(h http.Handler) http.Handler {
 	})
 }
 
+func RequireAuth(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !IsUserAuthorised(r) {
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+
+		h.ServeHTTP(w, r)
+	})
+}
+
 func IsUserAuthorised(r *http.Request) bool {
 	session, _ := store.Get(r, sessionName)
+	_, ok := session.Values[usernameKey]
 
-	if _, ok := session.Values[usernameKey]; ok {
-		return true
-	}
-
-	return false
+	return ok
 }
 
 func GetUserName(r *http.Request) (string, error) {
-	session, err := store.Get(r, sessionName)
-	if err != nil {
-		return "", err
-	}
-
-	if username, ok := session.Values[usernameKey]; ok {
-		return username.(string), nil
+	session, _ := store.Get(r, sessionName)
+	if IsUserAuthorised(r) {
+		return session.Values[usernameKey].(string), nil
 	}
 
 	return "", fmt.Errorf("User not logged in")

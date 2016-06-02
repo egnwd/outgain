@@ -1,33 +1,37 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
+	"github.com/egnwd/outgain/server/config"
+	"github.com/egnwd/outgain/server/database"
+	"github.com/egnwd/outgain/server/lobby"
 	"github.com/egnwd/outgain/server/routes"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	config := config.ParseArgs()
+
+	db, err := database.OpenDb()
+	_ = db
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	staticDir := flag.String("static-dir", "client/dist", "")
-	redirectPlainHTTP := flag.Bool("redirect-plain-http", false, "")
-	flag.Parse()
-
-	handler := routes.GetHandler(*staticDir)
-	if *redirectPlainHTTP {
+	handler := routes.GetHandler(config.StaticDir)
+	if config.RedirectPlainHTTP {
 		handler = redirectPlainHTTPMiddleware(handler)
 	}
 
-	log.Printf("Listening on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, handler))
+	lobby.GenerateOneLobby(config)
+
+	log.Printf("Listening on port %d", config.Port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), handler))
 }
 
 func redirectPlainHTTPMiddleware(next http.Handler) http.Handler {

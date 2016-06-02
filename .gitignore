@@ -2,9 +2,12 @@ client/dist
 client/node_modules
 client/typings
 server/server
+runner/target
 app
 slug.tgz
 .tags
 .tags1
 .env
 *.psd
+.vagrant
+runner/.cargo/config

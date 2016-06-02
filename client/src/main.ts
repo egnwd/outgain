@@ -32,15 +32,18 @@ function getLobbyId() {
 }
 
 $(function() {
-
     userPanel.setUserID()
 
+    let idField = document.getElementById("id-field")
     let gameLog = document.getElementById("game-log")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
 
     let renderer = new GameRenderer(canvas)
 
-    let source = new EventSource("/updates/" + getLobbyId())
+    let lobbyId = getLobbyId()
+    idField.setAttribute("value", lobbyId)
+
+    let source = new EventSource("/updates/" + lobbyId)
 
     source.addEventListener("state", function(event) {
         let data = JSON.parse((<sse.IOnMessageEvent>event).data)
@@ -48,10 +51,6 @@ $(function() {
         let update = <IWorldState>data
 
         renderer.pushState(update)
-    })
-
-    source.addEventListener("shutdown", function() {
-        window.location.href = "http://" + window.document.location.host + "/lobbies";
     })
 
     source.addEventListener("log", function(lEvent) {

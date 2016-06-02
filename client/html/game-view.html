@@ -26,7 +26,10 @@
                 <a class="btn btn--action" href="/config">Config</a>
               </li>
               <li>
-                <a class="btn" href="/leave">Leave</a>
+                <form action="/lobbies/leave" method="post">
+                  <input id="id-field" type="text" name="id" value="" style="display: none;">
+                  <input type="submit" name="submit" value="Leave" class="btn btn--action">
+                </form>
               </li>
             </ul>
           </div>
