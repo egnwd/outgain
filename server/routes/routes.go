@@ -21,7 +21,7 @@ func GetHandler(static string) http.Handler {
 	get.Handle("/images/creature-{id:[0-9a-fA-F]+}.png",
 		controller.SpriteHandler(static))
 
-	//get.Handle("/", controller.LogInPage(static))
+	get.Handle("/", controller.LogInPage(static))
 
 	get.HandleFunc("/login", controller.UserLogIn)
 	get.HandleFunc("/logout", controller.Logout)

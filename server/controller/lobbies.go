@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
@@ -15,8 +14,7 @@ import (
 func LobbiesView(staticDir string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !IsUserAuthorised(r) {
-			u := fmt.Sprintf("http://%s/", r.Host)
-			http.Redirect(w, r, u, http.StatusFound)
+			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
 		http.ServeFile(w, r, staticDir+"/lobbies.html")
@@ -26,8 +24,7 @@ func LobbiesView(staticDir string) http.Handler {
 // LobbiesPeek peeks at the lobby IDs in use and returns them as a JSON
 func LobbiesPeek(w http.ResponseWriter, r *http.Request) {
 	if !IsUserAuthorised(r) {
-		u := fmt.Sprintf("http://%s/", r.Host)
-		http.Redirect(w, r, u, http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
 
@@ -46,18 +43,15 @@ func LobbiesPeek(w http.ResponseWriter, r *http.Request) {
 // of the caught URL, and returns them as a JSON
 func LobbiesGetUsers(w http.ResponseWriter, r *http.Request) {
 	if !IsUserAuthorised(r) {
-		u := fmt.Sprintf("http://%s/", r.Host)
-		http.Redirect(w, r, u, http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
 
 	// Get lobby ID from URL
-	ID, err := strconv.Atoi(strings.SplitAfter(r.URL.String(), "-")[1])
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-	l, ok := lobby.GetLobby(uint64(ID))
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseUint(vars["id"], 10, 64)
+
+	l, ok := lobby.GetLobby(uint64(id))
 	if !ok {
 		// TODO: lobby no longer exists, perhaps refresh page and error popup
 		return
@@ -126,8 +120,7 @@ func LobbiesGame(staticDir string) http.Handler {
 		username, err := GetUserName(r)
 
 		if err != nil {
-			u := fmt.Sprintf("http://%s/", r.Host)
-			http.Redirect(w, r, u, http.StatusFound)
+			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		} else if !ok || !l.ContainsUser(username) {
 			u := fmt.Sprintf("http://%s/lobbies", r.Host)

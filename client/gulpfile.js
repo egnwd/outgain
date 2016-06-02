@@ -5,7 +5,7 @@ var gulp        = require('gulp'),
     tsify       = require('tsify'),
     source      = require('vinyl-source-stream'),
     sass        = require('gulp-sass'),
-    gulpTypings = require('gulp-typings'),
+    gulpTypings = require('gulp-typings');
 
 var targetDir = __dirname + '/dist';
 
