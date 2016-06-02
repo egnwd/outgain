@@ -24,18 +24,18 @@ func GetHandler(static string) http.Handler {
 	get.Handle("/", c.LogInPage(static))
 
 	get.HandleFunc("/login", c.UserLogIn)
-	get.Handle("/logout", c.RequiresAuthentication(c.Logout))
+	get.Handle("/logout", c.RequireAuth(http.HandlerFunc(c.Logout)))
 	get.HandleFunc("/oauthSignInCallback", c.OAuthSignInCallback)
 	get.HandleFunc("/currentUser", c.CurrentUser)
 
 	// Lobbies
-	get.Handle("/lobbies", c.RequiresAuthentication(c.LobbiesView(static)))
-	get.Handle("/peekLobbies", c.RequiresAuthentication(c.LobbiesPeek))
-	get.Handle("/lobbies/{id:[0-9]+}/users", c.RequiresAuthentication(c.LobbiesGetUsers))
-	post.Handle("/lobbies/join", c.RequiresAuthentication(c.LobbiesJoin))
+	get.Handle("/lobbies", c.RequireAuth(c.LobbiesView(static)))
+	get.Handle("/peekLobbies", c.RequireAuth(http.HandlerFunc(c.LobbiesPeek)))
+	get.Handle("/lobbies/{id:[0-9]+}/users", c.RequireAuth(http.HandlerFunc(c.LobbiesGetUsers)))
+	post.Handle("/lobbies/join", c.RequireAuth(http.HandlerFunc(c.LobbiesJoin)))
 
 	// Game View
-	get.Handle("/lobbies/{id:[0-9]+}", c.RequiresAuthentication(c.LobbiesGame(static)))
+	get.Handle("/lobbies/{id:[0-9]+}", c.RequireAuth(c.LobbiesGame(static)))
 	get.Handle("/updates/{id:[0-9]+}", c.UpdatesHandler())
 	get.HandleFunc("/leave", c.Leave)
 
