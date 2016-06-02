@@ -8,7 +8,7 @@ import (
 
 	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/database"
-	"github.com/egnwd/outgain/server/engine"
+	"github.com/egnwd/outgain/server/lobby"
 	"github.com/egnwd/outgain/server/routes"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -23,17 +23,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	engine := engine.NewEngine(config)
-
-	handler := routes.GetHandler(config.StaticDir, engine)
+	handler := routes.GetHandler(config.StaticDir)
 	if config.RedirectPlainHTTP {
 		handler = redirectPlainHTTPMiddleware(handler)
 	}
 
-	go engine.Run()
+	lobby.GenerateOneLobby(config)
 
 	log.Printf("Listening on port %d", config.Port)
-	http.ListenAndServe(fmt.Sprintf(":%d", config.Port), handler)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), handler))
 }
 
 func redirectPlainHTTPMiddleware(next http.Handler) http.Handler {
