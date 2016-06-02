@@ -29,7 +29,7 @@ class Entity {
     render(ctx: CanvasRenderingContext2D, scale: number, interpolation: number) {
         let x = lerp(this.previous.x, this.current.x, interpolation)
         let y = lerp(this.previous.y, this.current.y, interpolation)
-        let radius = this.current.radius
+        let radius = lerp(this.previous.radius, this.current.radius, interpolation)
         let color = this.current.color
         let name = this.current.name
 

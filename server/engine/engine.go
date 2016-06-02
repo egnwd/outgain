@@ -14,9 +14,11 @@ const gridSize float64 = 10
 
 const resourceSpawnInterval time.Duration = 5 * time.Second
 
-const eatRadiusDifference = 0.2
+const eatRadiusDifference = 0.1
 
 const initialCreatureCount = 10
+const drainRate = 0.5
+const radiusThreshold = 0.2
 
 // Engine stores the information about an instance of the game and controls
 // the events that are occuring within the game
@@ -161,16 +163,30 @@ func (engine *Engine) tick() {
 
 	state := engine.Serialize()
 	engine.entities.Tick(state, dt)
-	engine.collisionDetection()
+	engine.collisionDetection(dt)
 }
 
-func (engine *Engine) eatEntity(eater, eaten Entity) {
-	eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())
-	eaten.Base().dying = true
-	engine.addLogEvent(eater, eaten)
+func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
+	_, eaterIsResource := eater.(*Resource)
+	if eaterIsResource || eater.Base().dying || eaten.Base().dying {
+		return
+	}
+
+	eaterVolume := eater.Base().nextRadius * eater.Base().nextRadius
+	eatenVolume := eaten.Base().nextRadius * eaten.Base().nextRadius
+
+	amount := math.Exp(-1/drainRate*dt) * eatenVolume
+
+	eater.Base().nextRadius = math.Sqrt(eaterVolume + amount*eaten.BonusFactor())
+	eaten.Base().nextRadius = math.Sqrt(eatenVolume - amount)
+
+	if eaten.Base().nextRadius < radiusThreshold {
+		eaten.Base().dying = true
+		engine.addLogEvent(eater, eaten)
+	}
 }
 
-func (engine *Engine) collisionDetection() {
+func (engine *Engine) collisionDetection(dt float64) {
 	for _, entity := range engine.entities {
 		entity.Base().dying = false
 		entity.Base().nextRadius = entity.Base().Radius
@@ -188,9 +204,9 @@ func (engine *Engine) collisionDetection() {
 		diff := a.Base().Radius - b.Base().Radius
 
 		if diff >= eatRadiusDifference {
-			engine.eatEntity(a, b)
+			engine.eatEntity(dt, a, b)
 		} else if diff <= -eatRadiusDifference {
-			engine.eatEntity(b, a)
+			engine.eatEntity(dt, b, a)
 		}
 	}
 
