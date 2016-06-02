@@ -175,12 +175,9 @@ func RequireAuth(h http.Handler) http.Handler {
 
 func IsUserAuthorised(r *http.Request) bool {
 	session, _ := store.Get(r, sessionName)
+	_, ok := session.Values[usernameKey]
 
-	if _, ok := session.Values[usernameKey]; ok {
-		return true
-	}
-
-	return false
+	return ok
 }
 
 func GetUserName(r *http.Request) (string, error) {
