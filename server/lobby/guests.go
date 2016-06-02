@@ -93,3 +93,7 @@ func (lobby *Lobby) AddUser(user *User) error {
 	}
 	return nil
 }
+
+func (guests guestList) Iterator() []*guest {
+	return guests.list
+}

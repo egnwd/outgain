@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-  "strings"
+	"strings"
 
-  "github.com/egnwd/outgain/server/lobby"
+	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
 )
 
@@ -63,7 +63,7 @@ func LobbiesGetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get all usernames from lobby
-	users := l.Guests.list
+	users := l.Guests.Iterator()
 	usernames := make([]string, 0, len(users))
 	for _, user := range users {
 		usernames = append(usernames, user.GetName())
