@@ -50,10 +50,6 @@ $(function() {
         renderer.pushState(update)
     })
 
-    source.addEventListener("shutdown", function() {
-        window.location.href = "http://" + window.document.location.host + "/lobbies";
-    })
-
     source.addEventListener("log", function(lEvent) {
 	let data = JSON.parse((<sse.IOnMessageEvent>lEvent).data)
         let logEvent = <ILogEvent>data

@@ -1,9 +1,7 @@
 package engine
 
 import (
-	"log"
 	"math"
-	"sync"
 	"time"
 
 	"github.com/egnwd/outgain/server/protocol"
@@ -28,11 +26,10 @@ type Engine struct {
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextID            <-chan uint64
-	kill              chan bool
-	sync.WaitGroup
+	restart           bool
 }
 
-type builderFunc func(uint64, string) Entity
+type builderFunc func(uint64) Entity
 
 // NewEngine returns a fresh instance of a game engine
 func NewEngine() (engine *Engine) {
@@ -54,22 +51,17 @@ func NewEngine() (engine *Engine) {
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
 		nextID:            idChannel,
-		kill:              make(chan bool),
 	}
 
 	return
 }
 
-// Shutdown stops the engine
-func (engine *Engine) Shutdown() {
-	engine.kill <- true
-}
+// restartEngine puts the engine back to it's original state
+func (engine *Engine) restartEngine() {
+	engine.entities = EntityList{}
+	engine.clearGameLog()
 
-func (engine *Engine) shutdown() {
-	engine.eventsOut <- protocol.Event{
-		Type: "shutdown",
-		Data: []byte{},
-	}
+	engine.restart = true
 }
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
@@ -82,7 +74,8 @@ func (engine *Engine) clearGameLog() {
 }
 
 // Run starts the simulation of the game
-func (engine *Engine) Run() {
+func (engine *Engine) Run(entities EntityList) {
+	engine.entities = entities
 	engine.clearGameLog()
 	engine.lastTick = time.Now()
 	engine.lastResourceSpawn = time.Now()
@@ -98,12 +91,11 @@ GameLoop:
 
 		engine.tick()
 
-		select {
-		case <-engine.kill:
-			close(engine.eventsOut)
+		if engine.restart {
+			engine.restart = false
 			break GameLoop
-		default:
 		}
+
 	}
 }
 
@@ -120,9 +112,13 @@ func (engine *Engine) Serialize() protocol.WorldState {
 }
 
 // AddEntity adds an entity to the engine's list
-func (engine *Engine) AddEntity(name string, builder builderFunc) {
-	entity := builder(<-engine.nextID, name)
-	engine.entities = engine.entities.Insert(entity)
+func (engine *Engine) AddEntity(builder builderFunc) {
+	engine.entities = engine.entities.Insert(engine.CreateEntity(builder))
+}
+
+// CreateEntity builds an entity using the builder
+func (engine *Engine) CreateEntity(builder builderFunc) Entity {
+	return builder(<-engine.nextID)
 }
 
 // addLogEvent adds to  logEvents which are eventually added to the gameLog
@@ -152,7 +148,7 @@ func (engine *Engine) tick() {
 	if now.Sub(engine.lastResourceSpawn) > resourceSpawnInterval {
 		engine.lastResourceSpawn = now
 
-		engine.AddEntity("", RandomResource)
+		engine.AddEntity(RandomResource)
 	}
 
 	engine.entities.Tick(dt)
@@ -201,7 +197,6 @@ func (engine *Engine) collisionDetection() {
 	engine.entities.Sort()
 
 	if creatureCount <= 1 {
-		log.Println("Shutting Down")
-		engine.shutdown()
+		engine.restartEngine()
 	}
 }

@@ -123,26 +123,28 @@ type Creature struct {
 	dy float64
 }
 
-func RandomCreature(id uint64, name string) Entity {
-	angle := rand.Float64() * 2 * math.Pi
-	x := rand.Float64() * gridSize
-	y := rand.Float64() * gridSize
-	color := colorful.FastHappyColor().Hex()
+func NewCreature(name string) builderFunc {
+	return builderFunc(func(id uint64) Entity {
+		angle := rand.Float64() * 2 * math.Pi
+		x := rand.Float64() * gridSize
+		y := rand.Float64() * gridSize
+		color := colorful.FastHappyColor().Hex()
 
-	return &Creature{
-		EntityBase: EntityBase{
-			ID:     id,
-			Color:  color,
-			X:      x,
-			Y:      y,
-			Radius: defaultRadius,
-		},
-		Name:   name,
-		Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".png",
+		return &Creature{
+			EntityBase: EntityBase{
+				ID:     id,
+				Color:  color,
+				X:      x,
+				Y:      y,
+				Radius: defaultRadius,
+			},
+			Name:   name,
+			Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".png",
 
-		dx: math.Cos(angle),
-		dy: math.Sin(angle),
-	}
+			dx: math.Cos(angle),
+			dy: math.Sin(angle),
+		}
+	})
 }
 
 func (creature *Creature) Base() *EntityBase {
@@ -200,7 +202,7 @@ type Resource struct {
 	EntityBase
 }
 
-func RandomResource(id uint64, _ string) Entity {
+func RandomResource(id uint64) Entity {
 	return &Resource{
 		EntityBase: EntityBase{
 			ID:     id,
