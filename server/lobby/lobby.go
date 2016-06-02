@@ -46,22 +46,6 @@ func NewLobby() (lobby *Lobby) {
 	return
 }
 
-// NewTestLobby creates a new lobby with a test engine, a specific
-// size and list of guests
-func NewTestLobby(e engine.Engineer, size int) (lobby *Lobby) {
-	id := newID()
-	lobby = &Lobby{
-		ID:     id,
-		Engine: e,
-		Guests: generalPopulation(size),
-		size:   size,
-	}
-
-	lobbies[lobby.ID] = lobby
-
-	return
-}
-
 //This is just for testing until it's fully implemented
 const baseID uint64 = 2019968050
 

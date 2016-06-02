@@ -10,16 +10,32 @@ import (
 
 var mockEngine = &engine.MockEngine{}
 
+// NewTestLobby creates a new lobby with a test engine, a specific
+// size and list of guests
+func NewTestLobby(e engine.Engineer, size int) (lobby *Lobby) {
+	id := newID()
+	lobby = &Lobby{
+		ID:     id,
+		Engine: e,
+		Guests: generalPopulation(size),
+		size:   size,
+	}
+
+	lobbies[lobby.ID] = lobby
+
+	return
+}
+
 func TestAllowUpToMaximumLimitOfLobbyUsers(t *testing.T) {
 	max := 10
 	lobby := NewTestLobby(mockEngine, max)
 	for i := 0; i < max; i++ {
 		err := lobby.AddUser(NewUser("user"))
-		assert.True(t, err == nil, "User should have been able to join.")
+		assert.Nil(t, err, "User should have been able to join.")
 	}
 
 	err := lobby.AddUser(NewUser("user"))
-	assert.True(t, err != nil, "User should not have been able to join.")
+	assert.NotNil(t, err, "User should not have been able to join.")
 }
 
 func TestPopulateRemainingSpaceWithBots(t *testing.T) {
@@ -30,7 +46,7 @@ func TestPopulateRemainingSpaceWithBots(t *testing.T) {
 
 	for i := 0; i < users; i++ {
 		err := lobby.AddUser(NewUser("user"))
-		assert.True(t, err == nil, "User should have been able to join.")
+		assert.Nil(t, err, "User should have been able to join.")
 	}
 
 	var userCount int
@@ -45,8 +61,8 @@ func TestPopulateRemainingSpaceWithBots(t *testing.T) {
 		}
 	}
 
-	assert.True(t, userCount == users, fmt.Sprintf("There should be %d users", users))
-	assert.True(t, botCount == bots, fmt.Sprintf("There should be %d bots", bots))
+	assert.Equal(t, users, userCount, fmt.Sprintf("There should be %d users", users))
+	assert.Equal(t, bots, botCount, fmt.Sprintf("There should be %d bots", bots))
 	assert.True(t, len(lobby.Guests.list) == max, "Lobby should always be psudeo-full")
 }
 
