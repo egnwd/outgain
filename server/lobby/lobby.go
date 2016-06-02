@@ -142,7 +142,7 @@ func (lobby *Lobby) AddUser(user *guest.Guest) error {
 		return errors.New("Lobby full")
 	}
 
-	i := len(lobbyGuests) - (lobby.Guests.UserSize + 1)
+	i := len(lobbyGuests) - lobby.Guests.UserSize
 	newGuest := []*guest.Guest{user}
 	lobbyGuests = append(lobbyGuests[:i], append(newGuest, lobbyGuests[i:]...)...)
 	lobby.Guests.UserSize++
