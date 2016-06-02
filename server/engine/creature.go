@@ -99,8 +99,8 @@ func (creature *Creature) Serialize() protocol.Entity {
 	}
 }
 
-func (creature *Creature) Volume() float64 {
-	return creature.nextRadius * creature.nextRadius
+func (creature *Creature) BonusFactor() float64 {
+	return 1
 }
 
 func (creature *Creature) Close() {

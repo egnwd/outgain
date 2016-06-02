@@ -9,13 +9,13 @@ import (
 
 const defaultRadius float64 = 0.35
 const resourceRadius float64 = 0.1
-const resourceVolume float64 = 1
+const resourceBonusFactor float64 = 50
 
 type Entity interface {
 	Tick(state protocol.WorldState, dt float64)
 	Serialize() protocol.Entity
 	Base() *EntityBase
-	Volume() float64
+	BonusFactor() float64
 	Close()
 }
 
@@ -147,8 +147,8 @@ func (resource *Resource) Serialize() protocol.Entity {
 	}
 }
 
-func (resource *Resource) Volume() float64 {
-	return resourceVolume
+func (resource *Resource) BonusFactor() float64 {
+	return resourceBonusFactor
 }
 
 func (resource *Resource) Close() {
