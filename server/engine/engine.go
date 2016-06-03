@@ -6,7 +6,6 @@ import (
 	"math"
 	"time"
 
-	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/protocol"
 )
 
@@ -31,14 +30,13 @@ type Engine struct {
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextID            <-chan uint64
-	config            *config.Config
 	restart           bool
 }
 
 type builderFunc func(uint64) Entity
 
 // NewEngine returns a fresh instance of a game engine
-func NewEngine(config *config.Config) (engine *Engine) {
+func NewEngine() (engine *Engine) {
 	eventChannel := make(chan protocol.Event)
 	idChannel := make(chan uint64)
 	go func() {
@@ -57,7 +55,6 @@ func NewEngine(config *config.Config) (engine *Engine) {
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
 		nextID:            idChannel,
-		config:            config,
 	}
 
 	return

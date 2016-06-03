@@ -38,7 +38,7 @@ func GenerateOneLobby(config *config.Config) (lobby *Lobby) {
 
 // NewLobby creates a new lobby with its own engine and list of guests
 func NewLobby(config *config.Config) (lobby *Lobby) {
-	engine := engine.NewEngine(config)
+	engine := engine.NewEngine()
 	events := eventsource.New(nil, nil)
 	id := newID()
 	lobby = &Lobby{
