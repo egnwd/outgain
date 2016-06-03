@@ -13,104 +13,130 @@
   <a href="#" class="btn">Default button</a>
 */
 
-button, input[type="button"], [type="submit"], [type="reset"], a {
-  &.btn,
-  &.btn:link,
-  &.btn:visited {
-    -webkit-appearance: none;
-    -moz-appearance:    none;
-    appearance:         none;
-    outline: none;
-    border: none;
-    cursor: pointer;
-    @include border-radius(.25em);
-    background-color: $btn-colour;
-    color: $blue-lighter;
-    display: inline-block;
-    letter-spacing: .15em;
-    margin: .5em;
-    padding: 0.8em 1.2em;
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: color .4s, background-color .4s;
+.btn,
+.btn:link,
+.btn:visited {
+  -webkit-appearance: none;
+  -moz-appearance:    none;
+  appearance:         none;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  @include border-radius(.25em);
+  background-color: $btn-colour;
+  color: $blue-lighter;
+  display: inline-block;
+  letter-spacing: .15em;
+  margin: .5em;
+  padding: 0.8em 1.2em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color .4s, background-color .4s;
+  line-height: 1em;
+  font-family: $fontStack;
+  font-size: 1em;
+
+  &.big {
+    font-weight: bold;
+    margin: .5em 0;
+    width: auto;
+    padding: 0.8em 2em;
+    font-size: 1.2em;
+  }
+}
+
+.btn:disabled {
+  &, &:hover, &:focus {
+    background-color: lighten($blue-light, 30%) !important;
+    cursor: not-allowed;
+  }
+}
+
+.btn:hover,
+.btn:focus {
+  background-color: $btn-hover-colour !important;
+  transition: background-color .3s, color .3s;
+}
+
+.btn:active {
+  color: darken($blue-lighter, 10%);
+  background-color: $btn-active-colour !important;
+  transition: background-color .3s, color .3s;
+}
+
+/*
+  Skins
+  - Action
+  - Success
+  - Fail
+
+  Code:
+  <a href="#" class="btn btn--action">
+  <a href="#" class="btn btn--success">
+  <a href="#" class="btn btn--fail">
+*/
+
+/* Action */
+
+.btn--action {
+  &, &:link,
+  &:visited {
+    background-color: $btn-action-colour !important;
   }
 
-  &.btn:hover,
-  &.btn:focus {
-    background-color: $btn-hover-colour !important;
-    transition: background-color .3s, color .3s;
+  &:hover,
+  &:focus {
+    background-color: $btn-action-hover-colour !important;
   }
 
-  &.btn:active {
-    color: darken($blue-lighter, 10%);
-    background-color: $btn-active-colour !important;
-    transition: background-color .3s, color .3s;
+  &:active {
+    background-color: $btn-action-active-colour !important;
+  }
+}
+
+/* Action */
+.btn--leave {
+  &, &:link,
+  &:visited,
+  &:hover,
+  &:focus,
+  &:active {
+    color: $blue-darker;
+  }
+}
+
+/* Success */
+
+.btn--success {
+  &, &:link,
+  &:visited {
+    background-color: $btn-success-colour !important;
   }
 
-  /*
-    Skins
-    - Action
-    - Success
-    - Fail
-
-    Code:
-    <a href="#" class="btn btn--action">
-    <a href="#" class="btn btn--success">
-    <a href="#" class="btn btn--fail">
-  */
-
-  /* Action */
-
-  &.btn--action {
-    &:link,
-    &:visited {
-      background-color: $btn-action-colour !important;
-    }
-
-    &:hover,
-    &:focus {
-      background-color: $btn-action-hover-colour !important;
-    }
-
-    &:active {
-      background-color: $btn-action-active-colour !important;
-    }
+  &:hover,
+  &:focus {
+    background-color: $btn-success-hover-colour !important;
   }
 
-  /* Success */
+  &:active {
+    background-color: $btn-success-active-colour !important;
+  }
+}
 
-  &.btn--success {
-    &:link,
-    &:visited {
-      background-color: $btn-success-colour !important;
-    }
+/* Fail */
 
-    &:hover,
-    &:focus {
-      background-color: $btn-success-hover-colour !important;
-    }
-
-    &:active {
-      background-color: $btn-success-active-colour !important;
-    }
+.btn--fail {
+  &, &:link,
+  &:visited {
+    background-color: $btn-fail-colour !important;
   }
 
-  /* Fail */
-
-  &.btn--fail {
-    &:link,
-    &:visited {
-      background-color: $btn-fail-colour !important;
-    }
-
-    &:hover,
-    &:focus {
-      background-color: $btn-fail-hover-colour !important;
-    }
-
-    &:active {
-      background-color: $btn-fail-active-colour !important;
-    }
+  &:hover,
+  &:focus {
+    background-color: $btn-fail-hover-colour !important;
   }
 
+  &:active {
+    background-color: $btn-fail-active-colour !important;
+  }
 }

@@ -8,23 +8,40 @@
   </head>
   <body>
     <div id="lobbies-container">
-      <a href="/logout" class="btn btn--fail">Logout</a>
-      <div id="lobbies-table">
-        <!-- Generated dynamically -->
+      <div class="banner">
+        <h3>Lobby Select</h3>
+        <a href="/logout" class="btn btn--fail">Logout</a>
       </div>
-      <div id="players-table">
-        <table id="players">
-          <thead>
-            <tr>
-              <th class="left">Select a lobby</th>
-            </tr>
-          </thead>
-        </table>
+      <div class="tables">
+        <div id="lobbies-add">
+          <div id="lobbies">
+            <table id='lobbies-table'>
+              <!-- Generated dynamically -->
+            </table>
+          </div>
+          <form action="/lobbies/create" method="post" class="center">
+            <input type="submit" name="submit" value="Create Lobby" class="btn btn--success big">
+          </form>
+        </div>
+        <div id="player-join">
+          <div id="players">
+            <table id="players-table">
+              <thead>
+                <tr>
+                  <th class="left">Select a lobby</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Generated dynamically -->
+              </tbody>
+            </table>
+          </div>
+          <form action="/lobbies/join" method="post" class="center">
+            <input id="id-field" type="text" name="id" value="2019968050" style="display: none;">
+            <input disabled="disabled" id="join-btn" type="submit" name="submit" value="Join Lobby" class="btn btn--success big">
+          </form>
+        </div>
       </div>
-      <form action="/lobbies/join" method="post">
-        <input id="id-field" type="text" name="id" value="2019968050" style="display: none;">
-        <input type="submit" name="submit" value="Join Lobby" class="btn btn--success">
-      </form>
     </div>
   </body>
 </html>
