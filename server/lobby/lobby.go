@@ -3,6 +3,7 @@ package lobby
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"sync"
 
 	"github.com/egnwd/outgain/server/config"
@@ -24,16 +25,6 @@ type Lobby struct {
 	isRunning bool
 	config    *config.Config
 	sync.Mutex
-}
-
-// GenerateOneLobby is temporary until lobbies is fully working
-// TODO: Remove once lobbies are working
-func GenerateOneLobby(config *config.Config) (lobby *Lobby) {
-	for _, lobby := range lobbies {
-		return lobby
-	}
-
-	return NewLobby(config)
 }
 
 // NewLobby creates a new lobby with its own engine and list of guests
@@ -66,11 +57,15 @@ func NewLobby(config *config.Config) (lobby *Lobby) {
 	return
 }
 
-//This is just for testing until it's fully implemented
-const baseID uint64 = 2019968050
-
 func newID() uint64 {
-	return baseID
+	id := uint64(rand.Uint32())
+	_, ok := lobbies[id]
+	for ok {
+		id = uint64(rand.Uint32())
+		_, ok = lobbies[id]
+	}
+
+	return id
 }
 
 func (lobby *Lobby) Start() {

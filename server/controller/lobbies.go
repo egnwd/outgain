@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
 )
@@ -95,6 +96,15 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 	log.Printf("User: %s Joined Lobby: %d", username, id)
 	rawurl := fmt.Sprintf("http://%s/lobbies/%d", r.Host, id)
 	http.Redirect(w, r, rawurl, http.StatusFound)
+}
+
+func LobbiesCreate(config *config.Config) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		l := lobby.NewLobby(config)
+
+		log.Printf("Created Lobby: %d", l.ID)
+		http.Redirect(w, r, "/lobbies", http.StatusFound)
+	})
 }
 
 func LobbiesGame(staticDir string) http.Handler {
