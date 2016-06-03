@@ -48,6 +48,7 @@
 .btn:disabled {
   &, &:hover, &:focus {
     background-color: lighten($blue-light, 30%) !important;
+    color: $blue-lighter;
     cursor: not-allowed;
   }
 }
