@@ -16,7 +16,7 @@ export class UserPanel {
       $(this.usernameEl).html(this.username)
     }
 
-    private getUserID() {
+    public getUserID() {
       var request = new XMLHttpRequest();
       request.open('GET', '/currentUser', false);
       request.send(null);

@@ -75,7 +75,7 @@ func (engine *Engine) restartEngine() {
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
 func (engine *Engine) clearGameLog() {
-	logEvent := protocol.LogEvent{LogType: 0, ProtagID: 0, AntagID: 0}
+	logEvent := protocol.LogEvent{LogType: 0, ProtagName: "", AntagName: ""}
 	engine.eventsOut <- protocol.Event{
 		Type: "log",
 		Data: logEvent,
@@ -142,9 +142,19 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 	case nil:
 		return
 	case *Resource:
-		logEvent = protocol.LogEvent{LogType: 1, ProtagID: a.Base().ID, AntagID: 0}
+		logEvent = protocol.LogEvent{
+			LogType:    1,
+			ProtagName: a.GetName(),
+			AntagName:  b.GetName(),
+			Gains:      a.GetGains(),
+		}
 	case *Creature:
-		logEvent = protocol.LogEvent{LogType: 2, ProtagID: a.Base().ID, AntagID: b.Base().ID}
+		logEvent = protocol.LogEvent{
+			LogType:    2,
+			ProtagName: a.GetName(),
+			AntagName:  b.GetName(),
+			Gains:      a.GetGains(),
+		}
 	}
 	engine.eventsOut <- protocol.Event{
 		Type: "log",
@@ -183,6 +193,7 @@ func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
 	eaten.Base().nextRadius = math.Sqrt(eatenVolume - amount)
 
 	if eaten.Base().nextRadius < radiusThreshold {
+		eater.(*Creature).incrementScore(eaten)
 		eaten.Base().dying = true
 		engine.addLogEvent(eater, eaten)
 	}

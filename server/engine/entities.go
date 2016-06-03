@@ -17,6 +17,8 @@ type Entity interface {
 	Serialize() protocol.Entity
 	Base() *EntityBase
 	BonusFactor() float64
+	GetName() string
+	GetGains() int
 	Close()
 }
 
@@ -134,6 +136,14 @@ func RandomResource(id uint64) Entity {
 			Color:  colorful.FastHappyColor().Hex(),
 		},
 	}
+}
+
+func (resource *Resource) GetName() string {
+	return ""
+}
+
+func (resource *Resource) GetGains() int {
+	return 0
 }
 
 func (resource *Resource) Base() *EntityBase {

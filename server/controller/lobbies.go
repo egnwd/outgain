@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/egnwd/outgain/server/config"
+	"github.com/egnwd/outgain/server/guest"
 	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
 )
@@ -87,7 +88,7 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Add the user to the lobby
-	user := lobby.NewUser(username)
+	user := guest.NewUser(username)
 	l.AddUser(user)
 
 	l.Start()
@@ -154,7 +155,7 @@ func LobbiesLeave(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Remove the user to the lobby
-	user := lobby.NewUser(username)
+	user := guest.NewUser(username)
 	l.RemoveUser(user)
 
 	// Redirect user to the lobby
