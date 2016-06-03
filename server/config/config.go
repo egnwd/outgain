@@ -8,6 +8,7 @@ type Config struct {
 	RunnerBin         string
 	Port              uint
 	DefaultAI         string
+	BotAI             string
 }
 
 func ParseArgs() (config *Config) {
@@ -17,6 +18,7 @@ func ParseArgs() (config *Config) {
 	flag.BoolVar(&config.RedirectPlainHTTP, "redirect-plain-http", false, "")
 	flag.StringVar(&config.RunnerBin, "runner-bin", "./runner/target/debug/runner", "")
 	flag.StringVar(&config.DefaultAI, "default-ai", "./default_ai.rb", "")
+	flag.StringVar(&config.BotAI, "bot-ai", "./bot_ai.rb", "")
 	flag.Parse()
 
 	return

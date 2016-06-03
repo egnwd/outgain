@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"io/ioutil"
 	"log"
 	"math"
 	"math/rand"
@@ -34,12 +33,7 @@ func NewCreature(guest *guest.Guest, config *config.Config) func(id uint64) Enti
 		y := rand.Float64() * gridSize
 		color := colorful.FastHappyColor().Hex()
 
-		source, err := ioutil.ReadFile(config.DefaultAI)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		client, err := runner.StartRunner(config, string(source))
+		client, err := runner.StartRunner(config, guest.Source)
 		if err != nil {
 			log.Fatalln(err)
 		}
