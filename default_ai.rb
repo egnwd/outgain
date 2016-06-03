@@ -15,11 +15,11 @@ def run(player, world)
     @dy = dy
 
     prey = world.entities
-        .select {|e| e.id != player.id and e.radius < player.radius }
+        .select {|e| e.resource? or (e.creature? and e.id != player.id and e.radius < player.radius) }
         .min_by {|e| player.distance e}
 
     predator = world.entities
-        .select {|e| e.id != player.id and e.radius > player.radius }
+        .select {|e| e.spike? or (e.creature? and e.id != player.id and e.radius > player.radius) }
         .min_by {|e| player.distance e}
 
     if prey != nil then

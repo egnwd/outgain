@@ -124,7 +124,7 @@ func destroyLobby(lobby *Lobby) {
 func generalPopulation(size int, config *config.Config) guest.List {
 	var bots guest.List
 
-	source, err := ioutil.ReadFile(config.DefaultAI)
+	source, err := ioutil.ReadFile(config.BotAI)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -199,7 +199,7 @@ func (lobby *Lobby) RemoveUser(username string) error {
 
 	// Add Bot
 	name := fmt.Sprintf("Bot %d", i+1)
-	source, err := ioutil.ReadFile(lobby.config.DefaultAI)
+	source, err := ioutil.ReadFile(lobby.config.BotAI)
 	if err != nil {
 		log.Fatalln(err)
 	}
