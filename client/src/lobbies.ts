@@ -47,7 +47,7 @@ var lobbyClick = function() {
         table += "<tr><td class='left'>" + users[i] + "</td>"
       }
       if (users.length == 0) {
-        table += "<tr><td>No players in lobby</td></tr>"
+        table += "<tr class='no-lobbies'><td>No players in lobby</td></tr>"
       }
       table += "</tbody>"
 

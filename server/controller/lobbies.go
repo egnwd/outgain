@@ -45,10 +45,11 @@ func LobbiesGetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get all usernames from lobby
-	users := l.Guests.Iterator()
-	usernames := make([]string, 0, len(users))
-	for _, user := range users {
-		usernames = append(usernames, user.GetName())
+	guestCount := len(l.Guests.List)
+	usernames := make([]string, 0, guestCount)
+	firstUser := guestCount - l.Guests.UserSize
+	for _, g := range l.Guests.List[firstUser:] {
+		usernames = append(usernames, g.GetName())
 	}
 	// Convert to JSON and return it
 	js, err := json.Marshal(usernames)
