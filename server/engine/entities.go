@@ -90,16 +90,28 @@ func (list EntityList) Tick(state protocol.WorldState, dt float64) {
 	list.Sort()
 }
 
+//func (list EntityList) Filter(filter func(Entity) bool) EntityList {
+//	count := list.Len()
+//	for i := 0; i < count; i++ {
+//		if !filter(list[i]) {
+//			list[i].Close()
+//			list.Swap(i, count-1)
+//			count--
+//		}
+//	}
+//	return list[:count]
+//
+
 func (list EntityList) Filter(filter func(Entity) bool) EntityList {
-	count := list.Len()
-	for i := 0; i < count; i++ {
-		if !filter(list[i]) {
-			list[i].Close()
-			list.Swap(i, count-1)
-			count--
+	returnList := EntityList{}
+	for _, entity := range list {
+		if filter(entity) {
+			returnList = append(returnList, entity)
+		} else {
+			entity.Close()
 		}
 	}
-	return list[:count]
+	return returnList
 }
 
 func (list EntityList) Insert(entity Entity) EntityList {

@@ -189,6 +189,8 @@ func (engine *Engine) tick() {
 	engine.collisionDetection()
 }
 
+
+// TODO: This became overcomplicated whilst debugging, simplify after presentation
 func (engine *Engine) eatEntity(eater, eaten Entity) {
 	switch eater.(type) {
 	case *Spike:
@@ -200,6 +202,7 @@ func (engine *Engine) eatEntity(eater, eaten Entity) {
 				eater.Base().dying = true
 			}
 			eater.Base().nextRadius = math.Sqrt(eater.Volume() / 2)
+			fmt.Println(eaten.Base().ID)
 		default:
 			eater.Base().nextRadius = math.Sqrt(eater.Volume() + eaten.Volume())
 		}
@@ -269,6 +272,12 @@ func (engine *Engine) collisionDetection() {
 	engine.entities = engine.entities.Filter(func(entity Entity) bool {
 		return !entity.Base().dying
 	})
+
+	for _, entity := range engine.entities {
+		if entity.Base().dying {
+			fmt.Println("Paul is a bad programmer")
+		}
+	}
 
 	creatureCount := 0
 	for _, entity := range engine.entities {
