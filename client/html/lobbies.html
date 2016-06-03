@@ -21,9 +21,7 @@
               <!-- Generated dynamically -->
             </table>
           </div>
-          <form action="/lobbies/create" method="post" class="center">
-            <input type="submit" name="submit" value="Create Lobby" class="btn btn--success big">
-          </form>
+          <a href="/lobbies/create" id="create-lobby" class="btn btn--success big">Create Lobby</a>
         </div>
         <div id="player-join">
           <div id="players">
@@ -34,6 +32,7 @@
                 </tr>
               </thead>
               <tbody>
+                <tr class="no-lobbies"><td>No lobby selected</td></tr>
                 <!-- Generated dynamically -->
               </tbody>
             </table>
