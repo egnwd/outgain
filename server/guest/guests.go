@@ -6,9 +6,10 @@ const (
 )
 
 type Guest struct {
-	Type  int
-	Name  string
-	gains int
+	Type   int
+	Name   string
+	Source string
+	gains  int
 }
 
 type List struct {
@@ -17,13 +18,21 @@ type List struct {
 }
 
 // NewUser returns a user with a specified name and no gains
-func NewUser(name string) *Guest {
-	return &Guest{Type: UserType, Name: name}
+func NewUser(name string, source string) *Guest {
+	return &Guest{
+		Type:   UserType,
+		Name:   name,
+		Source: source,
+	}
 }
 
 // NewBot returns a bpt with a specified name
-func NewBot(name string) *Guest {
-	return &Guest{Type: BotType, Name: name}
+func NewBot(name string, source string) *Guest {
+	return &Guest{
+		Type:   BotType,
+		Name:   name,
+		Source: source,
+	}
 }
 
 // GetName returns the name of the user

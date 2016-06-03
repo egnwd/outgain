@@ -25,6 +25,9 @@
                 <li>
                   <a class="btn btn--action" href="/store">Store</a>
                 </li>
+              <li>
+                <button id="edit-button" class="btn btn--action">Edit</button>
+              </li>
                 <li>
                   <form action="/lobbies/leave" method="post">
                     <input id="id-field" type="text" name="id" value="" style="display: none;">
@@ -34,6 +37,17 @@
               </ul>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div id="editor" style="display: none" class="hideEditor">
+        <div id="editor-overlay"></div>
+        <div id="editor-modal">
+          <div id="editor-input"></div>
+          <ul>
+            <li><button id="editor-cancel-btn" class="btn btn--fail">Cancel</button></li>
+            <li><button id="editor-save-btn" class="btn btn--action">Save</button></li>
+          </ul>
         </div>
       </div>
     </body>

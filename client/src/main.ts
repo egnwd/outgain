@@ -3,6 +3,7 @@
 import { IWorldState, ILogEvent } from "./protocol";
 import { GameRenderer } from './renderer'
 import { UserPanel } from './gameUI'
+import { Editor } from './editor'
 import * as $ from 'jquery'
 
 var userPanel = new UserPanel("#user-id", "#user-resources")
@@ -87,5 +88,10 @@ $(function() {
     window.requestAnimationFrame(function draw() {
         renderer.render()
         window.requestAnimationFrame(draw)
+    })
+
+    let editor = new Editor(lobbyId);
+    $('#edit-button').click(function() {
+        editor.open()
     })
 })

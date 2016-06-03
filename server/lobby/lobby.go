@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/rand"
 
@@ -40,7 +41,7 @@ func NewLobby(config *config.Config) (lobby *Lobby) {
 		ID:     id,
 		Engine: engine,
 		Events: events,
-		Guests: generalPopulation(lobbySize),
+		Guests: generalPopulation(lobbySize, config),
 		size:   lobbySize,
 		config: config,
 	}
@@ -120,12 +121,17 @@ func destroyLobby(lobby *Lobby) {
 	delete(lobbies, lobby.ID)
 }
 
-func generalPopulation(size int) guest.List {
+func generalPopulation(size int, config *config.Config) guest.List {
 	var bots guest.List
+
+	source, err := ioutil.ReadFile(config.DefaultAI)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	for i := size; i > 0; i-- {
 		name := fmt.Sprintf("Bot %d", i)
-		bots.List = append(bots.List, guest.NewBot(name))
+		bots.List = append(bots.List, guest.NewBot(name, string(source)))
 	}
 
 	return bots
@@ -147,7 +153,7 @@ func (lobby *Lobby) ContainsUser(name string) bool {
 
 // AddUser adds the specified user to the lobby, returning an error if the
 // lobby is already at capacity
-func (lobby *Lobby) AddUser(user *guest.Guest) error {
+func (lobby *Lobby) AddUser(username string) error {
 	// TODO: Check for duplicates
 	lobbyGuests := lobby.Guests.List
 
@@ -157,6 +163,12 @@ func (lobby *Lobby) AddUser(user *guest.Guest) error {
 	if bot.Type != guest.BotType {
 		return errors.New("Lobby full")
 	}
+
+	source, err := ioutil.ReadFile(lobby.config.DefaultAI)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	user := guest.NewUser(username, string(source))
 
 	i := len(lobbyGuests) - lobby.Guests.UserSize
 	newGuest := []*guest.Guest{user}
@@ -169,14 +181,14 @@ func (lobby *Lobby) AddUser(user *guest.Guest) error {
 
 // RemoveUser removes the specified user from the lobby, returning an error if the
 // user is not in the lobby
-func (lobby *Lobby) RemoveUser(user *guest.Guest) error {
+func (lobby *Lobby) RemoveUser(username string) error {
 	// TODO: Check for duplicates
 	lobbyGuests := lobby.Guests.List
 
 	// Remove User
 	var i int
 	for i = len(lobbyGuests) - 1; i > 0; i-- {
-		if lobbyGuests[i].Name == user.Name {
+		if lobbyGuests[i].Name == username {
 			// Memory leaks - Go needs to sort slices out...
 			copy(lobbyGuests[i:], lobbyGuests[i+1:])
 			lobbyGuests[len(lobbyGuests)-1] = nil
@@ -187,12 +199,27 @@ func (lobby *Lobby) RemoveUser(user *guest.Guest) error {
 
 	// Add Bot
 	name := fmt.Sprintf("Bot %d", i+1)
+	source, err := ioutil.ReadFile(lobby.config.DefaultAI)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	// This will change in another branch that is getting merged a little later
-	newGuest := []*guest.Guest{guest.NewBot(name)}
+	newGuest := []*guest.Guest{guest.NewBot(name, string(source))}
 	lobbyGuests = append(newGuest, lobbyGuests...)
 	lobby.Guests.UserSize--
 
 	lobby.Guests.List = lobbyGuests
+	return nil
+}
+
+func (lobby *Lobby) FindGuest(username string) *guest.Guest {
+	for _, user := range lobby.Guests.Iterator() {
+		if user.Name == username {
+			return user
+		}
+	}
+
 	return nil
 }
 
