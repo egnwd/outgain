@@ -21,7 +21,6 @@ const (
 )
 const resourceBonusFactor float64 = 50
 
-
 type Entity interface {
 	Tick(state protocol.WorldState, dt float64)
 	Serialize() protocol.Entity
@@ -233,6 +232,18 @@ func (spike *Spike) Volume() float64 {
 }
 
 func (spike *Spike) Close() {
+}
+
+func (spike *Spike) BonusFactor() float64 {
+	return -1
+}
+
+func (spike *Spike) GetGains() int {
+	return 0
+}
+
+func (spike *Spike) GetName() string {
+	return "spike"
 }
 
 func (resource *Resource) Close() {

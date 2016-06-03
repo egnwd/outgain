@@ -88,9 +88,9 @@ function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
     ctx.lineTo(cx, cy - outerRadius)
     ctx.closePath()
     ctx.lineWidth=5
-    ctx.strokeStyle='blue'
+    ctx.strokeStyle='red'
     ctx.stroke()
-    ctx.fillStyle='skyblue'
+    ctx.fillStyle='black'
     ctx.fill()
 }
 

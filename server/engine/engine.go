@@ -176,8 +176,8 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 	case *Spike:
 		logEvent = protocol.LogEvent{
 			LogType:    3,
-			ProtagName: a.Base().ID,
-			AntagName:  "a spike",
+			ProtagName: a.GetName(),
+			AntagName:  b.GetName(),
 			Gains:      0,
 		}
 	}
@@ -198,10 +198,6 @@ func (engine *Engine) tick() {
 
 		engine.AddEntity(RandomResource)
 		engine.AddEntity(RandomSpike)
-		engine.AddEntity(RandomSpike)
-		engine.AddEntity(RandomSpike)
-		engine.AddEntity(RandomSpike)
-		engine.AddEntity(RandomSpike)
 	}
 
 	state := engine.Serialize()
@@ -217,16 +213,19 @@ func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
 	_, eaterIsSpike := eater.(*Spike)
 	_, eatenIsSpike := eaten.(*Spike)
 	if eaterIsSpike {
-		return eatEntity(eaten, eater)
+		engine.eatEntity(dt, eaten, eater)
+		return
 	}
+
+	eaterVolume := eater.Base().nextRadius * eater.Base().nextRadius
+	eatenVolume := eaten.Base().nextRadius * eaten.Base().nextRadius
 	if eatenIsSpike {
 		if eater.Base().nextRadius <= defaultRadius {
 			eater.Base().dying = true
 		}
-		eater.Base().nextRadius = math.Sqrt(eater.Volume() / 2)
+		eater.Base().nextRadius = math.Sqrt(eaterVolume / 2)
+		eaten.Base().dying = true
 	} else {
-		eaterVolume := eater.Base().nextRadius * eater.Base().nextRadius
-		eatenVolume := eaten.Base().nextRadius * eaten.Base().nextRadius
 
 		amount := math.Exp(-1/drainRate*dt) * eatenVolume
 
@@ -236,9 +235,9 @@ func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
 		if eaten.Base().nextRadius < radiusThreshold {
 			eater.(*Creature).incrementScore(eaten)
 			eaten.Base().dying = true
-			engine.addLogEvent(eater, eaten)
 		}
 	}
+	engine.addLogEvent(eater, eaten)
 }
 
 func (engine *Engine) collisionDetection(dt float64) {
@@ -261,16 +260,16 @@ func (engine *Engine) collisionDetection(dt float64) {
 		if diff >= eatRadiusDifference {
 			engine.eatEntity(dt, a, b)
 		} else if diff <= -eatRadiusDifference {
-			engine.eatEntity(b, a)
+			engine.eatEntity(dt, b, a)
 		} else {
 			switch a.(type) {
 			case *Spike:
-				engine.eatEntity(b, a)
+				engine.eatEntity(dt, b, a)
 			}
 
 			switch b.(type) {
 			case *Spike:
-				engine.eatEntity(a, b)
+				engine.eatEntity(dt, a, b)
 			}
 		}
 	}
