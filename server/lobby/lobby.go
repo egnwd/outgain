@@ -1,10 +1,13 @@
 package lobby
 
 import (
+	"encoding/json"
+	"log"
 	"sync"
 
 	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/engine"
+	"gopkg.in/antage/eventsource.v1"
 )
 
 const lobbySize int = 10
@@ -15,6 +18,7 @@ var lobbies = make(map[uint64]*Lobby)
 type Lobby struct {
 	ID        uint64
 	Engine    engine.Engineer
+	Events    eventsource.EventSource
 	Guests    guestList
 	size      int
 	isRunning bool
@@ -34,15 +38,28 @@ func GenerateOneLobby(config *config.Config) (lobby *Lobby) {
 
 // NewLobby creates a new lobby with its own engine and list of guests
 func NewLobby(config *config.Config) (lobby *Lobby) {
-	e := engine.NewEngine(config)
+	engine := engine.NewEngine()
+	events := eventsource.New(nil, nil)
 	id := newID()
 	lobby = &Lobby{
 		ID:     id,
-		Engine: e,
+		Engine: engine,
+		Events: events,
 		Guests: generalPopulation(lobbySize),
 		size:   lobbySize,
 		config: config,
 	}
+
+	go func() {
+		for event := range engine.Events {
+			packet, err := json.Marshal(event.Data)
+			if err != nil {
+				log.Printf("JSON serialization failed %v", err)
+			} else {
+				events.SendEventMessage(string(packet), event.Type, "")
+			}
+		}
+	}()
 
 	lobbies[lobby.ID] = lobby
 
