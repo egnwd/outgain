@@ -11,3 +11,4 @@ slug.tgz
 *.psd
 .vagrant
 runner/.cargo/config
+npm-debug.log
