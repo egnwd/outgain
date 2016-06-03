@@ -14,7 +14,7 @@ export interface ILogEvent {
     logType: number
     protagName: string
     antagName: string
-    resources: number
+    gains: number
 }
 
 export interface IWorldState {

@@ -73,8 +73,8 @@ $(function() {
       	}
 
         if (userPanel.getUserID() == logEvent.protagName) {
-          let user_resources = document.getElementById("user-resources")
-          user_resources.innerHTML = logEvent.resources.toString()
+          let user_gains = document.getElementById("user-gains")
+          user_gains.innerHTML = logEvent.gains.toString()
         }
 
         if (scrollUpdate) {

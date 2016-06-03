@@ -142,14 +142,14 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 			LogType:    1,
 			ProtagName: a.GetName(),
 			AntagName:  b.GetName(),
-			Resources:  a.GetResources(),
+			Gains:      a.GetGains(),
 		}
 	case *Creature:
 		logEvent = protocol.LogEvent{
 			LogType:    2,
 			ProtagName: a.GetName(),
 			AntagName:  b.GetName(),
-			Resources:  a.GetResources(),
+			Gains:      a.GetGains(),
 		}
 	}
 	engine.eventsOut <- protocol.Event{

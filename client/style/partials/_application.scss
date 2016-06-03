@@ -174,7 +174,7 @@ code {
       text-align: center;
     }
 
-    span#user-resources,
+    span#user-gains,
     span#user-id {
       display: inline-block;
       position: absolute;
@@ -192,7 +192,7 @@ code {
       color: $user;
     }
 
-    span#user-resources {
+    span#user-gains {
       text-align: right !important;
       right: 0;
       border-top-right-radius: $container-border-radius;
@@ -200,7 +200,7 @@ code {
       color: $resource;
     }
 
-    span#user-resources:before {
+    span#user-gains:before {
       content: "•";
       font-weight: bold;
       position: absolute;

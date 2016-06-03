@@ -25,7 +25,7 @@ type Creature struct {
 }
 
 func (creature *Creature) incrementScore(eaten Entity) {
-	creature.Guest.AddResources(1)
+	creature.Guest.AddGains(1)
 }
 
 func NewCreature(guest *guest.Guest, config *config.Config) func(id uint64) Entity {
@@ -63,8 +63,8 @@ func (creature *Creature) GetName() string {
 	return creature.Guest.GetName()
 }
 
-func (creature *Creature) GetResources() int {
-	return creature.Guest.GetResources()
+func (creature *Creature) GetGains() int {
+	return creature.Guest.GetGains()
 }
 
 func (creature *Creature) Base() *EntityBase {

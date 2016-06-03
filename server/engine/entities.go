@@ -17,7 +17,7 @@ type Entity interface {
 	Base() *EntityBase
 	Volume() float64
 	GetName() string
-	GetResources() int
+	GetGains() int
 	Close()
 }
 
@@ -134,7 +134,7 @@ func (resource *Resource) GetName() string {
 	return ""
 }
 
-func (resource *Resource) GetResources() int {
+func (resource *Resource) GetGains() int {
 	return 0
 }
 

@@ -16,7 +16,7 @@ type LogEvent struct {
 	LogType    int    `json:"logType"`
 	ProtagName string `json:"protagName"`
 	AntagName  string `json:"antagName"`
-	Resources  int    `json:"resources"`
+	Gains      int    `json:"gains"`
 }
 
 type WorldState struct {
