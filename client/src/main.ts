@@ -59,6 +59,7 @@ $(function() {
         let logEvent = <ILogEvent>data
 
         let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
+
       	switch (logEvent.logType) {
       	    case 0:
       		gameLog.innerHTML = "A new game has started, good luck!\n"
@@ -71,6 +72,9 @@ $(function() {
       		gameLog.innerHTML = gameLog.innerHTML
       		    + logEvent.protagName + " ate " + logEvent.antagName + "\n"
       		break
+            case 3:
+	        gameLog.innerHTML = gameLog.innerHTML + "Oh no, creature " 
+		    + logEvent.protagName + " hit a spike!\n"
       	}
 
         if (userPanel.getUserID() == logEvent.protagName) {

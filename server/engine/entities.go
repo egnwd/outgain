@@ -10,6 +10,15 @@ import (
 
 const defaultRadius float64 = 0.35
 const resourceRadius float64 = 0.1
+const resourceVolume float64 = 1
+const spikeRadius float64 = 0.2
+const spikeVolume float64 = 1
+
+const (
+	creatureEnum = iota
+	resourceEnum
+	spikeEnum
+)
 const resourceBonusFactor float64 = 50
 
 type Entity interface {
@@ -92,16 +101,28 @@ func (list EntityList) Tick(state protocol.WorldState, dt float64) {
 	list.Sort()
 }
 
+//func (list EntityList) Filter(filter func(Entity) bool) EntityList {
+//	count := list.Len()
+//	for i := 0; i < count; i++ {
+//		if !filter(list[i]) {
+//			list[i].Close()
+//			list.Swap(i, count-1)
+//			count--
+//		}
+//	}
+//	return list[:count]
+//
+
 func (list EntityList) Filter(filter func(Entity) bool) EntityList {
-	count := list.Len()
-	for i := 0; i < count; i++ {
-		if !filter(list[i]) {
-			list[i].Close()
-			list.Swap(i, count-1)
-			count--
+	returnList := EntityList{}
+	for _, entity := range list {
+		if filter(entity) {
+			returnList = append(returnList, entity)
+		} else {
+			entity.Close()
 		}
 	}
-	return list[:count]
+	return returnList
 }
 
 func (list EntityList) Insert(entity Entity) EntityList {
@@ -155,18 +176,74 @@ func (resource *Resource) Tick(state protocol.WorldState, dt float64) {
 
 func (resource *Resource) Serialize() protocol.Entity {
 	return protocol.Entity{
-		ID:     resource.ID,
-		Name:   nil,
-		Sprite: nil,
-		Color:  resource.Color,
-		X:      resource.X,
-		Y:      resource.Y,
-		Radius: resource.Radius,
+		ID:         resource.ID,
+		Name:       nil,
+		Sprite:     nil,
+		Color:      resource.Color,
+		X:          resource.X,
+		Y:          resource.Y,
+		Radius:     resource.Radius,
+		EntityType: resourceEnum,
 	}
 }
 
 func (resource *Resource) BonusFactor() float64 {
 	return resourceBonusFactor
+}
+
+type Spike struct {
+	EntityBase
+}
+
+func RandomSpike(id uint64) Entity {
+	return &Spike{
+		EntityBase: EntityBase{
+			ID:     id,
+			X:      rand.Float64() * gridSize, // Update these so that it's not on a player
+			Y:      rand.Float64() * gridSize,
+			Radius: spikeRadius,
+			Color:  "",
+		},
+	}
+}
+
+func (spike *Spike) Base() *EntityBase {
+	return &spike.EntityBase
+}
+
+func (spike *Spike) Tick(state protocol.WorldState, dt float64) {
+}
+
+func (spike *Spike) Serialize() protocol.Entity {
+	return protocol.Entity{
+		ID:         spike.ID,
+		Name:       nil,
+		Sprite:     nil,
+		Color:      spike.Color,
+		X:          spike.X,
+		Y:          spike.Y,
+		Radius:     spike.Radius,
+		EntityType: spikeEnum,
+	}
+}
+
+func (spike *Spike) Volume() float64 {
+	return spikeVolume
+}
+
+func (spike *Spike) Close() {
+}
+
+func (spike *Spike) BonusFactor() float64 {
+	return -1
+}
+
+func (spike *Spike) GetGains() int {
+	return 0
+}
+
+func (spike *Spike) GetName() string {
+	return "spike"
 }
 
 func (resource *Resource) Close() {

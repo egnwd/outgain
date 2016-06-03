@@ -8,6 +8,7 @@ export interface IEntity {
     x: number
     y: number
     radius: number
+    entityType: number
 }
 
 export interface ILogEvent {

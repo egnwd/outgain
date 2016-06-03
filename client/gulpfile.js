@@ -3,12 +3,13 @@
 require("any-promise/register/bluebird")
 require("util").debuglog = require("debuglog")
 
-var gulp        = require('gulp'),
-    browserify  = require('browserify'),
-    tsify       = require('tsify'),
-    source      = require('vinyl-source-stream'),
-    sass        = require('gulp-sass'),
-    gulpTypings = require('gulp-typings');
+var gulp = require('gulp');
+var browserify = require('browserify');
+var tsify = require('tsify');
+var source = require('vinyl-source-stream');
+var sass = require('gulp-sass');
+var gulpTypings = require('gulp-typings');
+var moduleImporter = require('sass-module-importer');
 
 var targetDir = __dirname + '/dist';
 

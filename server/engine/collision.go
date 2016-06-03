@@ -28,10 +28,8 @@ func Collide(a, b Entity) bool {
 	radii := a.Base().Radius + b.Base().Radius
 	dx := a.Base().X - b.Base().X
 	dy := a.Base().Y - b.Base().Y
-
 	distSq := dx*dx + dy*dy
 	radiiSq := radii * radii
-
 	return distSq < radiiSq
 }
 

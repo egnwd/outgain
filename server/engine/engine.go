@@ -136,7 +136,25 @@ func (engine *Engine) AddEntity(builder builderFunc) {
 
 // CreateEntity builds an entity using the builder
 func (engine *Engine) CreateEntity(builder builderFunc) Entity {
-	return builder(<-engine.nextID)
+	entity := builder(<-engine.nextID)
+	switch entity.(type) {
+	case *Spike:
+		for {
+			collides := false
+			for _, candidateCreature := range engine.entities {
+				if Collide(entity, candidateCreature) {
+					collides = true
+					break
+				}
+			}
+
+			if !collides {
+				break
+			}
+			entity = builder(<-engine.nextID)
+		}
+	}
+	return entity
 }
 
 // addLogEvent adds to  logEvents which are eventually added to the gameLog
@@ -160,7 +178,15 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 			AntagName:  b.GetName(),
 			Gains:      a.GetGains(),
 		}
+	case *Spike:
+		logEvent = protocol.LogEvent{
+			LogType:    3,
+			ProtagName: a.GetName(),
+			AntagName:  b.GetName(),
+			Gains:      0,
+		}
 	}
+
 	engine.eventsOut <- protocol.Event{
 		Type: "log",
 		Data: logEvent,
@@ -174,10 +200,12 @@ func (engine *Engine) tick() {
 
 	if now.Sub(engine.lastResourceSpawn) > resourceSpawnInterval {
 		engine.lastResourceSpawn = now
+
 		regenerateResourceInterval()
 		for i := -1; i < rand.Intn(maxResourceIncrease); i++ {
 			engine.AddEntity(RandomResource)
 		}
+		engine.AddEntity(RandomSpike)
 	}
 
 	state := engine.Serialize()
@@ -196,20 +224,34 @@ func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
 	if eaterIsResource || eater.Base().dying || eaten.Base().dying {
 		return
 	}
+	_, eaterIsSpike := eater.(*Spike)
+	_, eatenIsSpike := eaten.(*Spike)
+	if eaterIsSpike {
+		engine.eatEntity(dt, eaten, eater)
+		return
+	}
 
 	eaterVolume := eater.Base().nextRadius * eater.Base().nextRadius
 	eatenVolume := eaten.Base().nextRadius * eaten.Base().nextRadius
-
-	amount := math.Exp(-1/drainRate*dt) * eatenVolume
-
-	eater.Base().nextRadius = math.Sqrt(eaterVolume + amount*eaten.BonusFactor())
-	eaten.Base().nextRadius = math.Sqrt(eatenVolume - amount)
-
-	if eaten.Base().nextRadius < radiusThreshold {
-		eater.(*Creature).incrementScore(eaten)
+	if eatenIsSpike {
+		if eater.Base().nextRadius <= defaultRadius {
+			eater.Base().dying = true
+		}
+		eater.Base().nextRadius = math.Sqrt(eaterVolume / 2)
 		eaten.Base().dying = true
-		engine.addLogEvent(eater, eaten)
+	} else {
+
+		amount := math.Exp(-1/drainRate*dt) * eatenVolume
+
+		eater.Base().nextRadius = math.Sqrt(eaterVolume + amount*eaten.BonusFactor())
+		eaten.Base().nextRadius = math.Sqrt(eatenVolume - amount)
+
+		if eaten.Base().nextRadius < radiusThreshold {
+			eater.(*Creature).incrementScore(eaten)
+			eaten.Base().dying = true
+		}
 	}
+	engine.addLogEvent(eater, eaten)
 }
 
 func (engine *Engine) collisionDetection(dt float64) {
@@ -233,6 +275,16 @@ func (engine *Engine) collisionDetection(dt float64) {
 			engine.eatEntity(dt, a, b)
 		} else if diff <= -eatRadiusDifference {
 			engine.eatEntity(dt, b, a)
+		} else {
+			switch a.(type) {
+			case *Spike:
+				engine.eatEntity(dt, b, a)
+			}
+
+			switch b.(type) {
+			case *Spike:
+				engine.eatEntity(dt, a, b)
+			}
 		}
 	}
 
@@ -262,6 +314,12 @@ func (engine *Engine) collisionDetection(dt float64) {
 	engine.entities = engine.entities.Filter(func(entity Entity) bool {
 		return !entity.Base().dying
 	})
+
+	for _, entity := range engine.entities {
+		if entity.Base().dying {
+			fmt.Println("Paul is a bad programmer")
+		}
+	}
 
 	creatureCount := 0
 	for _, entity := range engine.entities {
