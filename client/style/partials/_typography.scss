@@ -29,22 +29,22 @@ h3 {
 p {
   margin-top: 20px;
   padding: 10px;
+}
 
-  &.left {
-    text-align: left !important;
-  }
+.left {
+  text-align: left !important;
+}
 
-  &.center {
-    text-align: center;
-  }
+.center {
+  text-align: center;
+}
 
-  &.right {
-    text-align: right;
-  }
+.right {
+  text-align: right;
+}
 
-  &.justify {
-    text-align: justify;
-  }
+.justify {
+  text-align: justify;
 }
 
 a {
