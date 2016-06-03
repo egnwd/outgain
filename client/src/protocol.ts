@@ -13,8 +13,9 @@ export interface IEntity {
 
 export interface ILogEvent {
     logType: number
-    protagID: number
-    antagID: number
+    protagName: string
+    antagName: string
+    gains: number
 }
 
 export interface IWorldState {

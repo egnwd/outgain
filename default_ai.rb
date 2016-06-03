@@ -14,12 +14,18 @@ def run(player, world)
     @dx = dx
     @dy = dy
 
-    target = world.entities
+    prey = world.entities
         .select {|e| e.id != player.id and e.radius < player.radius }
         .min_by {|e| player.distance e}
 
-    if target != nil then
-        return [target.x - player.x, target.y - player.y]
+    predator = world.entities
+        .select {|e| e.id != player.id and e.radius > player.radius }
+        .min_by {|e| player.distance e}
+
+    if prey != nil then
+        return [prey.x - player.x, prey.y - player.y]
+    elsif predator != nil then
+        return [player.x - predator.x, player.y - predator.y]
     else
         return [@dx, @dy]
     end

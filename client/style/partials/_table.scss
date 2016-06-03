@@ -29,7 +29,7 @@ table {
   > tbody,
   > tfoot {
     > tr {
-      border-top: 1px solid $table-border-colour;
+      border-bottom: 1px solid $table-border-colour;
       > th, > td {
         padding: $table-cell-padding;
         line-height: $line-height-base;

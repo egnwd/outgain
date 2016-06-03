@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/egnwd/outgain/server/config"
+	"github.com/egnwd/outgain/server/guest"
 	"github.com/egnwd/outgain/server/protocol"
 	"github.com/egnwd/outgain/server/runner"
 
@@ -17,13 +18,17 @@ import (
 type Creature struct {
 	EntityBase
 
-	Name   string
+	Guest  *guest.Guest
 	Sprite string
 
 	runner *runner.RunnerClient
 }
 
-func NewCreature(name string, config *config.Config) func(id uint64) Entity {
+func (creature *Creature) incrementScore(eaten Entity) {
+	creature.Guest.AddGains(1)
+}
+
+func NewCreature(guest *guest.Guest, config *config.Config) func(id uint64) Entity {
 	return func(id uint64) Entity {
 		x := rand.Float64() * gridSize
 		y := rand.Float64() * gridSize
@@ -47,11 +52,19 @@ func NewCreature(name string, config *config.Config) func(id uint64) Entity {
 				Y:      y,
 				Radius: defaultRadius,
 			},
-			Name:   name,
+			Guest:  guest,
 			Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".svg",
 			runner: client,
 		}
 	}
+}
+
+func (creature *Creature) GetName() string {
+	return creature.Guest.GetName()
+}
+
+func (creature *Creature) GetGains() int {
+	return creature.Guest.GetGains()
 }
 
 func (creature *Creature) Base() *EntityBase {
@@ -90,7 +103,7 @@ func (creature *Creature) Tick(state protocol.WorldState, dt float64) {
 func (creature *Creature) Serialize() protocol.Entity {
 	return protocol.Entity{
 		ID:     creature.ID,
-		Name:   &creature.Name,
+		Name:   &creature.Guest.Name,
 		Sprite: &creature.Sprite,
 		Color:  creature.Color,
 		X:      creature.X,
@@ -100,8 +113,8 @@ func (creature *Creature) Serialize() protocol.Entity {
 	}
 }
 
-func (creature *Creature) Volume() float64 {
-	return creature.nextRadius * creature.nextRadius
+func (creature *Creature) BonusFactor() float64 {
+	return 1
 }
 
 func (creature *Creature) Close() {

@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/egnwd/outgain/server/config"
+	"github.com/egnwd/outgain/server/guest"
 	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
 )
@@ -43,10 +45,11 @@ func LobbiesGetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Get all usernames from lobby
-	users := l.Guests.Iterator()
-	usernames := make([]string, 0, len(users))
-	for _, user := range users {
-		usernames = append(usernames, user.GetName())
+	guestCount := len(l.Guests.List)
+	usernames := make([]string, 0, guestCount)
+	firstUser := guestCount - l.Guests.UserSize
+	for _, g := range l.Guests.List[firstUser:] {
+		usernames = append(usernames, g.GetName())
 	}
 	// Convert to JSON and return it
 	js, err := json.Marshal(usernames)
@@ -86,7 +89,7 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Add the user to the lobby
-	user := lobby.NewUser(username)
+	user := guest.NewUser(username)
 	l.AddUser(user)
 
 	l.Start()
@@ -95,6 +98,15 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 	log.Printf("User: %s Joined Lobby: %d", username, id)
 	rawurl := fmt.Sprintf("http://%s/lobbies/%d", r.Host, id)
 	http.Redirect(w, r, rawurl, http.StatusFound)
+}
+
+func LobbiesCreate(config *config.Config) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		l := lobby.NewLobby(config)
+
+		log.Printf("Created Lobby: %d", l.ID)
+		http.Redirect(w, r, "/lobbies", http.StatusFound)
+	})
 }
 
 func LobbiesGame(staticDir string) http.Handler {
@@ -144,7 +156,7 @@ func LobbiesLeave(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Remove the user to the lobby
-	user := lobby.NewUser(username)
+	user := guest.NewUser(username)
 	l.RemoveUser(user)
 
 	// Redirect user to the lobby

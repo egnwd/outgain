@@ -161,6 +161,8 @@ code {
     @extend .container;
     @extend .rounded;
 
+    display: block;
+    height: auto;
     bottom: 0;
     padding: 0;
     width: 95%;
@@ -174,57 +176,39 @@ code {
       text-align: center;
     }
 
-    span#user-resources,
-    span#user-id {
-      display: inline-block;
-      position: absolute;
-      width: 50%;
+    #user-id {
+      display: block;
+      width: 100%;
       height: 2em;
-      line-height: 1.3em;
       font-weight: bold;
       background-color: darken($background-colour, 80%);
-    }
-
-    span#user-id {
-      text-align: left !important;
-      border-top-left-radius: $container-border-radius;
-      padding: 4px 10px 4px 26px;
-      color: $user;
-    }
-
-    span#user-resources {
-      text-align: right !important;
-      right: 0;
       border-top-right-radius: $container-border-radius;
       padding: 4px 26px 4px 10px;
-      color: $resource;
-    }
-
-    span#user-resources:before {
-      content: "•";
-      font-weight: bold;
-      position: absolute;
-      right: 4px;
-      font-size: 54px;
-      color: $resource;
-    }
-
-    span#user-id:before {
-      content: "@";
-      font-weight: bold;
-      position: absolute;
-      left: 6px;
-      font-size: 24px;
-      line-height: 0.95em;
       color: $user;
     }
 
-    ul#game-buttons {
+    #user-id:before {
+      content: "@";
+      font-weight: bold;
+      color: $user;
+    }
+
+    .gains-buttons {
       display: flex;
-      justify-content: space-between;
-      padding: 0 10px 10px;
-      li {
-        float:left;
+      height:100%;
+
+      ul#game-buttons {
+        padding: 0 10px 10px;
+        display: inline-block;
+        width: 50%;
+      }
+
+      #user-gains {
+        color: $resource;
+        font-weight: bold;
+        font-size: 2em;
+        padding: 20px 0 20px 0;
+        width: 50%;
       }
     }
 }

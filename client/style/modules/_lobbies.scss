@@ -1,28 +1,81 @@
+.banner {
+  margin: 0;
+  display: flex;
+  align-content: flex-end;
+  justify-content: space-between;
+}
+
 #lobbies-container {
+  width: 1048px;
+  margin: 0 auto;
+
+  > .tables {
+    display: flex;
+    justify-content: center;
+
+    table {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
 }
 
-#lobbies-table {
+#lobbies-add,
+#player-join {
   position: relative;
   width: 50%;
   height: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+#lobbies-add {
   float: left;
+  margin-right: 20px;
 }
 
-#lobbies {
-  position: relative;
-  width: 300px;
+#player-join {
   float: right;
+  margin-left: 20px;
 }
 
+#players, #lobbies {
+  width: 100%;
+}
+
+#lobbies-table,
 #players-table {
+  box-sizing: border-box;
   position: relative;
-  width: 50%;
-  height: 100%;
-  float: right;
-}
+  width: 100%;
 
-#players {
-  position: relative;
-  width: 300px;
-  float: left;
+  thead, tbody tr {
+    display:table;
+    width:100%;
+    table-layout:fixed;
+  }
+
+  tbody {
+    height:340px;
+    width: 100%;
+    display:block;
+    overflow-y:scroll;
+    tr {
+      &.lobby {
+        cursor: pointer;
+      }
+
+      &.no-lobbies {
+        border-bottom: none;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        td {
+          width: 100%;
+          text-align: center;
+        }
+      }
+      width: 100%;
+    }
+  }
 }
