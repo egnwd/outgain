@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"math/rand"
 	"time"
 
 	"github.com/egnwd/outgain/server/protocol"
@@ -11,7 +12,10 @@ import (
 
 const gridSize float64 = 10
 
-const resourceSpawnInterval time.Duration = 5 * time.Second
+const baseResourceSpawnInterval = 5
+const maxResourceIncrease = 5
+
+var resourceSpawnInterval time.Duration
 
 const eatRadiusDifference = 0.1
 
@@ -88,7 +92,8 @@ func (engine *Engine) Run(entities EntityList) {
 	engine.entities = entities
 	engine.clearGameLog()
 	engine.lastTick = time.Now()
-	engine.lastResourceSpawn = time.Now()
+	regenerateResourceInterval()
+	// engine.lastResourceSpawn = time.Now()
 
 GameLoop:
 	for {
@@ -169,13 +174,21 @@ func (engine *Engine) tick() {
 
 	if now.Sub(engine.lastResourceSpawn) > resourceSpawnInterval {
 		engine.lastResourceSpawn = now
-
-		engine.AddEntity(RandomResource)
+		regenerateResourceInterval()
+		for i := -1; i < rand.Intn(maxResourceIncrease); i++ {
+			engine.AddEntity(RandomResource)
+		}
 	}
 
 	state := engine.Serialize()
 	engine.entities.Tick(state, dt)
 	engine.collisionDetection(dt)
+}
+
+func regenerateResourceInterval() {
+	rand.Seed(time.Now().Unix())
+	duration := time.Duration(rand.Intn(baseResourceSpawnInterval) + 1)
+	resourceSpawnInterval = duration * time.Second
 }
 
 func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
