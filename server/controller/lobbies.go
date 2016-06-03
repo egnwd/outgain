@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/egnwd/outgain/server/config"
-	"github.com/egnwd/outgain/server/guest"
 	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
 )
@@ -61,10 +60,6 @@ func LobbiesGetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
-	if !IsUserAuthorised(r) {
-		http.Error(w, "Not logged in.", http.StatusUnauthorized)
-	}
-
 	// Get the id of the requested lobby
 	id, err := strconv.ParseUint(r.PostFormValue("id"), 10, 64)
 	if err != nil {
@@ -87,9 +82,8 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//Add the user to the lobby
-	user := guest.NewUser(username)
-	l.AddUser(user)
+	// Add the user to the lobby
+	l.AddUser(username)
 
 	l.Start()
 
@@ -128,10 +122,6 @@ func LobbiesGame(staticDir string) http.Handler {
 
 // LobbiesLeave temporarily logs the user out - this will change in the future
 func LobbiesLeave(w http.ResponseWriter, r *http.Request) {
-	if !IsUserAuthorised(r) {
-		http.Error(w, "Not logged in.", http.StatusUnauthorized)
-	}
-
 	// Get the id of the requested lobby
 	id, err := strconv.ParseUint(r.PostFormValue("id"), 10, 64)
 	if err != nil {
@@ -155,8 +145,7 @@ func LobbiesLeave(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Remove the user to the lobby
-	user := guest.NewUser(username)
-	l.RemoveUser(user)
+	l.RemoveUser(username)
 
 	// Redirect user to the lobby
 	log.Printf("User: %s Left Lobby: %d", username, id)

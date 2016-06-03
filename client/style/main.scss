@@ -3,6 +3,7 @@
 
 @import "modules/sweetalert_overrides";
 @import "../node_modules/sweetalert/dev/sweetalert";
+@import "../node_modules/codemirror/lib/codemirror";
 @import "modules/colours";
 @import "modules/lobbies";
 
@@ -10,3 +11,4 @@
 @import "partials/typography";
 @import "partials/table";
 @import "partials/buttons";
+@import "partials/editor";
