@@ -3,6 +3,7 @@ package lobby
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"sync"
 
 	"github.com/egnwd/outgain/server/config"
@@ -24,16 +25,6 @@ type Lobby struct {
 	isRunning bool
 	config    *config.Config
 	sync.Mutex
-}
-
-// GenerateOneLobby is temporary until lobbies is fully working
-// TODO: Remove once lobbies are working
-func GenerateOneLobby(config *config.Config) (lobby *Lobby) {
-	for _, lobby := range lobbies {
-		return lobby
-	}
-
-	return NewLobby(config)
 }
 
 // NewLobby creates a new lobby with its own engine and list of guests
@@ -66,11 +57,15 @@ func NewLobby(config *config.Config) (lobby *Lobby) {
 	return
 }
 
-//This is just for testing until it's fully implemented
-const baseID uint64 = 2019968050
-
 func newID() uint64 {
-	return baseID
+	id := uint64(rand.Uint32())
+	_, ok := lobbies[id]
+	for ok {
+		id = uint64(rand.Uint32())
+		_, ok = lobbies[id]
+	}
+
+	return id
 }
 
 func (lobby *Lobby) Start() {
@@ -85,7 +80,9 @@ func (lobby *Lobby) Start() {
 
 // This must be run in a go routine otherwise it will block the thread
 func (lobby *Lobby) runEngine() {
-	for lobby.Guests.userSize >= 0 {
+	log.Println("Running game in lobby")
+
+	for lobby.Guests.userSize > 0 {
 		var entities engine.EntityList
 
 		for _, guest := range lobby.Guests.list {
@@ -94,9 +91,11 @@ func (lobby *Lobby) runEngine() {
 		}
 
 		lobby.Engine.Run(entities)
-		lobby.Start()
+		log.Println("Finished Running")
+		log.Printf("Users in Game: %d\n", lobby.Guests.userSize)
 	}
 
+	log.Println("Destroying Lobby")
 	lobby.isRunning = false
 	destroyLobby(lobby)
 }
@@ -112,7 +111,6 @@ func GetLobby(id uint64) (*Lobby, bool) {
 func destroyLobby(lobby *Lobby) {
 	lobby.Guests.list = nil
 	lobby.Guests.userSize = 0
-	//lobby.Engine.Close() - for the runner to be shut down
 	lobby.Engine = nil
 	delete(lobbies, lobby.ID)
 }
