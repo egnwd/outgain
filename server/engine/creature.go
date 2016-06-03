@@ -102,13 +102,13 @@ func (creature *Creature) Tick(state protocol.WorldState, dt float64) {
 
 func (creature *Creature) Serialize() protocol.Entity {
 	return protocol.Entity{
-		ID:     creature.ID,
-		Name:   &creature.Guest.Name,
-		Sprite: &creature.Sprite,
-		Color:  creature.Color,
-		X:      creature.X,
-		Y:      creature.Y,
-		Radius: creature.Radius,
+		ID:         creature.ID,
+		Name:       &creature.Guest.Name,
+		Sprite:     &creature.Sprite,
+		Color:      creature.Color,
+		X:          creature.X,
+		Y:          creature.Y,
+		Radius:     creature.Radius,
 		EntityType: creatureEnum,
 	}
 }
