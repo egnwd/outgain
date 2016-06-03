@@ -74,7 +74,7 @@ $(function() {
 
         if (userPanel.getUserID() == logEvent.protagName) {
           let user_resources = document.getElementById("user-resources")
-          user_resources.innerHTML = "" + logEvent.resources
+          user_resources.innerHTML = logEvent.resources.toString()
         }
 
         if (scrollUpdate) {
