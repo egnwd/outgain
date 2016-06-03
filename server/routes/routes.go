@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/egnwd/outgain/server/config"
 	c "github.com/egnwd/outgain/server/controller"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
 //GetHandler returns a mux that maps routes to controller actions
-func GetHandler(static string) http.Handler {
+func GetHandler(config *config.Config) http.Handler {
 	mux := mux.NewRouter()
 
 	get := mux.Methods(http.MethodGet).Subrouter()
@@ -19,9 +20,9 @@ func GetHandler(static string) http.Handler {
 	get.HandleFunc("/ping", c.PingHandler)
 
 	get.Handle("/images/creature-{colour:[0-9a-fA-F]+}.svg",
-		c.SVGSpriteHandler(static))
+		c.SVGSpriteHandler(config.StaticDir))
 
-	get.Handle("/", c.LogInPage(static))
+	get.Handle("/", c.LogInPage(config.StaticDir))
 
 	get.HandleFunc("/login", c.UserLogIn)
 	get.Handle("/logout", c.RequireAuth(http.HandlerFunc(c.Logout)))
@@ -29,13 +30,13 @@ func GetHandler(static string) http.Handler {
 	get.HandleFunc("/currentUser", c.CurrentUser)
 
 	// Lobbies
-	get.Handle("/lobbies", c.RequireAuth(c.LobbiesView(static)))
+	get.Handle("/lobbies", c.RequireAuth(c.LobbiesView(config.StaticDir)))
 	get.Handle("/peekLobbies", c.RequireAuth(http.HandlerFunc(c.LobbiesPeek)))
 	get.Handle("/lobbies/{id:[0-9]+}/users", c.RequireAuth(http.HandlerFunc(c.LobbiesGetUsers)))
 	post.Handle("/lobbies/join", c.RequireAuth(http.HandlerFunc(c.LobbiesJoin)))
 
 	// Game View
-	get.Handle("/lobbies/{id:[0-9]+}", c.RequireAuth(c.LobbiesGame(static)))
+	get.Handle("/lobbies/{id:[0-9]+}", c.RequireAuth(c.LobbiesGame(config.StaticDir)))
 	get.Handle("/updates/{id:[0-9]+}", c.UpdatesHandler())
 	post.Handle("/lobbies/leave", c.RequireAuth(http.HandlerFunc(c.LobbiesLeave)))
 
@@ -44,7 +45,7 @@ func GetHandler(static string) http.Handler {
 	mux.NotFoundHandler = http.HandlerFunc(c.NotFound)
 
 	get.PathPrefix("/").Handler(
-		http.StripPrefix("/", http.FileServer(http.Dir(static))))
+		http.StripPrefix("/", http.FileServer(http.Dir(config.StaticDir))))
 
 	return c.UpdateMaxAge(handlers.LoggingHandler(os.Stdout, mux))
 }
