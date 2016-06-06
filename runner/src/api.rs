@@ -34,15 +34,15 @@ mrusty_class!(Entity, "Entity", {
     });
 
     def!("creature?", |mruby, slf: (&Entity)| {
-        mruby.bool(slf.entityType == 0)
+        mruby.bool(slf.EntityType == 0)
     });
 
     def!("resource?", |mruby, slf: (&Entity)| {
-        mruby.bool(slf.entityType == 1)
+        mruby.bool(slf.EntityType == 1)
     });
 
     def!("spike?", |mruby, slf: (&Entity)| {
-        mruby.bool(slf.entityType == 2)
+        mruby.bool(slf.EntityType == 2)
     });
 
     def!("distance", |mruby, slf: (&Entity), other: (&Entity)| {

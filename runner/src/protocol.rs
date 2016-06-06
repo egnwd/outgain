@@ -7,7 +7,7 @@ pub struct Entity {
     pub x: f64,
     pub y: f64,
     pub radius: f64,
-    pub entityType: u64,
+    pub EntityType: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
