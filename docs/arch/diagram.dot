@@ -1,0 +1,34 @@
+graph architecure {
+    node [ shape = rect ]
+    edge [ dir="both" ]
+
+    clientA [ label = client ]
+    clientB [ label = client ]
+    clientC [ label = client ]
+
+    server [
+        shape = record
+        label = "{<f0>server|{<f1>engine|<f2>engine}}"
+    ]
+
+    subgraph clusterA {
+        runnerA [ label = runner, shape = record, label = "{<f0>AI runner|<f1>mruby}" ]
+    }
+    subgraph clusterB {
+        runnerB [ label = runner, shape = record, label = "{<f0>AI runner|<f1>mruby}" ]
+    }
+    subgraph clusterC {
+        runnerC [ label = runner, shape = record, label = "{<f0>AI runner|<f1>mruby}" ]
+    }
+    subgraph clusterD {
+        runnerD [ label = runner, shape = record, label = "{<f0>AI runner|<f1>mruby}" ]
+    }
+
+    clientA -- server:f0
+    clientB -- server:f0
+    clientC -- server:f0 [label = "HTTP"]
+    server:f1 -- runnerA:f0 [ headport = "n" ]
+    server:f1 -- runnerB:f0 [ headport = "n" ]
+    server:f2 -- runnerC:f0 [ headport = "n" ]
+    server:f2 -- runnerD:f0 [ headport = "n", label = "msgpack RPC" ]
+}
