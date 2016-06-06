@@ -12,3 +12,8 @@ slug.tgz
 .vagrant
 runner/.cargo/config
 npm-debug.log
+*#
+*~
+*.pdf
+*.aux
+*.log
