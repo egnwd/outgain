@@ -124,5 +124,4 @@ func (creature *Creature) BonusFactor() float64 {
 
 func (creature *Creature) Close() {
 	creature.runner.Close()
-	creature.Guest.ResetGains()
 }
