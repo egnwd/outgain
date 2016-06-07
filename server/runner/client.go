@@ -2,7 +2,6 @@ package runner
 
 import (
 	"golang.org/x/sys/unix"
-	"io"
 	"log"
 	"net/rpc"
 	"os"
@@ -22,7 +21,7 @@ type RunnerClient struct {
 
 // StartRunner creates a new process to execute the AI runner.
 // `code` is used as the AI's source.
-func StartRunner(config *config.Config, code string) (client *RunnerClient, err error) {
+func StartRunner(config *config.Config) (client *RunnerClient, err error) {
 	fds, err := unix.Socketpair(unix.AF_LOCAL, unix.SOCK_STREAM, 0)
 	if err != nil {
 		return nil, err
@@ -51,17 +50,9 @@ func StartRunner(config *config.Config, code string) (client *RunnerClient, err 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		return nil, err
-	}
-	defer stdin.Close()
-
 	if err = cmd.Start(); err != nil {
 		return nil, err
 	}
-
-	io.WriteString(stdin, code)
 
 	client = new(RunnerClient)
 	var mh codec.MsgpackHandle
@@ -74,6 +65,10 @@ func StartRunner(config *config.Config, code string) (client *RunnerClient, err 
 	})
 
 	return client, nil
+}
+
+func (client *RunnerClient) Load(source string) error {
+	return client.client.Call("Runner.Load", source, nil)
 }
 
 // Tick runs a tick in the AI runner, and waits for the result

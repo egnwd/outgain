@@ -91,8 +91,13 @@ func (lobby *Lobby) runEngine() {
 		var entities engine.EntityList
 
 		for _, g := range lobby.Guests.Iterator() {
-			entity := lobby.Engine.CreateEntity(engine.NewCreature(g, lobby.config))
-			entities = append(entities, entity)
+			creature, err := engine.NewCreature(g, lobby.config)
+			if err != nil {
+				log.Printf("Cannot create creature for %s: %v", g.Name, err)
+			} else {
+				entity := lobby.Engine.CreateEntity(creature)
+				entities = append(entities, entity)
+			}
 		}
 
 		lobby.Engine.Run(entities)
