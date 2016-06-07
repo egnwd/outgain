@@ -3,20 +3,14 @@ import * as $ from 'jquery'
 export class UserPanel {
     username: string;
     resources: number;
-    private usernameEl: string;
-    private resourcesEl: string;
 
-    constructor(usernameEl: string, resourcesEl: string) {
-      this.usernameEl = usernameEl
-      this.resourcesEl = resourcesEl
+    constructor(usernameEl: string) {
       this.username = this.getUserID()
+
+      $(usernameEl).html(this.username)
     }
 
-    public setUserID() {
-      $(this.usernameEl).html(this.username)
-    }
-
-    public getUserID() {
+    private getUserID() {
       var request = new XMLHttpRequest();
       request.open('GET', '/currentUser', false);
       request.send(null);

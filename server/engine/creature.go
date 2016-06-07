@@ -31,17 +31,22 @@ func (creature *Creature) decrementScore() {
 	creature.Guest.LoseGains(1)
 }
 
-func NewCreature(guest *guest.Guest, config *config.Config) func(id uint64) Entity {
+func NewCreature(guest *guest.Guest, config *config.Config) (builderFunc, error) {
+	x := rand.Float64() * gridSize
+	y := rand.Float64() * gridSize
+	color := colorful.FastHappyColor().Hex()
+
+	client, err := runner.StartRunner(config)
+	if err != nil {
+		return nil, err
+	}
+
+	err = client.Load(guest.Source)
+	if err != nil {
+		return nil, err
+	}
+
 	return func(id uint64) Entity {
-		x := rand.Float64() * gridSize
-		y := rand.Float64() * gridSize
-		color := colorful.FastHappyColor().Hex()
-
-		client, err := runner.StartRunner(config, guest.Source)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
 		return &Creature{
 			EntityBase: EntityBase{
 				ID:     id,
@@ -54,7 +59,7 @@ func NewCreature(guest *guest.Guest, config *config.Config) func(id uint64) Enti
 			Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".svg",
 			runner: client,
 		}
-	}
+	}, nil
 }
 
 func (creature *Creature) GetName() string {
@@ -72,7 +77,9 @@ func (creature *Creature) Base() *EntityBase {
 func (creature *Creature) Tick(state protocol.WorldState, dt float64) {
 	speed, err := creature.runner.Tick(creature.Serialize(), state)
 	if err != nil {
-		log.Fatalln(err)
+		log.Printf("Creature %s: %v", creature.GetName(), err)
+		creature.dying = true
+		return
 	}
 
 	norm := math.Sqrt(speed.Dx*speed.Dx + speed.Dy*speed.Dy)

@@ -22,46 +22,58 @@ pub struct Runner {
     mrb: MrubyType,
 }
 
+fn num_to_float(v: mrusty::Value) -> Result<f64, MrubyError> {
+    v.to_i32().map(|x| x as f64).or_else(|_| v.to_f64())
+}
+
 impl Runner {
-    pub fn new(source: String, seed: i32) -> Runner {
+    pub fn new(seed: i32) -> Result<Runner, MrubyError> {
         let mrb = Mruby::new();
 
         let seed = mrb.fixnum(seed);
-        let random = mrb.get_class("Random").unwrap().to_value();
-        random.call("srand", vec![seed]).unwrap();
-
-        mrb.filename("input");
-        mrb.run(&source).unwrap();
+        let random = try!(mrb.get_class("Random")).to_value();
+        try!(random.call("srand", vec![seed]));
 
         WorldState::require(mrb.clone());
         Entity::require(mrb.clone());
 
-        Runner {
+        Ok(Runner {
             mrb: mrb,
-        }
+        })
     }
 
-    pub fn tick(&mut self, request: TickRequest) -> TickResult {
-        fn num_to_float(v: mrusty::Value) -> Result<f64, MrubyError> {
-            v.to_f64().or_else(|_err| {
-                v.to_i32().map(|x| x as f64)
-            })
-        }
-
+    pub fn tick(&mut self, request: TickRequest) -> Result<TickResult, MrubyError> {
         let object = self.mrb.top_self();
         let player = self.mrb.obj(request.player);
         let world = self.mrb.obj(request.world_state);
-        let result = object.call("run", vec![player, world]).unwrap();
+        let result = try!(object.call("run", vec![player, world]));
+        let result = try!(result.to_vec());
 
-        result.to_vec().and_then(|v| {
-            let dx = try!(num_to_float(v[0].clone()));
-            let dy = try!(num_to_float(v[1].clone()));
+        let dx = try!(num_to_float(result[0].clone()));
+        let dy = try!(num_to_float(result[1].clone()));
 
-            Ok(TickResult {
-                dx: dx,
-                dy: dy,
-            })
-        }).unwrap()
+        Ok(TickResult {
+            dx: dx,
+            dy: dy,
+        })
+    }
+
+    pub fn load(&mut self, source: String) -> Result<(), MrubyError> {
+        self.mrb.filename("input");
+        try!(self.mrb.run(&source));
+
+        Ok(())
+    }
+}
+
+macro_rules! rpc_try {
+    ($e:expr) => {
+        match $e {
+            Ok(v) => v,
+            Err(e) => {
+                return Err(::rmp::Value::String(e.to_string()))
+            }
+        }
     }
 }
 
@@ -71,13 +83,20 @@ impl rmp_rpc::Handler for Runner {
 
         let param = params.into_iter().next();
         match (method, param) {
+            ("Runner.Load", Some(param)) => {
+                let request = rpc_try!(rmp_serde::from_value(param));
+
+                rpc_try!(self.load(request));
+
+                Ok(rmp::Value::Nil)
+            }
+
             ("Runner.Tick", Some(param)) => {
-                let request = rmp_serde::from_value(param).unwrap();
+                let request = rpc_try!(rmp_serde::from_value(param));
 
-                let result = self.tick(request);
+                let result = rpc_try!(self.tick(request));
 
-                let response = rmp_serde::to_value(&result);
-                Ok(response)
+                Ok(rmp_serde::to_value(&result))
             }
 
             _ => {

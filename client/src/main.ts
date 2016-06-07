@@ -6,8 +6,6 @@ import { UserPanel } from './gameUI'
 import { Editor } from './editor'
 import * as $ from 'jquery'
 
-var userPanel = new UserPanel("#user-id", "#user-resources")
-
 // Move to GameUI
 $(function() {
   $('#collapse-arrow').click(function() {
@@ -33,7 +31,7 @@ function getLobbyId() {
 }
 
 $(function() {
-    userPanel.setUserID()
+    var userPanel = new UserPanel("#user-id")
 
     let idField = document.getElementById("id-field")
     let gameLog = document.getElementById("game-log")

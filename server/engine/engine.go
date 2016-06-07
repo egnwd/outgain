@@ -207,8 +207,30 @@ func (engine *Engine) tick() {
 	}
 
 	state := engine.Serialize()
+
 	engine.entities.Tick(state, dt)
+	engine.entities = engine.entities.Filter(func(entity Entity) bool {
+		return !entity.Base().dying
+	})
+
 	engine.collisionDetection(dt)
+	engine.entities = engine.entities.Filter(func(entity Entity) bool {
+		return !entity.Base().dying
+	})
+
+	creatureCount := 0
+	for _, entity := range engine.entities {
+		entity.Base().Radius = entity.Base().nextRadius
+
+		_, isCreature := entity.(*Creature)
+		if isCreature {
+			creatureCount++
+		}
+	}
+
+	if creatureCount <= 1 {
+		engine.restartEngine()
+	}
 }
 
 func regenerateResourceInterval() {
@@ -284,25 +306,11 @@ func (engine *Engine) collisionDetection(dt float64) {
 		}
 	}
 
-	engine.entities = engine.entities.Filter(func(entity Entity) bool {
-		return !entity.Base().dying
-	})
-
-	creatureCount := 0
 	for _, entity := range engine.entities {
 		entity.Base().Radius = entity.Base().nextRadius
-
-		_, isCreature := entity.(*Creature)
-		if isCreature {
-			creatureCount++
-		}
 	}
 
 	// Changing the radius of entities changes their left coordinate,
 	// so sort the list again to maintain the invariant
 	engine.entities.Sort()
-
-	if creatureCount <= 1 {
-		engine.restartEngine()
-	}
 }
