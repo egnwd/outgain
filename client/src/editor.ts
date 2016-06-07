@@ -23,7 +23,7 @@ export class Editor {
         })
 
         $('#editor-save-btn').click(() => {
-            this.close()
+            this.send(() => this.close())
         })
 
         $('#editor-cancel-btn').click(() => {
@@ -57,5 +57,11 @@ export class Editor {
         setTimeout(() => {
             $('#editor').hide()
         }, 300);
+    }
+
+    public send(cb) {
+        let aiUrl = "/lobbies/" + this.lobbyId + "/ai";
+        let data = this.editor.getValue();
+        $.post(aiUrl, data, function() { cb() })
     }
 }

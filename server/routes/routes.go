@@ -43,6 +43,7 @@ func GetHandler(config *config.Config) http.Handler {
 
 	// AI source
 	get.Handle("/lobbies/{id:[0-9]+}/ai", c.RequireAuth(c.GetAISource()))
+	post.Handle("/lobbies/{id:[0-9]+}/ai", c.RequireAuth(c.PostAISource()))
 
 	// FIXME: Wrap the FileServer in a Handler that hooks w upon writing
 	// 404 to the Header
