@@ -8,6 +8,7 @@ dependencies:
   cache_directories:
     - '~/.npm'
     - '~/.cargo'
+    - '~/.multirust'
     - 'client/node_modules'
     - 'runner/target'
 
