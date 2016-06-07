@@ -93,6 +93,26 @@ code {
   float: left;
   height: 100%;
   padding: 10px;
+  position: relative;
+
+  #round-name {
+    @include border-radius(5px);
+
+    position: absolute;
+    height: auto;
+    width: 50%;
+    top: 50%;
+    margin: -92px 0 0 -25%;
+    text-align: center;
+    display: block;
+    left: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    font-size: 3em;
+    line-height: 3em;
+    color: $blue-lighter;
+    padding: 20px;
+    font-weight: bold;
+  }
 }
 
 #game-view {

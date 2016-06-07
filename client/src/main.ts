@@ -37,6 +37,7 @@ $(function() {
     let idField = document.getElementById("id-field")
     let gameLog = document.getElementById("game-log")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
+    let roundName = document.getElementById("round-name")
 
     let renderer = new GameRenderer(canvas, userPanel.username)
 
@@ -46,11 +47,17 @@ $(function() {
     let source = new EventSource("/updates/" + lobbyId)
 
     source.addEventListener("state", function(event) {
+        roundName.style.display = "none"
         let data = JSON.parse((<sse.IOnMessageEvent>event).data)
 
         let update = <IWorldState>data
 
         renderer.pushState(update)
+    })
+
+    source.addEventListener("round", function(event) {
+      roundName.innerHTML = JSON.parse((<sse.IOnMessageEvent>event).data)
+      roundName.style.display = "block"
     })
 
     source.addEventListener("log", function(lEvent) {
