@@ -77,7 +77,7 @@ $(function() {
 		    + logEvent.protagName + " hit a spike!\n"
       	}
 
-        if (userPanel.getUserID() == logEvent.protagName) {
+        if (userPanel.username == logEvent.protagName) {
           let user_gains = document.getElementById("user-gains")
           user_gains.innerHTML = logEvent.gains.toString()
         }
