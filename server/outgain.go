@@ -16,8 +16,8 @@ import (
 func main() {
 	config := config.ParseArgs()
 
-	db, err := database.OpenDb()
-	_ = db
+	err := database.OpenDb()
+
 	if err != nil {
 		log.Fatal(err)
 	}

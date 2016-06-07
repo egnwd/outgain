@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/egnwd/outgain/server/database"
 	"github.com/egnwd/outgain/server/protocol"
 )
 
@@ -65,6 +66,7 @@ func NewEngine() (engine *Engine) {
 
 // restartEngine puts the engine back to it's original state
 func (engine *Engine) restartEngine() {
+	engine.updateLeaderboard()
 	for _, entity := range engine.entities {
 		entity.Close()
 	}
@@ -74,6 +76,28 @@ func (engine *Engine) restartEngine() {
 
 	log.Println("Restarting Engine")
 	engine.restart = true
+}
+
+func (engine *Engine) updateLeaderboard() {
+	//users := engine.entities.Filter(func(entity Entity) bool {
+	//	creature, isCreature := entity.(*Creature)
+	//	if isCreature {
+	//		return creature.Guest.Type == guest.UserType
+	//	}
+	//	return false
+	//})
+	//users.SortScore()
+	//for _, user := range users {
+	//	fmt.Println(user.GetGains())
+	//}
+	engine.entities.SortScore()
+	for _, entity := range engine.entities {
+		var minVal = database.GetMinScore()
+		if gains := entity.GetGains(); gains > minVal {
+			database.UpdateLeaderboard(entity.GetName(), gains)
+		}
+	}
+
 }
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
