@@ -79,6 +79,29 @@ func (list EntityList) Less(i, j int) bool {
 	return list[i].Base().Left() < list[j].Base().Left()
 }
 
+func (list EntityList) GreaterScore(i, j int) bool {
+
+	// Commented out is more efficient as avoids array swaps between non-users
+	// efficiency vs readability?
+
+	//creatureI, isCreaturei := list[i].(*Creature)
+	//creatureJ, isCreaturej := list[j].(*Creature)
+
+	//if !isCreaturei {
+	//	return false
+	//} else if !isCreaturej {
+	//	return true
+	//} else if creatureJ.Guest.Type != guest.UserType {
+	//	return true
+	//} else {
+	//	return creatureI.Guest.Type == guest.UserType &&
+	//		creatureI.GetGains() > creatureJ.GetGains()
+	//}
+	//return false
+
+	return list[i].GetGains() > list[j].GetGains()
+}
+
 func (list EntityList) Swap(i, j int) {
 	list[i], list[j] = list[j], list[i]
 }
@@ -100,18 +123,6 @@ func (list EntityList) Tick(state protocol.WorldState, dt float64) {
 	// maintain the invariant
 	list.Sort()
 }
-
-//func (list EntityList) Filter(filter func(Entity) bool) EntityList {
-//	count := list.Len()
-//	for i := 0; i < count; i++ {
-//		if !filter(list[i]) {
-//			list[i].Close()
-//			list.Swap(i, count-1)
-//			count--
-//		}
-//	}
-//	return list[:count]
-//
 
 func (list EntityList) Filter(filter func(Entity) bool) EntityList {
 	returnList := EntityList{}
@@ -143,6 +154,15 @@ func (list EntityList) Sort() {
 	}
 }
 
+func (list EntityList) SortScore() {
+	for i := 1; i < list.Len(); i++ {
+		for j := i; j > 0 && list.GreaterScore(j, j-1); j-- {
+			list.Swap(j-1, j)
+		}
+	}
+
+}
+
 type Resource struct {
 	EntityBase
 }
@@ -164,7 +184,7 @@ func (resource *Resource) GetName() string {
 }
 
 func (resource *Resource) GetGains() int {
-	return 0
+	return -9999
 }
 
 func (resource *Resource) Base() *EntityBase {
@@ -239,7 +259,7 @@ func (spike *Spike) BonusFactor() float64 {
 }
 
 func (spike *Spike) GetGains() int {
-	return 0
+	return -9999
 }
 
 func (spike *Spike) GetName() string {
