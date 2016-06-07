@@ -93,7 +93,6 @@ func (engine *Engine) Run(entities EntityList) {
 	engine.clearGameLog()
 	engine.lastTick = time.Now()
 	regenerateResourceInterval()
-	// engine.lastResourceSpawn = time.Now()
 
 GameLoop:
 	for {
@@ -183,7 +182,7 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 			LogType:    3,
 			ProtagName: a.GetName(),
 			AntagName:  b.GetName(),
-			Gains:      0,
+			Gains:      a.GetGains(),
 		}
 	}
 
@@ -233,24 +232,29 @@ func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
 
 	eaterVolume := eater.Base().nextRadius * eater.Base().nextRadius
 	eatenVolume := eaten.Base().nextRadius * eaten.Base().nextRadius
+
+	var amount float64
+
 	if eatenIsSpike {
-		if eater.Base().nextRadius <= defaultRadius {
+		amount = math.Exp(-1/drainRate*dt) * eaterVolume
+		nextCreatureVolume := eaterVolume + amount*eaten.BonusFactor()
+		if nextCreatureVolume < 0 {
 			eater.Base().dying = true
+		} else {
+			eater.Base().nextRadius = math.Sqrt(nextCreatureVolume)
 		}
-		eater.Base().nextRadius = math.Sqrt(eaterVolume / 2)
 		eaten.Base().dying = true
+		eater.(*Creature).decrementScore()
 	} else {
-
-		amount := math.Exp(-1/drainRate*dt) * eatenVolume
-
+		amount = math.Exp(-1/drainRate*dt) * eatenVolume
 		eater.Base().nextRadius = math.Sqrt(eaterVolume + amount*eaten.BonusFactor())
 		eaten.Base().nextRadius = math.Sqrt(eatenVolume - amount)
-
 		if eaten.Base().nextRadius < radiusThreshold {
 			eater.(*Creature).incrementScore(eaten)
 			eaten.Base().dying = true
 		}
 	}
+
 	engine.addLogEvent(eater, eaten)
 }
 
