@@ -22,6 +22,7 @@ var createLobby = function(event) {
         inputPlaceholder: "Foo bar..."
       },
       function(name){
+        name = name.trim()
         if (name === false) return false;
         if (name === "") {
           sweetalert.showInputError("You need to give your lobby a name!");

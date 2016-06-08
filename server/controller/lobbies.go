@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"log"
 	"net/http"
 	"strconv"
@@ -96,7 +97,7 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 
 func LobbiesCreate(config *config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := r.PostFormValue("name")
+		name := html.EscapeString(r.PostFormValue("name"))
 		l := lobby.NewLobby(name, config)
 
 		log.Printf("Created Lobby: %s", l.Name)
