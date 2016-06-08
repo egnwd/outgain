@@ -11,6 +11,7 @@ var source = require('vinyl-source-stream');
 var sass = require('gulp-sass');
 var typings = require('gulp-typings');
 var gutil = require('gulp-util');
+var es6ify = require('es6ify');
 
 var targetDir = __dirname + '/dist';
 
@@ -23,6 +24,8 @@ function bundle(main, out, watch) {
     b.add(__dirname + '/typings/index.d.ts')
      .add(main)
      .plugin(tsify, { "jsx": "react", "target": "es6" })
+     .add(es6ify.runtime)
+     .transform(es6ify)
      .on('update', function() {
          rebundle();
      })
