@@ -19,19 +19,16 @@
           <div id="game-log-wrapper">
             <code id="game-log">A new game has started!
 </code> <!-- I apologise -->
-            <a href="#" id="collapse-arrow" data-text-swap="Show &#8593;">Hide &#8595;</a>
+            <!-- <a href="#" id="collapse-arrow" data-text-swap="Show &#8593;">Hide &#8595;</a> -->
           </div>
           <div id="game-panel">
             <div id="user-id"></div>
-            <div class="gains-buttons ">
-              <div id="user-gains"><span display="block">0</span></div>
+            <div class="gains-buttons">
+              <div id="user-gains"><span id="user-gains-text" display="block">00000</span></div>
               <ul id="game-buttons">
                 <li>
-                  <a class="btn btn--action" href="/store">Store</a>
+                  <button id="edit-button" class="btn btn--action">Edit AI</button>
                 </li>
-              <li>
-                <button id="edit-button" class="btn btn--action">Edit</button>
-              </li>
                 <li>
                   <form action="/lobbies/leave" method="post">
                     <input id="id-field" type="text" name="id" value="" style="display: none;">

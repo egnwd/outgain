@@ -32,7 +32,7 @@ function getLobbyId() {
 }
 
 $(function() {
-    var userPanel = new UserPanel("#user-id")
+    var userPanel = new UserPanel("#user-id", "user-gains-text")
     let timer = new Timer(15000, "#elapsed")
 
     let idField = document.getElementById("id-field")
@@ -49,7 +49,6 @@ $(function() {
 
     source.addEventListener("state", function(event) {
         if (roundName.style.display == "block") {
-            console.log(timer)
             roundName.style.display = "none"
             timer.start()
         }
@@ -98,8 +97,7 @@ $(function() {
       	}
 
         if (userPanel.username == logEvent.protagName) {
-          let user_gains = document.getElementById("user-gains")
-          user_gains.innerHTML = logEvent.gains.toString()
+          userPanel.updateScore(logEvent.gains)
         }
 
         if (scrollUpdate) {

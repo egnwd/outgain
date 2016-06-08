@@ -221,13 +221,15 @@ code {
 
     #user-id {
       display: block;
-      width: 100%;
+      width: auto;
       height: 2em;
       font-weight: bold;
       background-color: darken($background-colour, 80%);
-      border-top-right-radius: $container-border-radius;
+      border-bottom-right-radius: $container-border-radius;
       padding: 4px 26px 4px 10px;
       color: $user;
+      text-align: left;
+      line-height: 1.4em;
     }
 
     #user-id:before {
@@ -252,6 +254,21 @@ code {
         font-size: 2em;
         padding: 20px 0 20px 0;
         width: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        span:before {
+          content: "";
+          background: $resource;
+          position: relative;
+          right: 8px;
+          top: -2px;
+          width: 16px;
+          height: 16px;
+          display: inline-block;
+          @include border-radius(8px);
+        }
       }
     }
 }

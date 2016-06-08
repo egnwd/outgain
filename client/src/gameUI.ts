@@ -28,6 +28,14 @@ export class UserPanel {
       $(usernameEl).html(this.username)
     }
 
+    public updateScore(gains: number) {
+      $(this.resourcesEl).html(UserPanel.pad(gains, 5))
+    }
+
+    private static pad(num: number, size: number) {
+       return ('000000000' + num).substr(-size);
+    }
+
     private getUserID() {
       var request = new XMLHttpRequest();
       request.open('GET', '/currentUser', false);
