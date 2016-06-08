@@ -1,5 +1,42 @@
 import * as $ from 'jquery'
 
+export class Timer {
+  private percent = 0
+  private timeTotal: number
+  private timeInterval = 1
+  private bar: string
+
+  constructor(time: number, bar: string) {
+    this.timeTotal = time
+    this.bar = bar
+  }
+
+  private animateUpdate() {
+    console.log(this.TotalTime)
+    if (this.percent < this.timeTotal) {
+      this.percent++;
+      this.updateProgress(this.percent);
+      setTimeout(this.animateUpdate, this.timeInterval);
+    }
+  }
+
+  private updateProgress(percentage: number) {
+    let x = (percentage/this.timeTotal) * 100
+    console.log(this.bar)
+    console.log("X: " + x)
+    $(this.bar).css("width", x + "%");
+  }
+
+  public start() {
+    console.log("start timer")
+    this.animateUpdate()
+  }
+
+  public reset() {
+    this.percent = 0
+  }
+}
+
 export class UserPanel {
     username: string;
     resources: number;

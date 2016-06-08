@@ -112,6 +112,25 @@ code {
     color: $blue-lighter;
     padding: 20px;
     font-weight: bold;
+    display: none;
+  }
+
+  #progress {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    height: 10px;
+    background-color: lightgray;
+    border: 1px solid gray;
+    @include border-radius(5px);
+    overflow: hidden;
+  }
+
+  #elapsed {
+    background-color: yellowgreen;
+    height: 100%;
+    width: 0%;
   }
 }
 

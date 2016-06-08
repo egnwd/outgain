@@ -3,8 +3,8 @@
 
 import { IWorldState, ILogEvent } from "./protocol";
 import { GameRenderer } from './renderer'
-import { UserPanel } from './gameUI'
-import Editor from './editor'
+import { UserPanel, Timer } from './gameUI'
+import { Editor } from './editor'
 import * as $ from 'jquery'
 
 // Move to GameUI
@@ -33,6 +33,8 @@ function getLobbyId() {
 
 $(function() {
     var userPanel = new UserPanel("#user-id")
+    let timer = new Timer(1500, "#elapsed")
+    userPanel.setUserID()
 
     let idField = document.getElementById("id-field")
     let gameLog = document.getElementById("game-log")
@@ -47,7 +49,11 @@ $(function() {
     let source = new EventSource("/updates/" + lobbyId)
 
     source.addEventListener("state", function(event) {
-        roundName.style.display = "none"
+        if (roundName.style.display == "block") {
+            console.log(timer)
+            roundName.style.display = "none"
+            timer.start()
+        }
         let data = JSON.parse((<sse.IOnMessageEvent>event).data)
 
         let update = <IWorldState>data
@@ -58,6 +64,7 @@ $(function() {
     source.addEventListener("round", function(event) {
       roundName.innerHTML = JSON.parse((<sse.IOnMessageEvent>event).data)
       roundName.style.display = "block"
+      timer.reset()
     })
 
     source.addEventListener("log", function(lEvent) {
