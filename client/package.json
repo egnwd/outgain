@@ -8,6 +8,7 @@
     "browserify": "^13.0.1",
     "codemirror": "^5.15.2",
     "debuglog": "~1.0.1",
+    "es6ify": "^1.6.0",
     "gulp": "^3.9.1",
     "gulp-sass": "^2.3.1",
     "gulp-typings": "^2.0.0",
