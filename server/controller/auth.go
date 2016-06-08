@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/hex"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -129,17 +130,23 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 // CurrentUser returns the username of the session's user
 func CurrentUser(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, sessionName)
+	username, err := GetUserName(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if username, ok := session.Values[usernameKey]; ok {
-		fmt.Fprint(w, username)
-	} else {
-		http.Error(w, "User not logged in", http.StatusUnauthorized)
+	io.WriteString(w, username)
+}
+
+func UserToken(w http.ResponseWriter, r *http.Request) {
+	token, err := GetToken(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	io.WriteString(w, token)
 }
 
 // UpdateMaxAge resets the MaxAge of the session to keep the user logged in
@@ -184,6 +191,15 @@ func GetUserName(r *http.Request) (string, error) {
 	session, _ := store.Get(r, sessionName)
 	if IsUserAuthorised(r) {
 		return session.Values[usernameKey].(string), nil
+	}
+
+	return "", fmt.Errorf("User not logged in")
+}
+
+func GetToken(r *http.Request) (string, error) {
+	session, _ := store.Get(r, sessionName)
+	if IsUserAuthorised(r) {
+		return session.Values[accessTokenKey].(string), nil
 	}
 
 	return "", fmt.Errorf("User not logged in")

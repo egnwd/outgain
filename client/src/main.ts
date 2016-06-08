@@ -1,9 +1,10 @@
 /// <reference path="sse.d.ts" />
+/// <reference path="extra.d.ts" />
 
 import { IWorldState, ILogEvent } from "./protocol";
 import { GameRenderer } from './renderer'
 import { UserPanel } from './gameUI'
-import { Editor } from './editor'
+import Editor from './editor'
 import * as $ from 'jquery'
 
 // Move to GameUI
@@ -100,8 +101,12 @@ $(function() {
         window.requestAnimationFrame(draw)
     })
 
-    let editor = new Editor(lobbyId);
-    $('#edit-button').click(function() {
-        editor.open()
+    $.ajax({
+        url: "/token",
+    }).done((token) => {
+        let editor = new Editor(lobbyId, token);
+        $('#edit-button').click(function() {
+            editor.open()
+        })
     })
 })

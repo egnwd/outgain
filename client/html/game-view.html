@@ -43,11 +43,22 @@
       <div id="editor" style="display: none" class="hideEditor">
         <div id="editor-overlay"></div>
         <div id="editor-modal">
-          <div id="editor-input"></div>
-          <ul>
-            <li><button id="editor-cancel-btn" class="btn btn--fail">Cancel</button></li>
-            <li><button id="editor-save-btn" class="btn btn--action">Save</button></li>
-          </ul>
+
+          <div id="editor-pane" class="pane">
+            <ul class="pane-buttons">
+              <li><button id="editor-run-btn" class="btn btn--action">Run</button></li>
+              <li><button id="editor-load-btn" class="btn btn--action">Load Gist</button></li>
+            </ul>
+          </div>
+
+          <div id="gist-pane" class="pane">
+            <ul class="pane-buttons">
+              <li><button id="gist-cancel-btn" class="btn btn--fail">Cancel</button></li>
+            </ul>
+            <div id="gist-list">
+            </div>
+          </div>
+
         </div>
       </div>
     </body>
