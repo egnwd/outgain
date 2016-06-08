@@ -57,23 +57,31 @@ $(function() {
         let logEvent = <ILogEvent>data
 
         let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
-
+	// The colours should probbaly be done with CSS,
+	// leaving it here so that someone who cares more
+	// than me can play with them easier
       	switch (logEvent.logType) {
       	    case 0:
-      		gameLog.innerHTML = "A new game has started, good luck!\n"
-                document.getElementById("user-gains").innerHTML = "0"
-                break
+            		gameLog.innerHTML = "A new game has started, good luck!\n"
+      	        break
       	    case 1:
-      		gameLog.innerHTML = gameLog.innerHTML + "Yum, "
-      		    + logEvent.protagName + " ate a resource\n"
-      		break
+      	        gameLog.innerHTML = gameLog.innerHTML
+            		+ "<span style='color:#85b735'>" // Matches --success:hover
+            		+ "Yum, "+ logEvent.protagName
+            		+ " ate a resource\n" + "</span>"
+            		break
       	    case 2:
-      		gameLog.innerHTML = gameLog.innerHTML
-      		    + logEvent.protagName + " ate " + logEvent.antagName + "\n"
-      		break
+            		gameLog.innerHTML = gameLog.innerHTML
+            		+ "<span style='color:#4022FF'>"
+            		+ logEvent.protagName + " ate " + logEvent.antagName
+            		+ "\n" + "</span>"
+            		break
             case 3:
-	        gameLog.innerHTML = gameLog.innerHTML + "Oh no, creature " 
-		    + logEvent.protagName + " hit a spike!\n"
+      	        gameLog.innerHTML = gameLog.innerHTML
+      	        + "<span style='color:#d0131C'>" // Matches --fail:hover
+            		+ "Oh no, creature "
+            		+ logEvent.protagName + " hit a spike!\n"
+            		+  "</span>"
       	}
 
         if (userPanel.username == logEvent.protagName) {
