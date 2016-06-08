@@ -18,6 +18,14 @@ class Entity {
         }
     }
 
+    isUser(username: string) {
+        return this.current.name == username
+    }
+
+    getCoords() {
+        return [this.current.x, this.current.y]
+    }
+
     pushState(state: IEntity, interpolation: number) {
         this.current.x = lerp(this.previous.x, this.current.x, interpolation)
         this.current.y = lerp(this.previous.y, this.current.y, interpolation)
@@ -34,14 +42,12 @@ class Entity {
         let name = this.current.name
         let entityType = this.current.entityType
 
-	
-
         ctx.save()
         ctx.translate(x * scale, y * scale)
 
         if (entityType == 2){
-	    drawStar(ctx, 0, 0, 12, radius * scale, radius /2 * scale)
-	} else if (this.img != null) {
+            drawStar(ctx, 0, 0, 12, radius * scale, (radius / 2) * scale)
+	      } else if (this.img != null) {
             let bumper = 1.4651162791
             var size = radius * scale * 2 * bumper
             ctx.drawImage(this.img, -size / 2, -size / 2, size, size)
@@ -105,9 +111,18 @@ export class GameRenderer {
     dt: number
     lastUpdate: number
 
-    constructor(canvas: HTMLCanvasElement) {
+    username: string
+    userEntity : Entity
+    xprev: number
+    yprev: number
+
+    constructor(canvas: HTMLCanvasElement, username: string) {
         this.canvas = canvas
         this.ctx = canvas.getContext("2d")
+
+        this.username = username
+        this.xprev = 0
+        this.yprev = 0
 
         this.onResize()
     }
@@ -131,18 +146,35 @@ export class GameRenderer {
 
         let interpolation = this.interpolation()
 
+        // Determine absolute view position based on user
+        let gridSize = 20
+        let renderSize = gridSize / 2
+        let x = this.xprev
+        let y = this.yprev
+        if (this.userEntity != null) {
+            let coords = this.userEntity.getCoords()
+            x = lerp(x, coords[0], interpolation)
+            y = lerp(y, coords[1], interpolation)
+        } else {
+            //TODO: player death, currently view stops at death coordinates
+        }
+        this.xprev = x
+        this.yprev = y
+
+        // Set window specific variables
         let height = this.canvas.height
         let width = this.canvas.width
-
         this.ctx.clearRect(0, 0, width, height)
+        let scale = Math.min(width / renderSize, height / renderSize)
 
-        let scale = Math.min(width / 10, height / 10)
+        // Determine view position relative to window
+        let xOffset = - x * scale + width / 2
+        let yOffset = - y * scale + height / 2
+        this.ctx.translate(xOffset, yOffset)
 
-        let xOffset = (width - 10 * scale) / 2
-        this.ctx.translate(xOffset, 0)
+        this.drawGrid(gridSize, gridSize, scale)
 
-        this.drawGrid(10, 10, scale)
-
+        // TODO: Only render entities in view
         for (let id in this.entities) {
             this.entities[id].render(this.ctx, scale, interpolation)
         }
@@ -181,6 +213,9 @@ export class GameRenderer {
             } else {
                 entity.pushState(entityState, interpolation)
                 entities[entityState.id] = entity
+                if (entity.isUser(this.username)) {
+                    this.userEntity = entity
+                }
             }
         }
 

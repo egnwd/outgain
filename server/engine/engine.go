@@ -9,7 +9,7 @@ import (
 	"github.com/egnwd/outgain/server/protocol"
 )
 
-const gridSize float64 = 10
+const gridSize float64 = 20
 
 const baseResourceSpawnInterval = 5
 const maxResourceIncrease = 5
