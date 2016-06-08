@@ -23,6 +23,7 @@ var lobbies = make(map[uint64]*Lobby)
 // Lobby runs its own instance of an engine, and keeps track of its users
 type Lobby struct {
 	ID        uint64
+	Name      string
 	Engine    engine.Engineer
 	Events    eventsource.EventSource
 	Guests    guest.List
@@ -33,12 +34,13 @@ type Lobby struct {
 }
 
 // NewLobby creates a new lobby with its own engine and list of guests
-func NewLobby(config *config.Config) (lobby *Lobby) {
+func NewLobby(name string, config *config.Config) (lobby *Lobby) {
 	engine := engine.NewEngine()
 	events := eventsource.New(nil, nil)
 	id := newID()
 	lobby = &Lobby{
 		ID:     id,
+		Name:   name,
 		Engine: engine,
 		Events: events,
 		Guests: generalPopulation(lobbySize, config),
@@ -228,11 +230,19 @@ func (lobby *Lobby) FindGuest(username string) *guest.Guest {
 	return nil
 }
 
-// GetLobbyIDs returns an array of all the IDs in the lobbies map
-func GetLobbyIDs() []uint64 {
-	ids := make([]uint64, 0, len(lobbies))
-	for id := range lobbies {
-		ids = append(ids, id)
+type Lobbies []struct {
+	ID   uint64
+	Name string
+}
+
+// GetLobbyNames returns an array of all the Names in the lobbies map
+func Serialize() (ls Lobbies) {
+	for id, l := range lobbies {
+		newL := struct {
+			ID   uint64
+			Name string
+		}{ID: id, Name: l.Name}
+		ls = append(ls, newL)
 	}
-	return ids
+	return
 }

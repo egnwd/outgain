@@ -53,13 +53,13 @@ $(function() {
     })
 
     source.addEventListener("log", function(lEvent) {
-	let data = JSON.parse((<sse.IOnMessageEvent>lEvent).data)
+	      let data = JSON.parse((<sse.IOnMessageEvent>lEvent).data)
         let logEvent = <ILogEvent>data
 
         let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
-	// The colours should probbaly be done with CSS,
-	// leaving it here so that someone who cares more
-	// than me can play with them easier
+      	// The colours should probbaly be done with CSS,
+      	// leaving it here so that someone who cares more
+      	// than me can play with them easier
       	switch (logEvent.logType) {
       	    case 0:
             		gameLog.innerHTML = "A new game has started, good luck!\n"
@@ -78,8 +78,7 @@ $(function() {
                 break
             case 3:
                 gameLog.innerHTML = gameLog.innerHTML
-                + "<span style='color:#F6A27F'>"
-                + "Oh no, creature "
+                + "<span style='color:#F6A27F'> Oh no, "
                 + logEvent.protagName + " hit a spike!\n"
                 +  "</span>"
       	}

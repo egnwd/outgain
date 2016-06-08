@@ -18,17 +18,17 @@ func LobbiesView(staticDir string) http.Handler {
 	})
 }
 
-// LobbiesPeek peeks at the lobby IDs in use and returns them as a JSON
+// LobbiesPeek returns all the lobbies serialized as JSON
 func LobbiesPeek(w http.ResponseWriter, r *http.Request) {
-	// Get IDs of all current lobbies, convert to JSON and return it
-	IDs := lobby.GetLobbyIDs()
-	js, err := json.Marshal(IDs)
+	data := lobby.Serialize()
+	log.Printf("%v", data)
+	bs, err := json.Marshal(data)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	w.Write(bs)
 }
 
 // LobbiesGetUsers gets all the user names from the lobby specified at the end
@@ -96,9 +96,10 @@ func LobbiesJoin(w http.ResponseWriter, r *http.Request) {
 
 func LobbiesCreate(config *config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		l := lobby.NewLobby(config)
+		name := r.PostFormValue("name")
+		l := lobby.NewLobby(name, config)
 
-		log.Printf("Created Lobby: %d", l.ID)
+		log.Printf("Created Lobby: %s", l.Name)
 		http.Redirect(w, r, "/lobbies", http.StatusFound)
 	})
 }

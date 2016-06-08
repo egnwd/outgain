@@ -1,4 +1,4 @@
-.sweet-alert {
+body.login .sweet-alert {
 
   h2 {
     margin-bottom: 0 !important;
@@ -33,7 +33,15 @@
 
 }
 
-.sweet-overlay {
+.sweet-alert .sa-error-container {
+  background-color: white;
+}
+
+.sweet-alert .sa-input-error {
+  top: 22px !important;
+}
+
+body.login .sweet-overlay {
   background: url(../images/outgain_login_cover.png) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
