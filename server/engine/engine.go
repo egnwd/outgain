@@ -186,31 +186,28 @@ func (engine *Engine) CreateEntity(builder builderFunc) Entity {
 // addLogEvent adds to  logEvents which are eventually added to the gameLog
 // Where is the best place to document the number -> eventType mappings?
 func (engine *Engine) addLogEvent(a, b Entity) {
-	var logEvent protocol.LogEvent
+	var (
+		logEvent protocol.LogEvent
+		logType  int
+	)
 	switch b.(type) {
 	case nil:
 		return
 	case *Resource:
-		logEvent = protocol.LogEvent{
-			LogType:    1,
-			ProtagName: a.GetName(),
-			AntagName:  b.GetName(),
-			Gains:      a.GetGains(),
-		}
+		logType = 1
+		break
 	case *Creature:
-		logEvent = protocol.LogEvent{
-			LogType:    2,
-			ProtagName: a.GetName(),
-			AntagName:  b.GetName(),
-			Gains:      a.GetGains(),
-		}
+		logType = 2
+		break
 	case *Spike:
-		logEvent = protocol.LogEvent{
-			LogType:    3,
-			ProtagName: a.GetName(),
-			AntagName:  b.GetName(),
-			Gains:      a.GetGains(),
-		}
+		logType = 3
+	}
+
+	logEvent = protocol.LogEvent{
+		LogType:    logType,
+		ProtagName: a.GetName(),
+		AntagName:  b.GetName(),
+		Gains:      a.GetGains(),
 	}
 
 	engine.eventsOut <- protocol.Event{
