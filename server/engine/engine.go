@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/egnwd/outgain/server/database"
 	"github.com/egnwd/outgain/server/protocol"
 )
 
@@ -65,6 +66,7 @@ func NewEngine() (engine *Engine) {
 
 // restartEngine puts the engine back to it's original state
 func (engine *Engine) restartEngine() {
+	engine.updateLeaderboard()
 	for _, entity := range engine.entities {
 		entity.Close()
 	}
@@ -74,6 +76,32 @@ func (engine *Engine) restartEngine() {
 
 	log.Println("Restarting Engine")
 	engine.restart = true
+}
+
+func (engine *Engine) updateLeaderboard() {
+	//users := engine.entities.Filter(func(entity Entity) bool {
+	//	creature, isCreature := entity.(*Creature)
+	//	if isCreature {
+	//		return creature.Guest.Type == guest.UserType
+	//	}
+	//	return false
+	//})
+	//users.SortScore()
+	//for _, user := range users {
+	//	fmt.Println(user.GetGains())
+	//}
+	engine.entities.SortScore()
+	for _, entity := range engine.entities {
+		var minVal = database.GetMinScore()
+		if gains := entity.GetGains(); gains > minVal {
+			if entity.IsUser() { // Bots can't set high scores
+				database.UpdateLeaderboard(entity.GetName(), gains)
+			}
+		} else {
+			break // The list is sorted, no need to check the rest
+		}
+	}
+
 }
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
@@ -156,33 +184,29 @@ func (engine *Engine) CreateEntity(builder builderFunc) Entity {
 }
 
 // addLogEvent adds to  logEvents which are eventually added to the gameLog
-// Where is the best place to document the number -> eventType mappings?
 func (engine *Engine) addLogEvent(a, b Entity) {
-	var logEvent protocol.LogEvent
+	var (
+		logEvent protocol.LogEvent
+		logType  int
+	)
 	switch b.(type) {
 	case nil:
 		return
 	case *Resource:
-		logEvent = protocol.LogEvent{
-			LogType:    1,
-			ProtagName: a.GetName(),
-			AntagName:  b.GetName(),
-			Gains:      a.GetGains(),
-		}
+		logType = 1
+		break
 	case *Creature:
-		logEvent = protocol.LogEvent{
-			LogType:    2,
-			ProtagName: a.GetName(),
-			AntagName:  b.GetName(),
-			Gains:      a.GetGains(),
-		}
+		logType = 2
+		break
 	case *Spike:
-		logEvent = protocol.LogEvent{
-			LogType:    3,
-			ProtagName: a.GetName(),
-			AntagName:  b.GetName(),
-			Gains:      a.GetGains(),
-		}
+		logType = 3
+	}
+
+	logEvent = protocol.LogEvent{
+		LogType:    logType,
+		ProtagName: a.GetName(),
+		AntagName:  b.GetName(),
+		Gains:      a.GetGains(),
 	}
 
 	engine.eventsOut <- protocol.Event{

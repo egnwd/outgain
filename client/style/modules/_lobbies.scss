@@ -5,7 +5,8 @@
   justify-content: space-between;
 }
 
-#lobbies-container {
+#lobbies-container,
+#leaderboard-container {
   width: 1048px;
   margin: 0 auto;
 
@@ -16,6 +17,21 @@
     table {
       margin-left: 0;
       margin-right: 0;
+    }
+  }
+}
+
+#leaderboard-container {
+  table {
+    width: 640px;
+    tbody > tr:nth-child(1) {
+      background-color: #F1DA3C;
+    }
+    tbody > tr:nth-child(2) {
+      background-color: #D1E4E2;
+    }
+    tbody > tr:nth-child(3) {
+      background-color: #C39F59;
     }
   }
 }
