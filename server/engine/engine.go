@@ -94,7 +94,11 @@ func (engine *Engine) updateLeaderboard() {
 	for _, entity := range engine.entities {
 		var minVal = database.GetMinScore()
 		if gains := entity.GetGains(); gains > minVal {
-			database.UpdateLeaderboard(entity.GetName(), gains)
+			if entity.IsUser() { // Bots can't set high scores
+				database.UpdateLeaderboard(entity.GetName(), gains)
+			}
+		} else {
+			break // The list is sorted, no need to check the rest
 		}
 	}
 
