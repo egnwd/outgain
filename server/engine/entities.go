@@ -29,6 +29,7 @@ type Entity interface {
 	GetName() string
 	GetGains() int
 	Close()
+	IsUser() bool
 }
 
 type EntityBase struct {
@@ -211,6 +212,13 @@ func (resource *Resource) BonusFactor() float64 {
 	return resourceBonusFactor
 }
 
+func (resource *Resource) IsUser() bool {
+	return false
+}
+
+func (resource *Resource) Close() {
+}
+
 type Spike struct {
 	EntityBase
 }
@@ -267,5 +275,6 @@ func (spike *Spike) GetName() string {
 	return "spike"
 }
 
-func (resource *Resource) Close() {
+func (spike *Spike) IsUser() bool {
+	return false
 }
