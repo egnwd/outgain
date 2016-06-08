@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	//cuz JC sed 2 do it
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +23,6 @@ func OpenTestDb() error {
 	}
 	url += " sslmode=require"
 	testInstance, err = sql.Open("postgres", url)
-	nilCheck(err)
 	if err != nil {
 		return err
 	}
