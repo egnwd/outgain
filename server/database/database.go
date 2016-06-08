@@ -5,6 +5,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/lib/pq"
 
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -12,13 +13,18 @@ import (
 
 var instance *sql.DB
 
+type Leaderboard struct {
+	Usernames []string
+	Scores    []int
+}
+
 func OpenDb() error {
 	url := os.Getenv("DATABASE_URL")
 	url, err := pq.ParseURL(url)
-	nilCheck(err)
+	NilCheck(err)
 	url += " sslmode=require"
 	instance, err = sql.Open("postgres", url)
-	nilCheck(err)
+	NilCheck(err)
 	return nil
 }
 
@@ -41,17 +47,43 @@ func UpdateLeaderboard(username string, score int) {
 func GetMinScore() int {
 	// TODO: Query error checking
 	rows, err := instance.Query("SELECT MIN(score) FROM leaderboard")
-	nilCheck(err)
+	NilCheck(err)
 	defer rows.Close()
 	rows.Next()
 	var score int
 	err = rows.Scan(&score)
-	nilCheck(err)
+	NilCheck(err)
 	return score
 }
 
-func nilCheck(err error) {
+func NilCheck(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func GetAllRows() *Leaderboard {
+	usernames := make([]string, 10)
+	scores := make([]int, 10)
+	rows, err := instance.Query("SELECT * FROM leaderboard")
+	NilCheck(err)
+	defer rows.Close()
+	i := 0
+	var (
+		username string
+		score    int
+	)
+	for rows.Next() && i < 10 {
+		err = rows.Scan(&username, &score)
+		NilCheck(err)
+		usernames[i] = username
+		scores[i] = score
+		i += 1
+	}
+	leaderboard := Leaderboard{
+		Usernames: usernames,
+		Scores:    scores,
+	}
+	fmt.Println(leaderboard)
+	return &leaderboard
 }
