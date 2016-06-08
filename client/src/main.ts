@@ -64,24 +64,24 @@ $(function() {
       	    case 0:
             		gameLog.innerHTML = "A new game has started, good luck!\n"
       	        break
-      	    case 1:
-      	        gameLog.innerHTML = gameLog.innerHTML
-            		+ "<span style='color:#85b735'>" // Matches --success:hover
-            		+ "Yum, "+ logEvent.protagName
-            		+ " ate a resource\n" + "</span>"
-            		break
-      	    case 2:
-            		gameLog.innerHTML = gameLog.innerHTML
-            		+ "<span style='color:#4022FF'>"
-            		+ logEvent.protagName + " ate " + logEvent.antagName
-            		+ "\n" + "</span>"
-            		break
+            case 1:
+                gameLog.innerHTML = gameLog.innerHTML
+                + "<span style='color:#9FC155'>"
+                + "Yum, "+ logEvent.protagName
+                + " ate a resource\n" + "</span>"
+                break
+            case 2:
+                gameLog.innerHTML = gameLog.innerHTML
+                + "<span style='color:#AAE2E8'>"
+                + logEvent.protagName + " ate " + logEvent.antagName
+                + "\n" + "</span>"
+                break
             case 3:
-      	        gameLog.innerHTML = gameLog.innerHTML
-      	        + "<span style='color:#d0131C'>" // Matches --fail:hover
-            		+ "Oh no, creature "
-            		+ logEvent.protagName + " hit a spike!\n"
-            		+  "</span>"
+                gameLog.innerHTML = gameLog.innerHTML
+                + "<span style='color:#F6A27F'>"
+                + "Oh no, creature "
+                + logEvent.protagName + " hit a spike!\n"
+                +  "</span>"
       	}
 
         if (userPanel.username == logEvent.protagName) {
