@@ -32,6 +32,7 @@ func GetHandler(config *config.Config) http.Handler {
 
 	// Leaderboard
 	get.Handle("/peekLeaderboard", c.RequireAuth(http.HandlerFunc(c.LeaderboardPeek)))
+	get.Handle("/leaderboard", c.RequireAuth(c.Leaderboard(config.StaticDir)))
 
 	// Lobbies
 	get.Handle("/lobbies", c.RequireAuth(c.LobbiesView(config.StaticDir)))

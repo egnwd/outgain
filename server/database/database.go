@@ -65,7 +65,7 @@ func NilCheck(err error) {
 func GetAllRows() *Leaderboard {
 	usernames := make([]string, 10)
 	scores := make([]int, 10)
-	rows, err := instance.Query("SELECT * FROM leaderboard")
+	rows, err := instance.Query("SELECT * FROM leaderboard ORDER BY score desc")
 	NilCheck(err)
 	defer rows.Close()
 	i := 0
