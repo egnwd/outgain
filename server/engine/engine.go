@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"math/rand"
@@ -121,7 +120,6 @@ func (engine *Engine) Run(entities EntityList) {
 	engine.clearGameLog()
 	engine.lastTick = time.Now()
 	regenerateResourceInterval()
-	// engine.lastResourceSpawn = time.Now()
 
 GameLoop:
 	for {
@@ -186,7 +184,6 @@ func (engine *Engine) CreateEntity(builder builderFunc) Entity {
 }
 
 // addLogEvent adds to  logEvents which are eventually added to the gameLog
-// Where is the best place to document the number -> eventType mappings?
 func (engine *Engine) addLogEvent(a, b Entity) {
 	var (
 		logEvent protocol.LogEvent
@@ -258,24 +255,29 @@ func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
 
 	eaterVolume := eater.Base().nextRadius * eater.Base().nextRadius
 	eatenVolume := eaten.Base().nextRadius * eaten.Base().nextRadius
+
+	var amount float64
+
 	if eatenIsSpike {
-		if eater.Base().nextRadius <= defaultRadius {
+		amount = math.Exp(-1/drainRate*dt) * eaterVolume
+		nextCreatureVolume := eaterVolume + amount*eaten.BonusFactor()
+		if nextCreatureVolume < 0 {
 			eater.Base().dying = true
+		} else {
+			eater.Base().nextRadius = math.Sqrt(nextCreatureVolume)
 		}
-		eater.Base().nextRadius = math.Sqrt(eaterVolume / 2)
 		eaten.Base().dying = true
+		eater.(*Creature).decrementScore()
 	} else {
-
-		amount := math.Exp(-1/drainRate*dt) * eatenVolume
-
+		amount = math.Exp(-1/drainRate*dt) * eatenVolume
 		eater.Base().nextRadius = math.Sqrt(eaterVolume + amount*eaten.BonusFactor())
 		eaten.Base().nextRadius = math.Sqrt(eatenVolume - amount)
-
 		if eaten.Base().nextRadius < radiusThreshold {
 			eater.(*Creature).incrementScore(eaten)
 			eaten.Base().dying = true
 		}
 	}
+
 	engine.addLogEvent(eater, eaten)
 }
 
@@ -285,14 +287,7 @@ func (engine *Engine) collisionDetection(dt float64) {
 		entity.Base().nextRadius = entity.Base().Radius
 	}
 
-	// We currently run both the slow and fast collision algorithms, and
-	// compare their outputs to find collision missed by the fast one due
-	// to bugs. Once we're confident enough with the results of the fast
-	// one we can switch fully to this one.
-	collisions := []Collision{}
 	for collision := range engine.entities.Collisions() {
-		collisions = append(collisions, collision)
-
 		a, b := collision.A, collision.B
 		diff := a.Base().Radius - b.Base().Radius
 
@@ -313,38 +308,9 @@ func (engine *Engine) collisionDetection(dt float64) {
 		}
 	}
 
-	for collision := range engine.entities.SlowCollisions() {
-		found := false
-		for _, c := range collisions {
-			if (c.A == collision.A && c.B == collision.B) ||
-				(c.A == collision.B && c.B == collision.A) {
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			message := fmt.Sprintf("WARN Collision false negative: (%d %d),",
-				collision.A.Base().ID, collision.B.Base().ID)
-
-			for _, e := range engine.entities {
-				message += fmt.Sprintf(" dummyEntity(%d, %.2f, %.2f, %.2f),",
-					e.Base().ID, e.Base().X, e.Base().Y, e.Base().Radius)
-			}
-
-			log.Println(message)
-		}
-	}
-
 	engine.entities = engine.entities.Filter(func(entity Entity) bool {
 		return !entity.Base().dying
 	})
-
-	for _, entity := range engine.entities {
-		if entity.Base().dying {
-			fmt.Println("Paul is a bad programmer")
-		}
-	}
 
 	creatureCount := 0
 	for _, entity := range engine.entities {

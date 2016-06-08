@@ -27,6 +27,10 @@ func (creature *Creature) incrementScore(eaten Entity) {
 	creature.Guest.AddGains(1)
 }
 
+func (creature *Creature) decrementScore() {
+	creature.Guest.LoseGains(1)
+}
+
 func NewCreature(guest *guest.Guest, config *config.Config) func(id uint64) Entity {
 	return func(id uint64) Entity {
 		x := rand.Float64() * gridSize
@@ -114,6 +118,7 @@ func (creature *Creature) BonusFactor() float64 {
 
 func (creature *Creature) Close() {
 	creature.runner.Close()
+	creature.Guest.ResetGains()
 }
 
 func (creature *Creature) IsUser() bool {

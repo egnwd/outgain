@@ -243,7 +243,7 @@ func (spike *Spike) Tick(state protocol.WorldState, dt float64) {
 }
 
 func (spike *Spike) Serialize() protocol.Entity {
-	return protocol.Entity{
+	entity := protocol.Entity{
 		ID:         spike.ID,
 		Name:       nil,
 		Sprite:     nil,
@@ -253,6 +253,7 @@ func (spike *Spike) Serialize() protocol.Entity {
 		Radius:     spike.Radius,
 		EntityType: spikeEnum,
 	}
+	return entity
 }
 
 func (spike *Spike) Volume() float64 {
@@ -263,7 +264,7 @@ func (spike *Spike) Close() {
 }
 
 func (spike *Spike) BonusFactor() float64 {
-	return -1
+	return -0.5
 }
 
 func (spike *Spike) GetGains() int {

@@ -44,8 +44,16 @@ func (g *Guest) AddGains(amount int) {
 	g.gains += amount
 }
 
+func (g *Guest) LoseGains(amount int) {
+	g.gains -= amount
+}
+
 func (g *Guest) GetGains() int {
 	return g.gains
+}
+
+func (g *Guest) ResetGains() {
+	g.gains = 0
 }
 
 func (guests List) Iterator() []*Guest {
