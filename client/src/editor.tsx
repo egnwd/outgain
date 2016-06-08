@@ -58,7 +58,6 @@ export default class Editor {
 
         for (let gist of gists) {
           let file = gist.files[Object.keys(gist.files)[0]];
-        console.log(gist);
 
           if (file.language != "Ruby") {
             continue;
@@ -71,7 +70,7 @@ export default class Editor {
           let name = gist.description || file.filename;
           let updated = moment(gist.updated_at).fromNow();
           let el =
-            <div class="gist-entry">
+            <div class="gist-entry" onClick={() => this.loadGist(contents)}>
               <div class="gist-info">
                 <span class="gist-name">{name}</span>
                 <span class="gist-date">Updated {updated}</span>
@@ -80,7 +79,6 @@ export default class Editor {
             </div>;
 
           items.push(el);
-          items.push(<hr/>)
         }
 
         let list = document.getElementById('gist-list')
@@ -88,6 +86,11 @@ export default class Editor {
         for (let item of items) {
           list.appendChild(item)
         }
+    }
+
+    private loadGist(contents) {
+      this.editor.setValue(contents)
+      $('#gist-pane').removeClass('showPane')
     }
 
     public open() {
