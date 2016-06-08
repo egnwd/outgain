@@ -52,40 +52,44 @@ export default class Editor {
         this.updateGists();
     }
 
-    private async updateGists() {
-        let gists = await this.gh.getGists();
-        let items = [];
+    private gistElement(gist) {
+      let file = gist.files[Object.keys(gist.files)[0]];
 
-        for (let gist of gists) {
-          let file = gist.files[Object.keys(gist.files)[0]];
+      if (file.language != "Ruby") {
+        return null;
+      }
 
-          if (file.language != "Ruby") {
-            continue;
-          }
+      return $.ajax({ url: file.raw_url }).then((contents) => {
+        let code = <pre class="cm-s-default gist-snippet" />;
+        CodeMirror.runMode(contents, "ruby", code);
 
-          let contents = await $.ajax({ url: file.raw_url });
-          let code = <pre class="cm-s-default gist-snippet" />;
-          CodeMirror.runMode(contents, "ruby", code);
-
-          let name = gist.description || file.filename;
-          let updated = moment(gist.updated_at).fromNow();
-          let el =
-            <div class="gist-entry" onClick={() => this.loadGist(contents)}>
-              <div class="gist-info">
-                <span class="gist-name">{name}</span>
-                <span class="gist-date">Updated {updated}</span>
-              </div>
-              {code}
+        let name = gist.description || file.filename;
+        let updated = moment(gist.updated_at).fromNow();
+        let el =
+          <div class="gist-entry" onClick={() => this.loadGist(contents)}>
+            <div class="gist-info">
+              <span class="gist-name">{name}</span>
+              <span class="gist-date">Updated {updated}</span>
+            </div>
+            {code}
             </div>;
+            return el;
+      })
+    }
 
-          items.push(el);
-        }
-
-        let list = document.getElementById('gist-list')
-        while (list.firstChild) list.removeChild(list.firstChild);
-        for (let item of items) {
-          list.appendChild(item)
-        }
+    private updateGists() {
+        this.gh.getGists().then((gists) => {
+          let elements = gists.map((gist) => this.gistElement(gist));
+          return $.when(...elements);
+        }).then((...items) => {
+            let list = document.getElementById('gist-list')
+            while (list.firstChild) list.removeChild(list.firstChild);
+            items.forEach((item) => {
+              if (item !== null) {
+                list.appendChild(item as any)
+              }
+            })
+        })
     }
 
     private loadGist(contents) {
