@@ -46,7 +46,8 @@ func NewCreature(guest *guest.Guest, config *config.Config) func(id uint64) Enti
 				Y:      y,
 				Radius: defaultRadius,
 			},
-			Guest:  guest,
+			Guest: guest,
+
 			Sprite: "/images/creature-" + strings.TrimPrefix(color, "#") + ".svg",
 			runner: client,
 		}
@@ -113,5 +114,8 @@ func (creature *Creature) BonusFactor() float64 {
 
 func (creature *Creature) Close() {
 	creature.runner.Close()
-	creature.Guest.ResetScore()
+}
+
+func (creature *Creature) IsUser() bool {
+	return creature.Guest.IsUser()
 }

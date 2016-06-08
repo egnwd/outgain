@@ -55,3 +55,7 @@ func (guests List) Iterator() []*Guest {
 func (g *Guest) ResetScore() {
 	g.gains = 0
 }
+
+func (g *Guest) IsUser() bool {
+	return g.Type == UserType
+}
