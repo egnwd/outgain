@@ -33,8 +33,7 @@ function getLobbyId() {
 
 $(function() {
     var userPanel = new UserPanel("#user-id")
-    let timer = new Timer(1500, "#elapsed")
-    userPanel.setUserID()
+    let timer = new Timer(15000, "#elapsed")
 
     let idField = document.getElementById("id-field")
     let gameLog = document.getElementById("game-log")

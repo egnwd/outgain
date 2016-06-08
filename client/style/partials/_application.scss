@@ -125,10 +125,14 @@ code {
     border: 1px solid gray;
     @include border-radius(5px);
     overflow: hidden;
+
+    -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.4);
+    -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.4);
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.4);
   }
 
   #elapsed {
-    background-color: yellowgreen;
+    background-color: tomato;
     height: 100%;
     width: 0%;
   }

@@ -264,7 +264,7 @@ func (engine *Engine) tick() {
 	}
 
 	if creatureCount <= 1 {
-		engine.restartEngine()
+		engine.restart()
 	}
 }
 
