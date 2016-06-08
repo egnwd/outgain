@@ -27,7 +27,8 @@ func GetHandler(config *config.Config) http.Handler {
 	get.HandleFunc("/login", c.UserLogIn)
 	get.Handle("/logout", c.RequireAuth(http.HandlerFunc(c.Logout)))
 	get.HandleFunc("/oauthSignInCallback", c.OAuthSignInCallback)
-	get.HandleFunc("/currentUser", c.CurrentUser)
+	get.Handle("/currentUser", c.RequireAuth(http.HandlerFunc(c.CurrentUser)))
+	get.Handle("/token", c.RequireAuth(http.HandlerFunc(c.UserToken)))
 
 	// Lobbies
 	get.Handle("/lobbies", c.RequireAuth(c.LobbiesView(config.StaticDir)))

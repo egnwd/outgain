@@ -10,12 +10,13 @@
     "debuglog": "~1.0.1",
     "gulp": "^3.9.1",
     "gulp-sass": "^2.3.1",
-    "gulp-typescript": "~2.13.4",
     "gulp-typings": "^2.0.0",
+    "gulp-util": "^3.0.7",
     "jquery": "^2.2.4",
-    "sass-module-importer": "^1.2.1",
+    "moment": "^2.13.0",
     "sweetalert": "^1.1.3",
     "tsify": "^0.16.0",
-    "vinyl-source-stream": "^1.1.0"
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.7.0"
   }
 }

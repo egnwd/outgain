@@ -36,6 +36,7 @@ func GetOAuthURL(state string) string {
 	values.Add("client_id", c.ClientID)
 	values.Add("redirect_uri", c.RedirectURI)
 	values.Add("state", state)
+	values.Add("scope", "gist")
 
 	u, _ := url.ParseRequestURI(github.Endpoint.AuthURL)
 	u.RawQuery = values.Encode()
