@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"math/rand"
@@ -31,6 +32,7 @@ type Engine struct {
 	eventsOut         chan<- protocol.Event
 	tickInterval      time.Duration
 	entities          EntityList
+	users             EntityList
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextID            <-chan uint64
@@ -58,6 +60,7 @@ func NewEngine() (engine *Engine) {
 		lastTick:          time.Now(),
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
+		users:             EntityList{},
 		nextID:            idChannel,
 	}
 
@@ -72,6 +75,7 @@ func (engine *Engine) restartEngine() {
 	}
 
 	engine.entities = EntityList{}
+	engine.users = EntityList{}
 	engine.clearGameLog()
 
 	log.Println("Restarting Engine")
@@ -79,7 +83,15 @@ func (engine *Engine) restartEngine() {
 }
 
 func (engine *Engine) updateLeaderboard() {
-	engine.entities.SortScore()
+	for _, entity := range engine.users {
+		fmt.Println(entity.GetGains())
+	}
+	engine.users = engine.users.SortScore()
+
+	for _, entity := range engine.users {
+		fmt.Println(entity.GetGains())
+	}
+
 	for _, entity := range engine.entities {
 		var minVal = database.GetMinScore()
 		if gains := entity.GetGains(); gains > minVal {
@@ -106,6 +118,11 @@ func (engine *Engine) clearGameLog() {
 func (engine *Engine) Run(entities EntityList) {
 	log.Println("Running Engine")
 	engine.entities = entities
+	for _, entity := range entities {
+		if entity.IsUser() {
+			engine.users = append(engine.users, entity)
+		}
+	}
 	engine.clearGameLog()
 	engine.lastTick = time.Now()
 	regenerateResourceInterval()
@@ -326,7 +343,7 @@ func (engine *Engine) collisionDetection(dt float64) {
 
 	// Changing the radius of entities changes their left coordinate,
 	// so sort the list again to maintain the invariant
-	engine.entities.SortLeft()
+	engine.entities = engine.entities.SortLeft()
 
 	if creatureCount <= 1 {
 		engine.restartEngine()

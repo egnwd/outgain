@@ -80,34 +80,6 @@ func (list EntityList) Less(i, j int) bool {
 	return list[i].Base().Left() < list[j].Base().Left()
 }
 
-func (list EntityList) GreaterScore(i, j int) bool {
-
-	// Commented out is more efficient as avoids array swaps between non-users
-	// efficiency vs readability?
-
-	//creatureI, isCreaturei := list[i].(*Creature)
-	//creatureJ, isCreaturej := list[j].(*Creature)
-
-	//if !isCreaturei {
-	//	return false
-	//} else if !isCreaturej {
-	//	return true
-	//} else if creatureJ.Guest.Type != guest.UserType {
-	//	return true
-	//} else {
-	//	return creatureI.Guest.Type == guest.UserType &&
-	//		creatureI.GetGains() > creatureJ.GetGains()
-	//}
-	//return false
-
-	if list[i].IsUser() {
-		return !list[j].IsUser() ||
-			list[i].GetGains() > list[j].GetGains()
-	}
-	return false
-	//return list[i].GetGains() > list[j].GetGains()
-}
-
 func (list EntityList) Swap(i, j int) {
 	list[i], list[j] = list[j], list[i]
 }
@@ -152,14 +124,6 @@ func (list EntityList) Insert(entity Entity) EntityList {
 	return result
 }
 
-//func (list EntityList) Sort() {
-//	for i := 1; i < list.Len(); i++ {
-//		for j := i; j > 0 && list.Less(j, j-1); j-- {
-//			list.Swap(j-1, j)
-//		}
-//	}
-//}
-
 func (list EntityList) Sort(order func(a, b int) bool) EntityList {
 	for i := 1; i < list.Len(); i++ {
 		for j := i; j > 0 && order(j, j-1); j-- {
@@ -169,13 +133,14 @@ func (list EntityList) Sort(order func(a, b int) bool) EntityList {
 	return list
 }
 
-func (list EntityList) SortLeft() {
+func (list EntityList) SortLeft() EntityList {
 	list.Sort(func(i, j int) bool {
 		return list[i].Base().Left() < list[j].Base().Left()
 	})
+	return list
 }
 
-func (list EntityList) SortScore() {
+func (list EntityList) SortScore() EntityList {
 	list.Sort(func(i, j int) bool {
 		if list[i].IsUser() {
 			return !list[j].IsUser() ||
@@ -183,6 +148,7 @@ func (list EntityList) SortScore() {
 		}
 		return false
 	})
+	return list
 }
 
 type Resource struct {
