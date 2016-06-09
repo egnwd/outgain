@@ -68,7 +68,7 @@ $(function() {
             case 1:
                 gameLog.innerHTML = gameLog.innerHTML
                 + "<span style='color:#9FC155'>"
-                + "Yum, "+ logEvent.protagName
+                + "Yum, " + logEvent.protagName
                 + " ate a resource\n" + "</span>"
                 break
             case 2:
@@ -79,8 +79,8 @@ $(function() {
                 break
             case 3:
                 gameLog.innerHTML = gameLog.innerHTML
-                + "<span style='color:#F6A27F'> Oh no, "
-                + logEvent.protagName + " hit a spike!\n"
+                + "<span style='color:#F6A27F'>"
+                + "Oh no, " + logEvent.protagName + " hit a spike!\n"
                 +  "</span>"
       	}
 

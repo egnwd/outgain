@@ -9,7 +9,10 @@ export default class Github {
     this.base = base || 'https://api.github.com';
   }
 
-  private request(method: string, path: string) {
+  private request(method: string, path: string, data?: any) {
+    if (data !== null) {
+      data = JSON.stringify(data)
+    }
     return $.ajax({
       method: method,
       url: this.base + path,
@@ -18,10 +21,19 @@ export default class Github {
         Authorization: "token " + this.token,
       },
       dataType: 'json',
+      data: data,
     })
   }
 
   public getGists() {
     return this.request("GET", "/gists");
+  }
+
+  public createGist(gist) {
+    return this.request("POST", "/gists", gist);
+  }
+
+  public updateGist(id, gist) {
+    return this.request("PATCH", "/gists/" + id, gist);
   }
 }
