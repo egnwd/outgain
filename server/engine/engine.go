@@ -99,6 +99,8 @@ func (engine *Engine) updateLeaderboard() {
 			break // The list is sorted, no need to check the rest
 		}
 	}
+}
+
 func (engine *Engine) Kill() {
 	engine.restart()
 }

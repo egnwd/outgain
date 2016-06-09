@@ -32,7 +32,7 @@ function getLobbyId() {
 }
 
 $(function() {
-    var userPanel = new UserPanel("#user-id", "user-gains-text")
+    var userPanel = new UserPanel("#user-id", "#user-gains-text")
     let timer = new Timer(15000, "#elapsed")
 
     let idField = document.getElementById("id-field")
