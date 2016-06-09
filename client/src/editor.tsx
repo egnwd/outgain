@@ -23,6 +23,7 @@ export default class Editor {
         let pane = document.getElementById('editor-pane')
         this.editor = CodeMirror(pane, {
             lineNumbers: true,
+            lineWrapping: true,
             mode: 'ruby',
         })
 
@@ -81,11 +82,12 @@ export default class Editor {
       }
 
       return $.ajax({ url: file.raw_url }).then((contents) => {
-        let code = <pre class="cm-s-default gist-snippet" />;
-        CodeMirror.runMode(contents, "ruby", code);
-
         let name = gist.description || file.filename;
         let updated = moment(gist.updated_at).fromNow();
+
+        let code = <pre class="cm-s-default"/>;
+        CodeMirror.runMode(contents, "ruby", code);
+
         let el =
           <div class="gist-entry"
                onClick={() => {
@@ -98,8 +100,10 @@ export default class Editor {
               <span class="gist-name">{name}</span>
               <span class="gist-date">Updated {updated}</span>
             </div>
-            {code}
-
+            <div class="gist-snippet">
+              {code}
+              <span class="gist-tooltip">Load</span>
+            </div>
           </div>;
           return el;
       })
