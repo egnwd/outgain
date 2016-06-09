@@ -49,21 +49,6 @@ function scripts(watch) {
     ];
 }
 
-gulp.task('leaderboard', ['typings'], function () {
-    return browserify()
-        .add(__dirname + '/typings/index.d.ts')
-        .add(__dirname + '/src/leaderboard.ts')
-        .plugin(tsify)
-        .bundle()
-        .on('error', logError)
-        .pipe(source('leaderboard.bundle.js'))
-        .pipe(gulp.dest(targetDir + '/js'));
-});
-
-var logError = function logError(error) {
-  process.stderr.write(error + '\n');
-};
-
 gulp.task('typings', function(){
     return gulp.src('./typings.json')
         .pipe(typings());
@@ -89,13 +74,9 @@ gulp.task('images', function () {
         .pipe(gulp.dest(targetDir + '/images'));
 });
 
-gulp.task('all', ['scripts', 'popup', 'lobbies', 'styles', 'html', 'images', 'leaderboard']);
+gulp.task('all', ['scripts', 'styles', 'html', 'images']);
 
-gulp.task('watch', ['scripts', 'popup', 'lobbies', 'styles', 'html', 'images', 'leaderboard'], function() {
-    gulp.watch('./src/**/*.ts', ['popup']);
-    gulp.watch('./src/**/lobbies.ts', ['lobbies']);
-    gulp.watch('./src/**/leaderboard.ts',['leaderboard'])
-    gulp.watch('./src/**/*.ts', ['scripts']);
+gulp.task('watch', ['typings', 'styles', 'html', 'images'], function() {
     gulp.watch('./style/**/*.scss', ['styles']);
     gulp.watch('./html/**/*.html', ['html']);
     gulp.watch('./images/**/*.scss', ['images']);
