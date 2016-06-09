@@ -1,0 +1,41 @@
+\documentclass[a4paper]{article}
+\usepackage[margin=50pt]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{titling}
+\usepackage{graphicx}
+\usepackage{pdfpages}
+\pagestyle{empty}
+\title{System Architecture}
+\author{Web Apps Group 08 \\ Elliot Greenwood, Paul Li\'etar, Michael Radigan \& Jamie Lane}
+\date{}
+\setlength{\droptitle}{-5em}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+Our system is comprised of three main components.
+
+\subsubsection*{Client}
+The client runs in each user's browser. It is responsible for rendering the game and collecting user interactions.
+It communicates with the server over HTTP.
+
+\subsubsection*{Server}
+The server is the central part of the application. It accepts requests from clients and sends them updates.
+It internally runs one engine per lobby, which simulates the interactions between players.
+On every simulation tick, the server asks each AI to make a move, applies them, and detects collisions between entities.
+
+\subsubsection*{AI Runner}
+The server has to run untrusted user code, which has serious security implications.
+As a protection, each AI runs in it's own ruby interpreter, in a seperate process, inside a seccomp based sandbox.
+It communicates with the engine over a Unix socket pair.
+The sandbox limits the system calls the process is allowed to make to the strictly necessary.
+Any network or filesystem access is prohibited.
+
+\section*{Diagram}
+\begin{figure}[h]
+\centering
+\includegraphics{diagram.pdf}
+\end{figure}
+
+\end{document}
