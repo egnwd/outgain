@@ -284,6 +284,7 @@ func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
 		nextCreatureVolume := eaterVolume + amount*eaten.BonusFactor()
 		if nextCreatureVolume < 0 {
 			eater.Base().dying = true
+			engine.addLogEvent(eater, eaten)
 		} else {
 			eater.Base().nextRadius = math.Sqrt(nextCreatureVolume)
 		}
@@ -296,10 +297,10 @@ func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
 		if eaten.Base().nextRadius < radiusThreshold {
 			eater.(*Creature).incrementScore(eaten)
 			eaten.Base().dying = true
+			engine.addLogEvent(eater, eaten)
 		}
 	}
 
-	engine.addLogEvent(eater, eaten)
 }
 
 func (engine *Engine) collisionDetection(dt float64) {
