@@ -39,7 +39,7 @@ $(function() {
     let gameLog = document.getElementById("game-log")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
 
-    let renderer = new GameRenderer(canvas, userPanel.getUserID())
+    let renderer = new GameRenderer(canvas, userPanel.username)
 
     let lobbyId = getLobbyId()
     idField.setAttribute("value", lobbyId)

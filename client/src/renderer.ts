@@ -34,10 +34,22 @@ class Entity {
         this.current = state
     }
 
-    render(ctx: CanvasRenderingContext2D, scale: number, interpolation: number) {
+    render(ctx: CanvasRenderingContext2D, scale: number, interpolation: number, 
+            userX: number, userY:number, xSize: number, ySize: number) {
         let x = lerp(this.previous.x, this.current.x, interpolation)
         let y = lerp(this.previous.y, this.current.y, interpolation)
         let radius = lerp(this.previous.radius, this.current.radius, interpolation)
+
+        // Skip if outside bounds of user's view
+        // Use diameter rather than radius to render just outside view also
+        let d = 2 * radius
+        if (!  (x + d > userX - xSize / 2 && 
+                x - d < userX + xSize / 2 &&
+                y + d > userY - ySize / 2 && 
+                y - d < userY + ySize / 2)) {
+            return
+        }
+
         let color = this.current.color
         let name = this.current.name
         let entityType = this.current.entityType
@@ -93,7 +105,7 @@ function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
     }
     ctx.lineTo(cx, cy - outerRadius)
     ctx.closePath()
-    ctx.lineWidth=5
+    ctx.lineWidth=innerRadius
     ctx.strokeStyle='red'
     ctx.stroke()
     ctx.fillStyle='black'
@@ -156,7 +168,10 @@ export class GameRenderer {
             x = lerp(x, coords[0], interpolation)
             y = lerp(y, coords[1], interpolation)
         } else {
-            //TODO: player death, currently view stops at death coordinates
+            // On user death zoom out and display whole map
+            x = renderSize
+            y = renderSize
+            renderSize = gridSize
         }
         this.xprev = x
         this.yprev = y
@@ -174,9 +189,11 @@ export class GameRenderer {
 
         this.drawGrid(gridSize, gridSize, scale)
 
-        // TODO: Only render entities in view
         for (let id in this.entities) {
-            this.entities[id].render(this.ctx, scale, interpolation)
+            let xSize = width / scale
+            let ySize = height / scale
+            this.entities[id].render(this.ctx, scale, interpolation, x, y, 
+                xSize, ySize)
         }
 
         this.ctx.restore()
@@ -205,6 +222,7 @@ export class GameRenderer {
         this.currentTime = state.time
 
         let entities : { [key: number]: Entity } = {}
+        this.userEntity = null
 
         for (let entityState of state.entities) {
             let entity = this.entities[entityState.id]
