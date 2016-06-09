@@ -19,9 +19,7 @@ import (
 )
 
 const lobbySize int = 10
-
-// TODO: Change this to 15
-const maxRounds int = 3
+const maxRounds int = 15
 
 var lobbies = make(map[uint64]*Lobby)
 

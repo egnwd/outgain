@@ -3,8 +3,8 @@
 
 import { IWorldState, ILogEvent } from "./protocol";
 import { GameRenderer } from './renderer'
-import { UserPanel, Timer } from './gameUI'
-import { Editor } from './editor'
+import { UserPanel, Timer, GameLog } from './gameUI'
+import Editor from './editor'
 import * as $ from 'jquery'
 
 // Move to GameUI
@@ -36,7 +36,7 @@ $(function() {
     let timer = new Timer(15000, "#elapsed")
 
     let idField = document.getElementById("id-field")
-    let gameLog = document.getElementById("game-log")
+    let gameLog = new GameLog("game-log")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
     let roundName = document.getElementById("round-name")
 
@@ -74,41 +74,11 @@ $(function() {
 	      let data = JSON.parse((<sse.IOnMessageEvent>lEvent).data)
         let logEvent = <ILogEvent>data
 
-        let scrollUpdate = gameLog.scrollHeight - gameLog.clientHeight <= gameLog.scrollTop + 1
-      	// The colours should probbaly be done with CSS,
-      	// leaving it here so that someone who cares more
-      	// than me can play with them easier
-      	switch (logEvent.logType) {
-      	    case 0:
-            		gameLog.innerHTML = "A new game has started, good luck!\n"
-      	        break
-            case 1:
-                gameLog.innerHTML = gameLog.innerHTML
-                + "<span style='color:#9FC155'>"
-                + "Yum, " + logEvent.protagName
-                + " ate a resource\n" + "</span>"
-                break
-            case 2:
-                gameLog.innerHTML = gameLog.innerHTML
-                + "<span style='color:#AAE2E8'>"
-                + logEvent.protagName + " ate " + logEvent.antagName
-                + "\n" + "</span>"
-                break
-            case 3:
-                gameLog.innerHTML = gameLog.innerHTML
-                + "<span style='color:#F6A27F'>"
-                + "Oh no, " + logEvent.protagName + " hit a spike!\n"
-                +  "</span>"
-      	}
+        gameLog.update(logEvent)
 
         if (userPanel.username == logEvent.protagName) {
           userPanel.updateScore(logEvent.gains)
         }
-
-        if (scrollUpdate) {
-            gameLog.scrollTop = gameLog.scrollHeight - gameLog.clientHeight
-        }
-
     })
 
     window.addEventListener("resize", () => renderer.onResize())
