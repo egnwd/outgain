@@ -30,9 +30,9 @@ func OpenDb() error {
 
 func UpdateLeaderboard(username string, score int) {
 	// TODO: Query error checking
-	deleteSingle := "DELETE FROM leaderboard WHERE ctid "
-	deleteSingle += "IN (SELECT ctid FROM leaderboard ORDER BY "
-	deleteSingle += "score asc LIMIT 1)"
+	deleteSingle := `DELETE FROM leaderboard WHERE ctid 
+	                 IN (SELECT ctid FROM leaderboard ORDER BY 
+                         score asc LIMIT 1)`
 	instance.Query(deleteSingle)
 
 	insertNew := "INSERT INTO leaderboard (username, score) "
