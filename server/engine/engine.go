@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"math/rand"
