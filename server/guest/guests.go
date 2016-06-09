@@ -59,3 +59,11 @@ func (g *Guest) ResetGains() {
 func (guests List) Iterator() []*Guest {
 	return guests.List
 }
+
+func (g *Guest) ResetScore() {
+	g.gains = 0
+}
+
+func (g *Guest) IsUser() bool {
+	return g.Type == UserType
+}

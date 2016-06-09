@@ -13,6 +13,7 @@ const resourceRadius float64 = 0.1
 const resourceVolume float64 = 1
 const spikeRadius float64 = 0.2
 const spikeVolume float64 = 1
+const minInt = -1 << 63
 
 const (
 	creatureEnum = iota
@@ -29,6 +30,7 @@ type Entity interface {
 	GetName() string
 	GetGains() int
 	Close()
+	IsUser() bool
 }
 
 type EntityBase struct {
@@ -98,20 +100,8 @@ func (list EntityList) Tick(state protocol.WorldState, dt float64) {
 
 	// Ticking could have moved some entities, so sort the list again to
 	// maintain the invariant
-	list.Sort()
+	list.SortLeft()
 }
-
-//func (list EntityList) Filter(filter func(Entity) bool) EntityList {
-//	count := list.Len()
-//	for i := 0; i < count; i++ {
-//		if !filter(list[i]) {
-//			list[i].Close()
-//			list.Swap(i, count-1)
-//			count--
-//		}
-//	}
-//	return list[:count]
-//
 
 func (list EntityList) Filter(filter func(Entity) bool) EntityList {
 	returnList := EntityList{}
@@ -135,12 +125,31 @@ func (list EntityList) Insert(entity Entity) EntityList {
 	return result
 }
 
-func (list EntityList) Sort() {
+func (list EntityList) Sort(order func(a, b int) bool) EntityList {
 	for i := 1; i < list.Len(); i++ {
-		for j := i; j > 0 && list.Less(j, j-1); j-- {
+		for j := i; j > 0 && order(j, j-1); j-- {
 			list.Swap(j-1, j)
 		}
 	}
+	return list
+}
+
+func (list EntityList) SortLeft() EntityList {
+	list.Sort(func(i, j int) bool {
+		return list[i].Base().Left() < list[j].Base().Left()
+	})
+	return list
+}
+
+func (list EntityList) SortScore() EntityList {
+	list.Sort(func(i, j int) bool {
+		if list[i].IsUser() {
+			return !list[j].IsUser() ||
+				list[i].GetGains() > list[j].GetGains()
+		}
+		return false
+	})
+	return list
 }
 
 type Resource struct {
@@ -164,7 +173,7 @@ func (resource *Resource) GetName() string {
 }
 
 func (resource *Resource) GetGains() int {
-	return 0
+	return minInt
 }
 
 func (resource *Resource) Base() *EntityBase {
@@ -189,6 +198,13 @@ func (resource *Resource) Serialize() protocol.Entity {
 
 func (resource *Resource) BonusFactor() float64 {
 	return resourceBonusFactor
+}
+
+func (resource *Resource) IsUser() bool {
+	return false
+}
+
+func (resource *Resource) Close() {
 }
 
 type Spike struct {
@@ -240,12 +256,13 @@ func (spike *Spike) BonusFactor() float64 {
 }
 
 func (spike *Spike) GetGains() int {
-	return 0
+	return minInt
 }
 
 func (spike *Spike) GetName() string {
 	return "spike"
 }
 
-func (resource *Resource) Close() {
+func (spike *Spike) IsUser() bool {
+	return false
 }

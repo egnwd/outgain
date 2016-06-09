@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/egnwd/outgain/server/database"
 	"github.com/egnwd/outgain/server/protocol"
 )
 
@@ -30,6 +31,7 @@ type Engine struct {
 	eventsOut         chan<- protocol.Event
 	tickInterval      time.Duration
 	entities          EntityList
+	users             EntityList
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextID            <-chan uint64
@@ -57,6 +59,7 @@ func NewEngine() (engine *Engine) {
 		lastTick:          time.Now(),
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
+		users:             EntityList{},
 		nextID:            idChannel,
 	}
 
@@ -65,15 +68,33 @@ func NewEngine() (engine *Engine) {
 
 // restartEngine puts the engine back to it's original state
 func (engine *Engine) restartEngine() {
+	engine.updateLeaderboard()
 	for _, entity := range engine.entities {
 		entity.Close()
 	}
 
 	engine.entities = EntityList{}
+	engine.users = EntityList{}
 	engine.clearGameLog()
 
 	log.Println("Restarting Engine")
 	engine.restart = true
+}
+
+func (engine *Engine) updateLeaderboard() {
+	engine.users = engine.users.SortScore()
+
+	for _, entity := range engine.users {
+		var minVal = database.GetMinScore()
+		if gains := entity.GetGains(); gains > minVal {
+			if entity.IsUser() { // Bots can't set high scores
+				database.UpdateLeaderboard(entity.GetName(), gains)
+			}
+		} else {
+			break // The list is sorted, no need to check the rest
+		}
+	}
+
 }
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
@@ -89,6 +110,11 @@ func (engine *Engine) clearGameLog() {
 func (engine *Engine) Run(entities EntityList) {
 	log.Println("Running Engine")
 	engine.entities = entities
+	for _, entity := range entities {
+		if entity.IsUser() {
+			engine.users = append(engine.users, entity)
+		}
+	}
 	engine.clearGameLog()
 	engine.lastTick = time.Now()
 	regenerateResourceInterval()
@@ -158,31 +184,28 @@ func (engine *Engine) CreateEntity(builder builderFunc) Entity {
 // addLogEvent adds to  logEvents which are eventually added to the gameLog
 // Where is the best place to document the number -> eventType mappings?
 func (engine *Engine) addLogEvent(a, b Entity) {
-	var logEvent protocol.LogEvent
+	var (
+		logEvent protocol.LogEvent
+		logType  int
+	)
 	switch b.(type) {
 	case nil:
 		return
 	case *Resource:
-		logEvent = protocol.LogEvent{
-			LogType:    1,
-			ProtagName: a.GetName(),
-			AntagName:  b.GetName(),
-			Gains:      a.GetGains(),
-		}
+		logType = 1
+		break
 	case *Creature:
-		logEvent = protocol.LogEvent{
-			LogType:    2,
-			ProtagName: a.GetName(),
-			AntagName:  b.GetName(),
-			Gains:      a.GetGains(),
-		}
+		logType = 2
+		break
 	case *Spike:
-		logEvent = protocol.LogEvent{
-			LogType:    3,
-			ProtagName: a.GetName(),
-			AntagName:  b.GetName(),
-			Gains:      a.GetGains(),
-		}
+		logType = 3
+	}
+
+	logEvent = protocol.LogEvent{
+		LogType:    logType,
+		ProtagName: a.GetName(),
+		AntagName:  b.GetName(),
+		Gains:      a.GetGains(),
 	}
 
 	engine.eventsOut <- protocol.Event{
@@ -312,5 +335,6 @@ func (engine *Engine) collisionDetection(dt float64) {
 
 	// Changing the radius of entities changes their left coordinate,
 	// so sort the list again to maintain the invariant
-	engine.entities.Sort()
+
+	engine.entities = engine.entities.SortLeft()
 }

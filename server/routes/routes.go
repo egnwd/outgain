@@ -30,6 +30,10 @@ func GetHandler(config *config.Config) http.Handler {
 	get.Handle("/currentUser", c.RequireAuth(http.HandlerFunc(c.CurrentUser)))
 	get.Handle("/token", c.RequireAuth(http.HandlerFunc(c.UserToken)))
 
+	// Leaderboard
+	get.Handle("/peekLeaderboard", c.RequireAuth(http.HandlerFunc(c.LeaderboardPeek)))
+	get.Handle("/leaderboard", c.RequireAuth(c.Leaderboard(config.StaticDir)))
+
 	// Lobbies
 	get.Handle("/lobbies", c.RequireAuth(c.LobbiesView(config.StaticDir)))
 	get.Handle("/peekLobbies", c.RequireAuth(http.HandlerFunc(c.LobbiesPeek)))
