@@ -13,6 +13,7 @@ const resourceRadius float64 = 0.1
 const resourceVolume float64 = 1
 const spikeRadius float64 = 0.2
 const spikeVolume float64 = 1
+const minInt = -1 << 63
 
 const (
 	creatureEnum = iota
@@ -172,7 +173,7 @@ func (resource *Resource) GetName() string {
 }
 
 func (resource *Resource) GetGains() int {
-	return -9999
+	return minInt
 }
 
 func (resource *Resource) Base() *EntityBase {
@@ -255,7 +256,7 @@ func (spike *Spike) BonusFactor() float64 {
 }
 
 func (spike *Spike) GetGains() int {
-	return -9999
+	return minInt
 }
 
 func (spike *Spike) GetName() string {
