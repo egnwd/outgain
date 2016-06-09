@@ -7,9 +7,13 @@ export class Timer {
   constructor(time: number, bar: string) {
     this.timeTotal = time
     this.bar = bar
+    timer.reset()
   }
 
-  public start() {
+  public start(progress?: number) {
+    progress = progress || 0
+    console.log(progress)
+    $(this.bar).stop().css("width", progress+"%")
     $(this.bar).animate({width: "100%"}, this.timeTotal, "linear")
   }
 
@@ -24,7 +28,6 @@ export class UserPanel {
 
     constructor(usernameEl: string) {
       this.username = this.getUserID()
-
       $(usernameEl).html(this.username)
     }
 

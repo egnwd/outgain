@@ -20,6 +20,9 @@ import (
 
 const lobbySize int = 10
 
+// TODO: Change this to 15
+const maxRounds int = 3
+
 var lobbies = make(map[uint64]*Lobby)
 
 // Lobby runs its own instance of an engine, and keeps track of its users
@@ -95,7 +98,7 @@ func (lobby *Lobby) Start() {
 func (lobby *Lobby) runEngine() {
 	log.Println("Running game in lobby")
 
-	for lobby.Guests.UserSize > 0 {
+	for lobby.Guests.UserSize > 0 && lobby.round < maxRounds {
 		lobby.newRound()
 
 		var entities engine.EntityList
@@ -151,6 +154,11 @@ func destroyLobby(lobby *Lobby) {
 	lobby.Guests.UserSize = 0
 	lobby.Engine = nil
 	delete(lobbies, lobby.ID)
+
+	lobby.eventChannel <- protocol.Event{
+		Type: "gameover",
+		Data: nil,
+	}
 }
 
 func generalPopulation(size int, config *config.Config) guest.List {
@@ -186,8 +194,12 @@ func (lobby *Lobby) ContainsUser(name string) bool {
 // AddUser adds the specified user to the lobby, returning an error if the
 // lobby is already at capacity
 func (lobby *Lobby) AddUser(username string) error {
-	// TODO: Check for duplicates
 	lobbyGuests := lobby.Guests.List
+
+	if lobby.ContainsUser(username) {
+		log.Println("User in lobby")
+		return errors.New("User in lobby")
+	}
 
 	// Check for bot to remove
 	var bot *guest.Guest
@@ -214,7 +226,6 @@ func (lobby *Lobby) AddUser(username string) error {
 // RemoveUser removes the specified user from the lobby, returning an error if the
 // user is not in the lobby
 func (lobby *Lobby) RemoveUser(username string) error {
-	// TODO: Check for duplicates
 	lobbyGuests := lobby.Guests.List
 
 	// Remove User

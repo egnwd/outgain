@@ -32,6 +32,7 @@ type Engine struct {
 	tickInterval      time.Duration
 	entities          EntityList
 	users             EntityList
+	firstTick         time.Time
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextID            <-chan uint64
@@ -122,6 +123,7 @@ func (engine *Engine) Run(entities EntityList) {
 	}
 	engine.clearGameLog()
 	engine.lastTick = time.Now()
+	engine.firstTick = engine.lastTick
 	regenerateResourceInterval()
 
 	roundTimer := time.NewTimer(roundLength)
@@ -160,9 +162,13 @@ func (engine *Engine) Serialize() protocol.WorldState {
 		entities[i] = entity.Serialize()
 	}
 
+	progress := time.Since(engine.firstTick).Nanoseconds() /
+		(roundLength.Nanoseconds() / 100)
+
 	return protocol.WorldState{
 		Time:     uint64(engine.lastTick.UnixNano()) / 1e6,
 		Entities: entities,
+		Progress: progress,
 	}
 }
 

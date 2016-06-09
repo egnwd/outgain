@@ -48,13 +48,14 @@ $(function() {
     let source = new EventSource("/updates/" + lobbyId)
 
     source.addEventListener("state", function(event) {
+        let data = JSON.parse((<sse.IOnMessageEvent>event).data)
+        let update = <IWorldState>data
+
         if (roundName.style.display == "block") {
             roundName.style.display = "none"
-            timer.start()
+            console.log(update.progress)
+            timer.start(update.progress)
         }
-        let data = JSON.parse((<sse.IOnMessageEvent>event).data)
-
-        let update = <IWorldState>data
 
         renderer.pushState(update)
     })
@@ -63,6 +64,10 @@ $(function() {
       roundName.innerHTML = JSON.parse((<sse.IOnMessageEvent>event).data)
       roundName.style.display = "block"
       timer.reset()
+    })
+
+    source.addEventListener("gameover", function(event) {
+      window.location.href = "/lobbies"
     })
 
     source.addEventListener("log", function(lEvent) {

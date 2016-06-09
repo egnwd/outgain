@@ -23,6 +23,7 @@ type LogEvent struct {
 type WorldState struct {
 	Time     uint64   `json:"time"`
 	Entities []Entity `json:"entities"`
+	Progress int64    `json:"progress"`
 }
 
 type Event struct {
