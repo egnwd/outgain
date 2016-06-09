@@ -10,11 +10,9 @@ var updateTable = function() {
         dataType: 'json'
     })
     .done(function(data) {
-        console.log(data)
         let usernames = data.Usernames
         console.log(usernames)
         let scores = data.Scores
-        console.log(scores)
         let table = "<table id='leaderboard-table'>\
                       <thead>\
                         <tr>\
