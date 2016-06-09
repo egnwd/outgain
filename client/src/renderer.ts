@@ -22,8 +22,14 @@ class Entity {
         return this.current.name == username
     }
 
-    getCoords() {
-        return [this.current.x, this.current.y]
+    getCoords(interpolation?: number) {
+        if (interpolation !== undefined) {
+          let x = lerp(this.previous.x, this.current.x, interpolation)
+          let y = lerp(this.previous.y, this.current.y, interpolation)
+          return [x, y]
+        } else {
+          return [this.current.x, this.current.y]
+        }
     }
 
     pushState(state: IEntity, interpolation: number) {
@@ -125,16 +131,12 @@ export class GameRenderer {
 
     username: string
     userEntity : Entity
-    xprev: number
-    yprev: number
 
     constructor(canvas: HTMLCanvasElement, username: string) {
         this.canvas = canvas
         this.ctx = canvas.getContext("2d")
 
         this.username = username
-        this.xprev = 0
-        this.yprev = 0
 
         this.onResize()
     }
@@ -161,20 +163,18 @@ export class GameRenderer {
         // Determine absolute view position based on user
         let gridSize = 20
         let renderSize = gridSize / 2
-        let x = this.xprev
-        let y = this.yprev
+        let x, y
+
         if (this.userEntity != null) {
-            let coords = this.userEntity.getCoords()
-            x = lerp(x, coords[0], interpolation)
-            y = lerp(y, coords[1], interpolation)
+            let coords = this.userEntity.getCoords(interpolation)
+            x = coords[0]
+            y = coords[1]
         } else {
             // On user death zoom out and display whole map
             x = renderSize
             y = renderSize
             renderSize = gridSize
         }
-        this.xprev = x
-        this.yprev = y
 
         // Set window specific variables
         let height = this.canvas.height
