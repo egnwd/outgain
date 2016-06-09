@@ -33,7 +33,7 @@ function getLobbyId() {
 
 $(function() {
     var userPanel = new UserPanel("#user-id", "#user-gains-text")
-    let timer = new Timer(15000, "#elapsed")
+    let timer = new Timer("#elapsed")
 
     let idField = document.getElementById("id-field")
     let gameLog = new GameLog("game-log")
@@ -51,12 +51,8 @@ $(function() {
         let data = JSON.parse((<sse.IOnMessageEvent>event).data)
         let update = <IWorldState>data
 
-        if (roundName.style.display == "block") {
-            roundName.style.display = "none"
-            console.log(update.progress)
-            timer.start(update.progress)
-        }
-
+        roundName.style.display = "none"
+        timer.pushState(update)
         renderer.pushState(update)
     })
 
@@ -84,6 +80,7 @@ $(function() {
     window.addEventListener("resize", () => renderer.onResize())
     window.requestAnimationFrame(function draw() {
         renderer.render()
+        timer.render()
         window.requestAnimationFrame(draw)
     })
 

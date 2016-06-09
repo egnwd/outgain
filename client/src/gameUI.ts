@@ -1,21 +1,51 @@
 import * as $ from 'jquery'
-import { ILogEvent } from "./protocol";
+import { ILogEvent, IWorldState } from "./protocol"
+import { lerp } from "./util"
 
 export class Timer {
-  private timeTotal: number
   private bar: string
 
-  constructor(time: number, bar: string) {
-    this.timeTotal = time
+  private previousTime: number
+  private currentTime: number
+  private dt: number
+  private lastUpdate: number
+
+  private currentProgress: number
+  private previousProgress: number
+
+  constructor(bar: string) {
     this.bar = bar
     this.reset()
   }
 
-  public start(progress?: number) {
-    progress = progress || 0
-    console.log(progress)
-    $(this.bar).stop().css("width", progress+"%")
-    $(this.bar).animate({width: "100%"}, this.timeTotal, "linear")
+  public render() {
+    let interpolation = this.interpolation()
+    let progress = lerp(this.previousProgress, this.currentProgress, interpolation)
+    $(this.bar).css('width', progress+"%")
+  }
+
+  interpolation() : number {
+      if (this.previousTime != null) {
+          let elapsed = Date.now() - this.lastUpdate
+          return elapsed / this.dt
+      } else {
+          return 1
+      }
+  }
+
+  public pushState(state: IWorldState) {
+    let interpolation = this.interpolation()
+
+    this.previousTime = this.currentTime
+    this.currentTime = state.time
+
+    this.previousProgress = this.currentProgress 
+    this.currentProgress = state.progress
+
+    this.lastUpdate = Date.now()
+    if (this.previousTime != null) {
+        this.dt = this.currentTime - this.previousTime
+    }
   }
 
   public reset() {

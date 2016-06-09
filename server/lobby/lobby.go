@@ -155,7 +155,6 @@ func destroyLobby(lobby *Lobby) {
 
 	lobby.eventChannel <- protocol.Event{
 		Type: "gameover",
-		Data: nil,
 	}
 }
 
