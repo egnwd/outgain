@@ -83,16 +83,9 @@ func (engine *Engine) restartEngine() {
 }
 
 func (engine *Engine) updateLeaderboard() {
-	for _, entity := range engine.users {
-		fmt.Println(entity.GetGains())
-	}
 	engine.users = engine.users.SortScore()
 
 	for _, entity := range engine.users {
-		fmt.Println(entity.GetGains())
-	}
-
-	for _, entity := range engine.entities {
 		var minVal = database.GetMinScore()
 		if gains := entity.GetGains(); gains > minVal {
 			if entity.IsUser() { // Bots can't set high scores
