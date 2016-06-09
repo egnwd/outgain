@@ -22,7 +22,7 @@ function bundle(main, out, watch) {
 
     b.add(__dirname + '/typings/index.d.ts')
      .add(main)
-     .plugin(tsify, { "jsx": "react", "target": "es6" })
+     .plugin(tsify, { "jsx": "react" })
      .on('update', function() {
          rebundle();
      })
@@ -76,7 +76,7 @@ gulp.task('images', function () {
 
 gulp.task('all', ['scripts', 'styles', 'html', 'images']);
 
-gulp.task('watch', ['styles', 'html', 'images'], function() {
+gulp.task('watch', ['typings', 'styles', 'html', 'images'], function() {
     gulp.watch('./style/**/*.scss', ['styles']);
     gulp.watch('./html/**/*.html', ['html']);
     gulp.watch('./images/**/*.scss', ['images']);
