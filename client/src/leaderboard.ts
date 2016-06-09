@@ -11,7 +11,6 @@ var updateTable = function() {
     })
     .done(function(data) {
         let usernames = data.Usernames
-        console.log(usernames)
         let scores = data.Scores
         let table = "<table id='leaderboard-table'>\
                       <thead>\
