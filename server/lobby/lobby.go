@@ -149,7 +149,6 @@ func GetLobby(id uint64) (*Lobby, bool) {
 func destroyLobby(lobby *Lobby) {
 	lobby.Guests.List = nil
 	lobby.Guests.UserSize = 0
-	//lobby.Engine.Close() - for the runner to be shut down
 	lobby.Engine = nil
 	delete(lobbies, lobby.ID)
 }
@@ -237,10 +236,14 @@ func (lobby *Lobby) RemoveUser(username string) error {
 		log.Fatalln(err)
 	}
 
-	// This will change in another branch that is getting merged a little later
 	newGuest := []*guest.Guest{guest.NewBot(name, string(source))}
 	lobbyGuests = append(newGuest, lobbyGuests...)
 	lobby.Guests.UserSize--
+
+	if lobby.Guests.UserSize == 0 {
+		lobby.Engine.Kill()
+		destroyLobby(lobby)
+	}
 
 	lobby.Guests.List = lobbyGuests
 	return nil

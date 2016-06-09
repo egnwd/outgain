@@ -98,7 +98,8 @@ func (engine *Engine) updateLeaderboard() {
 			break // The list is sorted, no need to check the rest
 		}
 	}
-
+func (engine *Engine) Kill() {
+	engine.restart()
 }
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
