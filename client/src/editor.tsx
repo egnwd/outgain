@@ -2,6 +2,7 @@ import * as CodeMirror from 'codemirror'
 import * as $ from 'jquery'
 import * as moment from 'moment';
 import * as React from './dom';
+import * as sweetalert from 'sweetalert'
 
 import GitHub from './github';
 
@@ -11,11 +12,13 @@ import 'codemirror/addon/runmode/runmode';
 export default class Editor {
     editor: CodeMirror.Editor;
     gh: GitHub;
+    currentGist: any;
     lobbyId: string;
 
     constructor(lobbyId: string, token: string) {
         this.gh = new GitHub(token)
         this.lobbyId = lobbyId
+        this.currentGist = null;
 
         let pane = document.getElementById('editor-pane')
         this.editor = CodeMirror(pane, {
@@ -34,12 +37,30 @@ export default class Editor {
         })
 
         $('#editor-load-btn').click(() => {
-            this.updateGists();
+            this.updateGistList();
             $('#gist-pane').addClass('showPane')
+        })
+
+        $('#editor-create-gist-btn').click(() => {
+            $('#save-pane').addClass('showPane')
         })
 
         $('#gist-cancel-btn').click(() => {
             $('#gist-pane').removeClass('showPane')
+        })
+
+        $('#editor-save-gist-btn').click(() => {
+          let cb = (gist) => {
+            this.currentGist = gist;
+            swal("Saved !", "Gist saved !", "success");
+            this.updateGistList()
+          }
+
+          if (this.currentGist !== null) {
+            this.updateGist(cb)
+          } else {
+            this.createGist(cb)
+          }
         })
 
         let aiUrl = "/lobbies/" + lobbyId + "/ai";
@@ -49,7 +70,7 @@ export default class Editor {
             this.editor.setValue(data)
         })
 
-        this.updateGists();
+        this.updateGistList();
     }
 
     private gistElement(gist) {
@@ -66,18 +87,25 @@ export default class Editor {
         let name = gist.description || file.filename;
         let updated = moment(gist.updated_at).fromNow();
         let el =
-          <div class="gist-entry" onClick={() => this.loadGist(contents)}>
+          <div class="gist-entry"
+               onClick={() => {
+                 this.currentGist = gist;
+                 this.editor.setValue(contents)
+                 $('#gist-pane').removeClass('showPane')
+               }}>
+
             <div class="gist-info">
               <span class="gist-name">{name}</span>
               <span class="gist-date">Updated {updated}</span>
             </div>
             {code}
-            </div>;
-            return el;
+
+          </div>;
+          return el;
       })
     }
 
-    private updateGists() {
+    private updateGistList() {
         this.gh.getGists().then((gists) => {
           let elements = gists.map((gist) => this.gistElement(gist));
           return $.when(...elements);
@@ -92,9 +120,47 @@ export default class Editor {
         })
     }
 
-    private loadGist(contents) {
-      this.editor.setValue(contents)
-      $('#gist-pane').removeClass('showPane')
+    private updateGist(cb) {
+      let contents = this.editor.getValue()
+      let filename = Object.keys(this.currentGist.files)[0]
+      let files = {}
+      files[filename] = {
+        content: contents,
+        language: "Ruby",
+      }
+
+      this.gh.updateGist(this.currentGist.id, {
+          files: files,
+      }).then(cb)
+    }
+
+    private createGist(cb) {
+      let contents = this.editor.getValue()
+
+      sweetalert({
+        title: "Save as Gist",
+        text: "Description :",
+        type: "input",
+        showCancelButton: true,
+        closeOnConfirm: false,
+        animation: "slide-from-top",
+      }, (desc) => {
+        if (desc === false) return false;
+        desc = (desc as string).trim()
+        if (desc === "") {
+          return false
+        }
+
+        this.gh.createGist({
+          description: desc,
+          files: {
+            "ai.rb": {
+              content: contents,
+              language: "Ruby",
+            }
+          },
+        }).then(cb)
+      })
     }
 
     public open() {
