@@ -1,18 +1,22 @@
 package runner
 
 import (
+	"errors"
 	"golang.org/x/sys/unix"
 	"log"
 	"net/rpc"
 	"os"
 	"os/exec"
 	"runtime"
+	"time"
 
 	"github.com/ugorji/go/codec"
 
 	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/protocol"
 )
+
+const runnerTimeout = 50 * time.Millisecond
 
 type RunnerClient struct {
 	client *rpc.Client
@@ -67,8 +71,18 @@ func StartRunner(config *config.Config) (client *RunnerClient, err error) {
 	return client, nil
 }
 
+func (client *RunnerClient) call(method string, args interface{}, reply interface{}) error {
+	call := client.client.Go(method, args, reply, nil)
+	select {
+	case <-call.Done:
+		return call.Error
+	case <-time.After(runnerTimeout):
+		return errors.New("AI timed out")
+	}
+}
+
 func (client *RunnerClient) Load(source string) error {
-	return client.client.Call("Runner.Load", source, nil)
+	return client.call("Runner.Load", source, nil)
 }
 
 // Tick runs a tick in the AI runner, and waits for the result
@@ -79,7 +93,7 @@ func (client *RunnerClient) Tick(player protocol.Entity, state protocol.WorldSta
 	}
 
 	var result protocol.TickResult
-	err := client.client.Call("Runner.Tick", request, &result)
+	err := client.call("Runner.Tick", request, &result)
 
 	return result, err
 }
@@ -92,6 +106,7 @@ func (client *RunnerClient) Close() {
 		}
 		client.client = nil
 	}
+
 	if client.cmd != nil {
 		if err := client.cmd.Process.Kill(); err != nil {
 			log.Print("Error killing runner: ", err)
