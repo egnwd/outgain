@@ -79,17 +79,6 @@ func (engine *Engine) restartEngine() {
 }
 
 func (engine *Engine) updateLeaderboard() {
-	//users := engine.entities.Filter(func(entity Entity) bool {
-	//	creature, isCreature := entity.(*Creature)
-	//	if isCreature {
-	//		return creature.Guest.Type == guest.UserType
-	//	}
-	//	return false
-	//})
-	//users.SortScore()
-	//for _, user := range users {
-	//	fmt.Println(user.GetGains())
-	//}
 	engine.entities.SortScore()
 	for _, entity := range engine.entities {
 		var minVal = database.GetMinScore()
@@ -337,5 +326,9 @@ func (engine *Engine) collisionDetection(dt float64) {
 
 	// Changing the radius of entities changes their left coordinate,
 	// so sort the list again to maintain the invariant
-	engine.entities.Sort()
+	engine.entities.SortLeft()
+
+	if creatureCount <= 1 {
+		engine.restartEngine()
+	}
 }

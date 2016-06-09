@@ -100,7 +100,12 @@ func (list EntityList) GreaterScore(i, j int) bool {
 	//}
 	//return false
 
-	return list[i].GetGains() > list[j].GetGains()
+	if list[i].IsUser() {
+		return !list[j].IsUser() ||
+			list[i].GetGains() > list[j].GetGains()
+	}
+	return false
+	//return list[i].GetGains() > list[j].GetGains()
 }
 
 func (list EntityList) Swap(i, j int) {
@@ -122,7 +127,7 @@ func (list EntityList) Tick(state protocol.WorldState, dt float64) {
 
 	// Ticking could have moved some entities, so sort the list again to
 	// maintain the invariant
-	list.Sort()
+	list.SortLeft()
 }
 
 func (list EntityList) Filter(filter func(Entity) bool) EntityList {
@@ -147,21 +152,37 @@ func (list EntityList) Insert(entity Entity) EntityList {
 	return result
 }
 
-func (list EntityList) Sort() {
+//func (list EntityList) Sort() {
+//	for i := 1; i < list.Len(); i++ {
+//		for j := i; j > 0 && list.Less(j, j-1); j-- {
+//			list.Swap(j-1, j)
+//		}
+//	}
+//}
+
+func (list EntityList) Sort(order func(a, b int) bool) EntityList {
 	for i := 1; i < list.Len(); i++ {
-		for j := i; j > 0 && list.Less(j, j-1); j-- {
+		for j := i; j > 0 && order(j, j-1); j-- {
 			list.Swap(j-1, j)
 		}
 	}
+	return list
+}
+
+func (list EntityList) SortLeft() {
+	list.Sort(func(i, j int) bool {
+		return list[i].Base().Left() < list[j].Base().Left()
+	})
 }
 
 func (list EntityList) SortScore() {
-	for i := 1; i < list.Len(); i++ {
-		for j := i; j > 0 && list.GreaterScore(j, j-1); j-- {
-			list.Swap(j-1, j)
+	list.Sort(func(i, j int) bool {
+		if list[i].IsUser() {
+			return !list[j].IsUser() ||
+				list[i].GetGains() > list[j].GetGains()
 		}
-	}
-
+		return false
+	})
 }
 
 type Resource struct {
