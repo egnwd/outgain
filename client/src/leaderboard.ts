@@ -18,14 +18,9 @@ var updateTable = function() {
         let table = "<table id='leaderboard-table'>\
                       <thead>\
                         <tr>\
-                          <th>\
-                          </th>\
-                          <th>\
-                            Name\
-                          </th>\
-                          <th>\
-                            Score\
-                          </th>\
+                          <th></th>\
+                          <th>Name</th>\
+                          <th>Score</th>\
                         </tr>\
                       </thead>"
         table += "<tbody>"
