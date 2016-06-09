@@ -39,7 +39,7 @@ export class Timer {
     this.previousTime = this.currentTime
     this.currentTime = state.time
 
-    this.previousProgress = this.currentProgress 
+    this.previousProgress = this.currentProgress
     this.currentProgress = state.progress
 
     this.lastUpdate = Date.now()
@@ -106,28 +106,26 @@ export class GameLog {
 
     public update(logEvent: ILogEvent) {
       let scrollUpdate = this.log.scrollHeight - this.log.clientHeight <= this.log.scrollTop + 1
-      // The colours should probbaly be done with CSS,
-      // leaving it here so that someone who cares more
-      // than me can play with them easier
+
       switch (logEvent.logType) {
           case 0:
               this.log.innerHTML = "A new game has started, good luck!\n"
               break
           case 1:
               this.log.innerHTML = this.log.innerHTML
-              + "<span style='color:#9FC155'>"
+              + "<span class='collectResource'>"
               + "Yum, "+ logEvent.protagName
               + " ate a resource\n" + "</span>"
               break
           case 2:
               this.log.innerHTML = this.log.innerHTML
-              + "<span style='color:#AAE2E8'>"
+              + "<span class='eatCreature'>"
               + logEvent.protagName + " ate " + logEvent.antagName
               + "\n" + "</span>"
               break
           case 3:
               this.log.innerHTML = this.log.innerHTML
-              + "<span style='color:#F6A27F'>Oh no, "
+              + "<span class='hitSpike'>Oh no, "
               + logEvent.protagName + " hit a spike!\n"
               +  "</span>"
       }
