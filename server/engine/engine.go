@@ -335,9 +335,6 @@ func (engine *Engine) collisionDetection(dt float64) {
 
 	// Changing the radius of entities changes their left coordinate,
 	// so sort the list again to maintain the invariant
-	engine.entities = engine.entities.SortLeft()
 
-	if creatureCount <= 1 {
-		engine.restartEngine()
-	}
+	engine.entities = engine.entities.SortLeft()
 }
