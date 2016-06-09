@@ -25,7 +25,7 @@ func TestEntityListSort(t *testing.T) {
 	// Lets not sort an already sorted list
 	assert.False(t, sort.IsSorted(list))
 
-	list.Sort()
+	list.SortLeft()
 
 	assert.True(t, sort.IsSorted(list), "insertion should keep list sorted")
 }
