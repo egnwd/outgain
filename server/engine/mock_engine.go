@@ -5,6 +5,7 @@ import "fmt"
 // Engineer is a mock interface for testing without real engines
 type Engineer interface {
 	Run(EntityList)
+	Kill()
 	AddEntity(builder builderFunc)
 	CreateEntity(builder builderFunc) Entity
 }
@@ -16,6 +17,11 @@ type MockEngine struct{}
 // method has been called
 func (m *MockEngine) Run(_ EntityList) {
 	fmt.Println("Running Engine...")
+}
+
+// Kill prints a message signalling the end of the engine
+func Kill() {
+	fmt.Println("Killing Engine...")
 }
 
 // AddEntity prints a message saying that the Entity has been added to the engine

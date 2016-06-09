@@ -21,6 +21,8 @@ func UpdatesHandler() http.Handler {
 			return
 		}
 
+		l.UpdateRound()
+
 		l.Events.ServeHTTP(w, r)
 	})
 }

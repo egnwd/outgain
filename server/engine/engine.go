@@ -23,26 +23,26 @@ const initialCreatureCount = 10
 const drainRate = 0.5
 const radiusThreshold = 0.2
 
+const roundLength = 15 * time.Second
+
 // Engine stores the information about an instance of the game and controls
 // the events that are occuring within the game
 type Engine struct {
-	Events <-chan protocol.Event
-
 	eventsOut         chan<- protocol.Event
 	tickInterval      time.Duration
 	entities          EntityList
 	users             EntityList
+	firstTick         time.Time
 	lastTick          time.Time
 	lastResourceSpawn time.Time
 	nextID            <-chan uint64
-	restart           bool
+	restarted         bool
 }
 
 type builderFunc func(uint64) Entity
 
 // NewEngine returns a fresh instance of a game engine
-func NewEngine() (engine *Engine) {
-	eventChannel := make(chan protocol.Event)
+func NewEngine(eventChannel chan protocol.Event) (engine *Engine) {
 	idChannel := make(chan uint64)
 	go func() {
 		var id uint64
@@ -53,7 +53,6 @@ func NewEngine() (engine *Engine) {
 	}()
 
 	engine = &Engine{
-		Events:            eventChannel,
 		eventsOut:         eventChannel,
 		tickInterval:      time.Millisecond * 100,
 		lastTick:          time.Now(),
@@ -66,8 +65,8 @@ func NewEngine() (engine *Engine) {
 	return
 }
 
-// restartEngine puts the engine back to it's original state
-func (engine *Engine) restartEngine() {
+// restart puts the engine back to it's original state
+func (engine *Engine) restart() {
 	engine.updateLeaderboard()
 	for _, entity := range engine.entities {
 		entity.Close()
@@ -75,10 +74,16 @@ func (engine *Engine) restartEngine() {
 
 	engine.entities = EntityList{}
 	engine.users = EntityList{}
+
+	engine.eventsOut <- protocol.Event{
+		Type: "state",
+		Data: engine.Serialize(),
+	}
+
 	engine.clearGameLog()
 
 	log.Println("Restarting Engine")
-	engine.restart = true
+	engine.restarted = true
 }
 
 func (engine *Engine) updateLeaderboard() {
@@ -94,7 +99,10 @@ func (engine *Engine) updateLeaderboard() {
 			break // The list is sorted, no need to check the rest
 		}
 	}
+}
 
+func (engine *Engine) Kill() {
+	engine.restart()
 }
 
 // clearGameLog should clear the current game-log (or make it clear that a new game has begun)
@@ -117,7 +125,10 @@ func (engine *Engine) Run(entities EntityList) {
 	}
 	engine.clearGameLog()
 	engine.lastTick = time.Now()
+	engine.firstTick = engine.lastTick
 	regenerateResourceInterval()
+
+	roundTimer := time.NewTimer(roundLength)
 
 GameLoop:
 	for {
@@ -133,8 +144,14 @@ GameLoop:
 
 		engine.tick()
 
-		if engine.restart {
-			engine.restart = false
+		select {
+		case <-roundTimer.C:
+			engine.restart()
+		default:
+		}
+
+		if engine.restarted {
+			engine.restarted = false
 			break GameLoop
 		}
 
@@ -147,9 +164,13 @@ func (engine *Engine) Serialize() protocol.WorldState {
 		entities[i] = entity.Serialize()
 	}
 
+	progress := time.Since(engine.firstTick).Nanoseconds() /
+		(roundLength.Nanoseconds() / 100)
+
 	return protocol.WorldState{
 		Time:     uint64(engine.lastTick.UnixNano()) / 1e6,
 		Entities: entities,
+		Progress: progress,
 	}
 }
 
@@ -252,7 +273,7 @@ func (engine *Engine) tick() {
 	}
 
 	if creatureCount <= 1 {
-		engine.restartEngine()
+		engine.restart()
 	}
 }
 
@@ -336,6 +357,5 @@ func (engine *Engine) collisionDetection(dt float64) {
 
 	// Changing the radius of entities changes their left coordinate,
 	// so sort the list again to maintain the invariant
-
-	engine.entities = engine.entities.SortLeft()
+	engine.entities.SortLeft()
 }

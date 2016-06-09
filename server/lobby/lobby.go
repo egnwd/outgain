@@ -7,49 +7,56 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
+	"time"
 
 	"sync"
 
 	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/engine"
 	"github.com/egnwd/outgain/server/guest"
+	"github.com/egnwd/outgain/server/protocol"
 	"gopkg.in/antage/eventsource.v1"
 )
 
 const lobbySize int = 10
+const maxRounds int = 15
 
 var lobbies = make(map[uint64]*Lobby)
 
 // Lobby runs its own instance of an engine, and keeps track of its users
 type Lobby struct {
-	ID        uint64
-	Name      string
-	Engine    engine.Engineer
-	Events    eventsource.EventSource
-	Guests    guest.List
-	size      int
-	isRunning bool
-	config    *config.Config
+	ID           uint64
+	Name         string
+	Engine       engine.Engineer
+	eventChannel chan protocol.Event
+	Events       eventsource.EventSource
+	Guests       guest.List
+	size         int
+	round        int
+	isRunning    bool
+	config       *config.Config
 	sync.Mutex
 }
 
 // NewLobby creates a new lobby with its own engine and list of guests
 func NewLobby(name string, config *config.Config) (lobby *Lobby) {
-	engine := engine.NewEngine()
+	eventChannel := make(chan protocol.Event)
+	engine := engine.NewEngine(eventChannel)
 	events := eventsource.New(nil, nil)
 	id := newID()
 	lobby = &Lobby{
-		ID:     id,
-		Name:   name,
-		Engine: engine,
-		Events: events,
-		Guests: generalPopulation(lobbySize, config),
-		size:   lobbySize,
-		config: config,
+		ID:           id,
+		Name:         name,
+		Engine:       engine,
+		Events:       events,
+		eventChannel: eventChannel,
+		Guests:       generalPopulation(lobbySize, config),
+		size:         lobbySize,
+		config:       config,
 	}
 
 	go func() {
-		for event := range engine.Events {
+		for event := range lobby.eventChannel {
 			packet, err := json.Marshal(event.Data)
 			if err != nil {
 				log.Printf("JSON serialization failed %v", err)
@@ -89,7 +96,9 @@ func (lobby *Lobby) Start() {
 func (lobby *Lobby) runEngine() {
 	log.Println("Running game in lobby")
 
-	for lobby.Guests.UserSize > 0 {
+	for lobby.Guests.UserSize > 0 && lobby.round < maxRounds {
+		lobby.newRound()
+
 		var entities engine.EntityList
 
 		for _, g := range lobby.Guests.Iterator() {
@@ -112,6 +121,24 @@ func (lobby *Lobby) runEngine() {
 	destroyLobby(lobby)
 }
 
+func (lobby *Lobby) newRound() {
+	lobby.round++
+	lobby.UpdateRound()
+
+	// Pause before round start
+	time.Sleep(2 * time.Second)
+}
+
+func (lobby *Lobby) UpdateRound() {
+	name := fmt.Sprintf("Round %d", lobby.round)
+	log.Println(name)
+
+	lobby.eventChannel <- protocol.Event{
+		Type: "round",
+		Data: name,
+	}
+}
+
 // GetLobby returns the Lobby with id: `id` and if it does not exist it returns
 // `(nil, false)`
 func GetLobby(id uint64) (*Lobby, bool) {
@@ -123,9 +150,12 @@ func GetLobby(id uint64) (*Lobby, bool) {
 func destroyLobby(lobby *Lobby) {
 	lobby.Guests.List = nil
 	lobby.Guests.UserSize = 0
-	//lobby.Engine.Close() - for the runner to be shut down
 	lobby.Engine = nil
 	delete(lobbies, lobby.ID)
+
+	lobby.eventChannel <- protocol.Event{
+		Type: "gameover",
+	}
 }
 
 func generalPopulation(size int, config *config.Config) guest.List {
@@ -161,8 +191,12 @@ func (lobby *Lobby) ContainsUser(name string) bool {
 // AddUser adds the specified user to the lobby, returning an error if the
 // lobby is already at capacity
 func (lobby *Lobby) AddUser(username string) error {
-	// TODO: Check for duplicates
 	lobbyGuests := lobby.Guests.List
+
+	if lobby.ContainsUser(username) {
+		log.Println("User in lobby")
+		return errors.New("User in lobby")
+	}
 
 	// Check for bot to remove
 	var bot *guest.Guest
@@ -189,7 +223,6 @@ func (lobby *Lobby) AddUser(username string) error {
 // RemoveUser removes the specified user from the lobby, returning an error if the
 // user is not in the lobby
 func (lobby *Lobby) RemoveUser(username string) error {
-	// TODO: Check for duplicates
 	lobbyGuests := lobby.Guests.List
 
 	// Remove User
@@ -211,10 +244,14 @@ func (lobby *Lobby) RemoveUser(username string) error {
 		log.Fatalln(err)
 	}
 
-	// This will change in another branch that is getting merged a little later
 	newGuest := []*guest.Guest{guest.NewBot(name, string(source))}
 	lobbyGuests = append(newGuest, lobbyGuests...)
 	lobby.Guests.UserSize--
+
+	if lobby.Guests.UserSize == 0 {
+		lobby.Engine.Kill()
+		destroyLobby(lobby)
+	}
 
 	lobby.Guests.List = lobbyGuests
 	return nil

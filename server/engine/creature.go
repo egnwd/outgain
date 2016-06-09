@@ -129,5 +129,4 @@ func (creature *Creature) Close() {
 
 func (creature *Creature) IsUser() bool {
 	return creature.Guest.IsUser()
-
 }

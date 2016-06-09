@@ -21,4 +21,5 @@ export interface ILogEvent {
 export interface IWorldState {
     time: number
     entities: IEntity[]
+    progress: number
 }
