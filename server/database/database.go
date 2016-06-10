@@ -5,7 +5,6 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/lib/pq"
 
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -34,7 +33,6 @@ func UpdateLeaderboard(username string, score int) {
 	                 IN (SELECT ctid FROM leaderboard ORDER BY 
                          score asc LIMIT 1)`
 	_, err := instance.Query(deleteSingle)
-	fmt.Print
 	NilCheck(err)
 	insertNew := "INSERT INTO leaderboard (username, score) "
 	insertNew += "VALUES ('"
@@ -86,6 +84,5 @@ func GetAllRows() *Leaderboard {
 		Usernames: usernames,
 		Scores:    scores,
 	}
-	fmt.Println(leaderboard)
 	return &leaderboard
 }
