@@ -55,7 +55,6 @@ func GetMinScore() int {
 	var score int
 	err = rows.Scan(&score)
 	NilCheck(err)
-	fmt.Println("min %s", score)
 	return score
 }
 
