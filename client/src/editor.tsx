@@ -59,7 +59,7 @@ export default class Editor {
         $('#editor-save-btn').click(() => {
           let cb = (gist) => {
             this.currentGist = gist;
-            swal("Saved !", "Gist saved !", "success");
+            swal("Saved!", "Gist saved !", "success");
             this.updateGistList()
           }
 
