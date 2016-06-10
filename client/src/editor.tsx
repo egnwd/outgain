@@ -10,17 +10,18 @@ import 'codemirror/mode/ruby/ruby';
 import 'codemirror/addon/runmode/runmode';
 
 export default class Editor {
-    editor: CodeMirror.Editor;
-    gh: GitHub;
-    currentGist: any;
-    lobbyId: string;
+    editor: CodeMirror.Editor
+    gh: GitHub
+    currentGist
+    lobbyId: string
+    aiSource: string
 
     constructor(lobbyId: string, token: string) {
         this.gh = new GitHub(token)
         this.lobbyId = lobbyId
         this.currentGist = null;
 
-        let pane = document.getElementById('editor-pane')
+        let pane = document.getElementById('editor-main-split')
         this.editor = CodeMirror(pane, {
             lineNumbers: true,
             lineWrapping: true,
@@ -28,13 +29,22 @@ export default class Editor {
         })
 
         this.editor.refresh()
+
         document.getElementById('editor-modal').addEventListener("resize", () => {
             this.editor.refresh()
             this.editor.focus()
         })
 
+        this.loadAI()
+        this.updateGistList();
+
+        $('#editor-cancel-btn').click(() => {
+            this.reset()
+            this.close()
+        })
+
         $('#editor-run-btn').click(() => {
-            this.send(() => this.close())
+            this.sendAI(() => this.close())
         })
 
         $('#editor-load-btn').click(() => {
@@ -42,18 +52,14 @@ export default class Editor {
             $('#gist-pane').addClass('showPane')
         })
 
-        $('#editor-create-gist-btn').click(() => {
-            $('#save-pane').addClass('showPane')
-        })
-
         $('#gist-cancel-btn').click(() => {
             $('#gist-pane').removeClass('showPane')
         })
 
-        $('#editor-save-gist-btn').click(() => {
+        $('#editor-save-btn').click(() => {
           let cb = (gist) => {
             this.currentGist = gist;
-            swal("Saved !", "Gist saved !", "success");
+            swal("Saved!", "Gist saved !", "success");
             this.updateGistList()
           }
 
@@ -63,15 +69,6 @@ export default class Editor {
             this.createGist(cb)
           }
         })
-
-        let aiUrl = "/lobbies/" + lobbyId + "/ai";
-        $.ajax({
-            url: aiUrl,
-        }).done((data) => {
-            this.editor.setValue(data)
-        })
-
-        this.updateGistList();
     }
 
     private gistElement(gist) {
@@ -102,8 +99,8 @@ export default class Editor {
             </div>
             <div class="gist-snippet">
               {code}
-              <span class="gist-tooltip">Load</span>
             </div>
+            <span class="gist-tooltip">Load</span>
           </div>;
           return el;
       })
@@ -116,11 +113,16 @@ export default class Editor {
         }).then((...items) => {
             let list = document.getElementById('gist-list')
             while (list.firstChild) list.removeChild(list.firstChild);
-            items.forEach((item) => {
-              if (item !== null) {
-                list.appendChild(item as any)
-              }
-            })
+            if (items.length === 0) {
+                $("#no-gists").show();
+            } else {
+                $("#no-gists").hide();
+                items.forEach((item) => {
+                  if (item !== null) {
+                    list.appendChild(item as any)
+                  }
+                })
+            }
         })
     }
 
@@ -187,9 +189,23 @@ export default class Editor {
         }, 300);
     }
 
-    public send(cb) {
+    private sendAI(cb) {
         let aiUrl = "/lobbies/" + this.lobbyId + "/ai";
         let data = this.editor.getValue();
         $.post(aiUrl, data, function() { cb() })
+    }
+
+    private loadAI() {
+        let aiUrl = "/lobbies/" + this.lobbyId + "/ai";
+        $.ajax({
+            url: aiUrl,
+        }).done((data) => {
+            this.aiSource = data
+            this.editor.setValue(data)
+        })
+    }
+
+    private reset() {
+        this.editor.setValue(this.aiSource);
     }
 }

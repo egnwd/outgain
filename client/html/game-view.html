@@ -45,18 +45,39 @@
         <div id="editor-modal">
 
           <div id="editor-pane" class="pane">
-            <ul class="pane-buttons">
-              <li><button id="editor-run-btn" class="btn btn--action">Run</button></li>
-              <li><button id="editor-load-btn" class="btn btn--action">Load Gist</button></li>
-              <li><button id="editor-save-gist-btn" class="btn btn--action">Save Gist</button></li>
-            </ul>
+            <div class="pane-header">
+                <h1>Edit AI</h1>
+                <button id="editor-cancel-btn" class="btn btn--fail btn-left">Cancel</button>
+                <button id="editor-run-btn" class="btn btn--action btn-right">Run</button>
+            </div>
+
+            <div class="pane-contents">
+              <div id="editor-main-split" class="editor-block">
+              </div>
+              <div id="editor-right-split">
+                <div id="editor-help" class="editor-block">
+                  <p>
+                  FooBar
+                  </p>
+                </div>
+                <div id="editor-buttons" class="editor-block">
+                  <button id="editor-load-btn" class="btn btn--action">Load</button>
+                  <button id="editor-save-btn" class="btn btn--action">Save</button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div id="gist-pane" class="pane">
-            <ul class="pane-buttons">
-              <li><button id="gist-cancel-btn" class="btn btn--fail">Cancel</button></li>
-            </ul>
-            <div id="gist-list">
+            <div class="pane-header">
+              <h1>Load Gist</h1>
+              <button id="gist-cancel-btn" class="btn btn--fail btn-left">Cancel</button>
+            </div>
+
+            <div class="pane-contents">
+              <div id="gist-list">
+              </div>
+              <span id="no-gists">No Gists found</span>
             </div>
           </div>
 
