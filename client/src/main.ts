@@ -28,8 +28,8 @@ $(function() {
 
 function getLobbyId() {
   let url = window.location.href.toString()
-  let re = /([0-9]+)$/g
-  return url.match(re)[0]
+  let re = /([0-9]+)\/$/g
+  return re.exec(url)[1]
 }
 
 $(function() {

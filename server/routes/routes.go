@@ -37,17 +37,18 @@ func GetHandler(config *config.Config) http.Handler {
 	// Lobbies
 	get.Handle("/lobbies", c.RequireAuth(c.LobbiesView(config.StaticDir)))
 	get.Handle("/peekLobbies", c.RequireAuth(http.HandlerFunc(c.LobbiesPeek)))
-	post.Handle("/lobbies/join", c.RequireAuth(http.HandlerFunc(c.LobbiesJoin)))
 	post.Handle("/lobbies/create", c.RequireAuth(c.LobbiesCreate(config)))
+	post.Handle("/lobbies/join", c.RequireAuth(http.HandlerFunc(c.LobbiesJoin)))
+	post.Handle("/lobbies/leave", c.RequireAuth(http.HandlerFunc(c.LobbiesLeave)))
 
 	// Game View
-	get.Handle("/lobbies/{id:[0-9]+}", c.RequireAuth(c.LobbiesGame(config.StaticDir)))
-	get.Handle("/lobbies/{id:[0-9]+}/users", c.RequireAuth(http.HandlerFunc(c.LobbiesGetUsers)))
-	get.Handle("/lobbies/{id:[0-9]+}/summary", c.RequireAuth(c.LobbiesSummary(config.StaticDir)))
-	get.Handle("/lobbies/{id:[0-9]+}/leaderboard", c.RequireAuth(http.HandlerFunc(c.LobbiesLeaderboard)))
-	get.Handle("/lobbies/{id:[0-9]+}/name", c.RequireAuth(http.HandlerFunc(c.LobbiesName)))
+	lobby := get.PathPrefix("/lobbies/{id:[0-9]+}").Subrouter().StrictSlash(true)
+	lobby.Handle("/", c.RequireAuth(c.LobbiesGame(config.StaticDir)))
+	lobby.Handle("/users", c.RequireAuth(http.HandlerFunc(c.LobbiesGetUsers)))
+	lobby.Handle("/summary", c.RequireAuth(c.LobbiesSummary(config.StaticDir)))
+	lobby.Handle("/leaderboard", c.RequireAuth(http.HandlerFunc(c.LobbiesLeaderboard)))
+	lobby.Handle("/name", c.RequireAuth(http.HandlerFunc(c.LobbiesName)))
 	get.Handle("/updates/{id:[0-9]+}", c.UpdatesHandler())
-	post.Handle("/lobbies/leave", c.RequireAuth(http.HandlerFunc(c.LobbiesLeave)))
 
 	// AI source
 	get.Handle("/lobbies/{id:[0-9]+}/ai", c.RequireAuth(c.GetAISource()))
