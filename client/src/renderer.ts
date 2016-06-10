@@ -129,8 +129,14 @@ export class GameRenderer {
     dt: number
     lastUpdate: number
 
+    lastRender: number
+
     username: string
     userEntity : Entity
+
+    prevX: number
+    prevY: number
+    prevSize: number
 
     constructor(canvas: HTMLCanvasElement, username: string) {
         this.canvas = canvas
@@ -162,19 +168,44 @@ export class GameRenderer {
 
         // Determine absolute view position based on user
         let gridSize = 20
-        let renderSize = gridSize / 2
-        let x, y
 
+        // Target {X,Y,Size} is where we would like to center the view.
+        // If user is alive, center on him and display half the map
+        // Otherwise, display the whole map
+        let targetX, targetY, targetSize
         if (this.userEntity != null) {
             let coords = this.userEntity.getCoords(interpolation)
-            x = coords[0]
-            y = coords[1]
+            targetX = coords[0]
+            targetY = coords[1]
+            targetSize = gridSize / 2
         } else {
-            // On user death zoom out and display whole map
-            x = renderSize
-            y = renderSize
-            renderSize = gridSize
+            targetX = gridSize / 2
+            targetY = gridSize / 2
+            targetSize = gridSize
         }
+
+        let x, y, renderSize
+        if (this.lastRender) {
+          // Use an exponential decay with half-life of 350ms to transition between the current
+          // position and the target.
+          // Trust me, I'm a JMC.
+          // 350ms is totally arbitrary though
+          let factor = 1 - Math.exp(- (Date.now() - this.lastRender) / 350 * Math.log(2))
+
+          x = targetX * factor + this.prevX * (1 - factor)
+          y = targetY * factor + this.prevY * (1 - factor)
+          renderSize = targetSize * factor + this.prevSize * (1 - factor)
+        } else {
+          x = targetX
+          y = targetY
+          renderSize = targetSize
+        }
+
+        this.lastRender = Date.now()
+
+        this.prevX = x
+        this.prevY = y
+        this.prevSize = renderSize
 
         // Set window specific variables
         let height = this.canvas.height
