@@ -109,7 +109,7 @@ export class GameLog {
 
       switch (logEvent.logType) {
           case 0:
-              this.log.innerHTML = "A new game has started, good luck!\n"
+              this.log.innerHTML = "A new round has started, good luck!\n"
               break
           case 1:
               this.log.innerHTML = this.log.innerHTML

@@ -305,12 +305,12 @@ func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
 		nextCreatureVolume := eaterVolume + amount*eaten.BonusFactor()
 		if nextCreatureVolume < 0 {
 			eater.Base().dying = true
-			engine.addLogEvent(eater, eaten)
 		} else {
 			eater.Base().nextRadius = math.Sqrt(nextCreatureVolume)
 		}
 		eaten.Base().dying = true
 		eater.(*Creature).decrementScore()
+		engine.addLogEvent(eater, eaten)
 	} else {
 		amount = math.Exp(-1/drainRate*dt) * eatenVolume
 		eater.Base().nextRadius = math.Sqrt(eaterVolume + amount*eaten.BonusFactor())
