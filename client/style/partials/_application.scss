@@ -199,7 +199,8 @@ code {
   }
 }
 
-#game-panel {
+#game-panel,
+#game-leaderboard {
     @extend .container;
     @extend .rounded;
 
@@ -209,26 +210,61 @@ code {
     padding: 0;
     width: 95%;
     box-sizing: border-box;
-    margin: 10px 0;
+    margin: 10px 0 0 0;
     overflow: hidden;
     position: relative;
     background: darken($background-colour, 70%);
 
+}
+
+#game-leaderboard {
+  .table {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    .top-half,
+    .bottom-half {
+      flex: 1;
+
+      span {
+        color: white;
+        display: block;
+        padding: 2px 0;
+
+        &.first {
+          color: $gold;
+        }
+
+        &.second {
+          color: $silver;
+        }
+
+        &.third {
+          color: $bronze;
+        }
+      }
+    }
+  }
+}
+
+.header {
+  display: block;
+  width: auto;
+  height: 2em;
+  font-weight: bold;
+  background-color: darken($background-colour, 80%);
+  border-bottom-right-radius: $container-border-radius;
+  padding: 4px 26px 4px 10px;
+  color: $user;
+  text-align: left !important;
+  line-height: 1.4em;
+}
+
+#game-panel {
+    margin-bottom: 10px;
+
     * {
       text-align: center;
-    }
-
-    #user-id {
-      display: block;
-      width: auto;
-      height: 2em;
-      font-weight: bold;
-      background-color: darken($background-colour, 80%);
-      border-bottom-right-radius: $container-border-radius;
-      padding: 4px 26px 4px 10px;
-      color: $user;
-      text-align: left;
-      line-height: 1.4em;
     }
 
     #user-id:before {
