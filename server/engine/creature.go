@@ -89,8 +89,8 @@ func (creature *Creature) Tick(state protocol.WorldState, dt float64) {
 		speed.Dy /= norm
 	}
 
-	creature.X += speed.Dx * dt
-	creature.Y += speed.Dy * dt
+	creature.X += speed.Dx * dt * 4
+	creature.Y += speed.Dy * dt * 4
 
 	if creature.X-creature.Radius < 0 {
 		creature.X = creature.Radius
