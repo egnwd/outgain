@@ -26,10 +26,6 @@ class Entity {
 	return this.current.radius
     }
 
-    getPreviousRadius() {
-	return this.previous.radius
-    }
-    
     getCoords(interpolation?: number) {
         if (interpolation !== undefined) {
           let x = lerp(this.previous.x, this.current.x, interpolation)
