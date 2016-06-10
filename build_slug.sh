@@ -19,7 +19,7 @@ mkdir -p "$TARGET_DIR"
 
 cp -r client/dist "$TARGET_DIR/static"
 cp server/server "$TARGET_DIR"
-cp runner/target/debug/runner "$TARGET_DIR"
+cp runner/target/release/runner "$TARGET_DIR"
 cp default_ai.rb "$TARGET_DIR"
 cp bot_ai.rb "$TARGET_DIR"
 
