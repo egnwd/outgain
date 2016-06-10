@@ -1,1 +1,1 @@
-CREATE TABLE leaaderboard (username string, score int);
+CREATE TABLE leaderboard (username text, score integer);
