@@ -14,6 +14,8 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 )
 
+const speedFactor = 4
+
 type Creature struct {
 	EntityBase
 
@@ -89,8 +91,8 @@ func (creature *Creature) Tick(state protocol.WorldState, dt float64) {
 		speed.Dy /= norm
 	}
 
-	creature.X += speed.Dx * dt
-	creature.Y += speed.Dy * dt
+	creature.X += speed.Dx * dt * speedFactor
+	creature.Y += speed.Dy * dt * speedFactor
 
 	if creature.X-creature.Radius < 0 {
 		creature.X = creature.Radius
