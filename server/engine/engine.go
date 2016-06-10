@@ -164,8 +164,8 @@ func (engine *Engine) Serialize() protocol.WorldState {
 		entities[i] = entity.Serialize()
 	}
 
-	progress := time.Since(engine.firstTick).Nanoseconds() /
-		(roundLength.Nanoseconds() / 100)
+	var progress float64 = float64(time.Since(engine.firstTick).Nanoseconds()) /
+		(float64(roundLength.Nanoseconds()) / 100.0)
 
 	return protocol.WorldState{
 		Time:     uint64(engine.lastTick.UnixNano()) / 1e6,
