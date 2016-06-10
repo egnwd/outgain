@@ -48,10 +48,12 @@ $(function() {
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
     let roundName = document.getElementById("round-name")
 
+
+
     let renderer = new GameRenderer(canvas, userPanel.username)
 
     let lobbyId = getLobbyId()
-    idField.setAttribute("value", lobbyId)
+    idField.setAttribute("href", "/lobbies/" + lobbyId + "/summary")
 
     let source = new EventSource("/updates/" + lobbyId)
 
@@ -60,7 +62,7 @@ $(function() {
         let update = <IWorldState>data
 
         roundName.style.display = "none"
-        timer.pushState(update)
+        timer.pushState(update.progress, update.time)
         renderer.pushState(update)
     })
 
@@ -71,7 +73,11 @@ $(function() {
     })
 
     source.addEventListener("gameover", function(event) {
-      window.location.href = "/lobbies"
+      roundName.innerHTML = "Game Over"
+      roundName.style.display = "block"
+      setTimeout(() => {
+        window.location.href = window.location.pathname + "/summary"
+      }, 1500);
     })
 
     source.addEventListener("log", function(lEvent) {

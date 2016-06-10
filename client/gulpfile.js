@@ -47,6 +47,7 @@ function scripts(watch) {
         bundle(__dirname + '/src/index.ts', 'index.bundle.js', watch),
         bundle(__dirname + '/src/lobbies.ts', 'lobbies.bundle.js', watch),
         bundle(__dirname + '/src/leaderboard.ts', 'leaderboard.bundle.js', watch),
+        bundle(__dirname + '/src/summary.ts', 'summary.bundle.js', watch),
     ];
 }
 

@@ -123,6 +123,12 @@ func LobbiesGame(staticDir string) http.Handler {
 	})
 }
 
+func LobbiesSummary(staticDir string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, staticDir+"/summary.html")
+	})
+}
+
 // LobbiesLeave temporarily logs the user out - this will change in the future
 func LobbiesLeave(w http.ResponseWriter, r *http.Request) {
 	// Get the id of the requested lobby
