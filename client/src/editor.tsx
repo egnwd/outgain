@@ -108,7 +108,7 @@ export default class Editor {
 
     private updateGistList() {
         this.gh.getGists().then((gists) => {
-          let elements = gists.map((gist) => this.gistElement(gist)).filter((gist) => {return gist !== null});
+          let elements = gists.map((gist) => this.gistElement(gist)).filter((gist) => gist !== null);
           return $.when(...elements);
         }).then((...items) => {
             let list = document.getElementById('gist-list')
@@ -121,9 +121,7 @@ export default class Editor {
                 $("#gist-list").show();
                 $("#no-gists").hide();
                 items.forEach((item) => {
-                  if (item !== null) {
                     list.appendChild(item as any)
-                  }
                 })
             }
         })
