@@ -22,6 +22,10 @@ class Entity {
         return this.current.name == username
     }
 
+    getRadius() {
+	return this.current.radius
+    }
+
     getCoords(interpolation?: number) {
         if (interpolation !== undefined) {
           let x = lerp(this.previous.x, this.current.x, interpolation)
@@ -143,7 +147,7 @@ export class GameRenderer {
         this.ctx = canvas.getContext("2d")
 
         this.username = username
-
+	
         this.onResize()
     }
 
@@ -177,7 +181,8 @@ export class GameRenderer {
             let coords = this.userEntity.getCoords(interpolation)
             targetX = coords[0]
             targetY = coords[1]
-            targetSize = gridSize / 2
+	    targetSize = this.userEntity.getRadius() * 10
+	    targetSize = Math.min(targetSize, gridSize)
         } else {
             targetX = gridSize / 2
             targetY = gridSize / 2
@@ -188,13 +193,15 @@ export class GameRenderer {
         if (this.lastRender) {
           // Use an exponential decay with half-life of 350ms to transition between the current
           // position and the target.
-          // Trust me, I'm a JMC.
+          // Trust me, I'm a JMC. K fam. 
           // 350ms is totally arbitrary though
           let factor = 1 - Math.exp(- (Date.now() - this.lastRender) / 350 * Math.log(2))
 
           x = targetX * factor + this.prevX * (1 - factor)
           y = targetY * factor + this.prevY * (1 - factor)
-          renderSize = targetSize * factor + this.prevSize * (1 - factor)
+
+	  renderSize = targetSize * factor + this.prevSize * (1 - factor)
+	    
         } else {
           x = targetX
           y = targetY
