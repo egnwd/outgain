@@ -113,11 +113,16 @@ export default class Editor {
         }).then((...items) => {
             let list = document.getElementById('gist-list')
             while (list.firstChild) list.removeChild(list.firstChild);
-            items.forEach((item) => {
-              if (item !== null) {
-                list.appendChild(item as any)
-              }
-            })
+            if (items.length === 0) {
+                $("#no-gists").show();
+            } else {
+                $("#no-gists").hide();
+                items.forEach((item) => {
+                  if (item !== null) {
+                    list.appendChild(item as any)
+                  }
+                })
+            }
         })
     }
 

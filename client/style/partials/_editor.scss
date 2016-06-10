@@ -133,76 +133,93 @@
             transform: translateX(100%);
             transition: transform 0.3s;
 
-            #gist-list {
-                padding: 10px;
-                overflow-y: scroll;
+            .pane-contents {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
 
-                .gist-entry {
-                    position: relative;
-                    background-color: white;
-                    border-radius: 5px;
-                    border: 2px solid white;
+                #no-gists {
+                    font-family: $fontStack;
+                    font-size: 1em;
+                    font-weight: normal;
+                    text-transform: uppercase;
+                    letter-spacing: 2px
+                }
+
+                #gist-list {
+                    flow: 1;
+                    width: 100%;
                     padding: 10px;
+                    overflow-y: scroll;
 
-                    margin: 0px 0px 10px 0px;
-                    &:last-child {
-                      margin-bottom: 0px;
-                    }
-
-                    cursor: pointer;
-
-                    .gist-info {
-                        .gist-name {
-                            display: block;
-                        }
-                        .gist-date {
-                            margin-top: 5px;
-                            display: block;
-                            color: #999;
-                            font-size: 11px;
-                        }
-                    }
-
-                    .gist-snippet {
+                    .gist-entry {
                         position: relative;
-                        margin-top: 5px;
+                        background-color: white;
+                        border-radius: 5px;
+                        border: 2px solid white;
+                        padding: 10px;
 
-                        pre {
-                            padding: 5px;
-                            border: 1px solid;
-                            border-color: grey;
-                            border-radius: 5px;
-
-                            width: 100%;
-                            max-height: 150px;
-                            z-index: 0;
-                            overflow-y: scroll;
+                        margin: 0px 0px 10px 0px;
+                        &:last-child {
+                          margin-bottom: 0px;
                         }
 
-                    }
+                        cursor: pointer;
 
-                    .gist-tooltip {
-                        margin: -2px -2px 0 0;
-                        padding: 5px 10px 5px 10px;
-                        position: absolute;
-                        top: 0;
-                        right: 0;
-                        z-index: 1;
-                        background-color: #4078c0;
-                        color: white;
-                        visibility: hidden;
-                        border-top-right-radius: 5px;
-                        border-bottom-left-radius: 2px;
-                    }
-
-                    &:hover {
-                        border-color: #4078c0;
-
-                        .gist-info .gist-name {
-                            color: #4078c0;
+                        .gist-info {
+                            .gist-name {
+                                display: block;
+                            }
+                            .gist-date {
+                                margin-top: 5px;
+                                display: block;
+                                color: #999;
+                                font-size: 11px;
+                            }
                         }
+
+                        .gist-snippet {
+                            position: relative;
+                            margin-top: 5px;
+
+                            pre {
+                                padding: 5px;
+                                border: 1px solid;
+                                border-color: grey;
+                                border-radius: 5px;
+
+                                width: 100%;
+                                max-height: 150px;
+                                z-index: 0;
+                                overflow-y: scroll;
+                            }
+
+                        }
+
                         .gist-tooltip {
-                            visibility: visible;
+                            margin: -2px -2px 0 0;
+                            padding: 5px 10px 5px 10px;
+                            position: absolute;
+                            top: 0;
+                            right: 0;
+                            z-index: 1;
+                            background-color: #4078c0;
+                            color: white;
+                            visibility: hidden;
+                            border-top-right-radius: 5px;
+                            border-bottom-left-radius: 2px;
+                        }
+
+                        &:hover {
+                            border-color: #4078c0;
+
+                            .gist-info .gist-name {
+                                color: #4078c0;
+                            }
+                            .gist-tooltip {
+                                visibility: visible;
+                            }
                         }
                     }
                 }
