@@ -16,7 +16,7 @@ func ParseArgs() (config *Config) {
 	flag.UintVar(&config.Port, "port", 8080, "")
 	flag.StringVar(&config.StaticDir, "static-dir", "client/dist", "")
 	flag.BoolVar(&config.RedirectPlainHTTP, "redirect-plain-http", false, "")
-	flag.StringVar(&config.RunnerBin, "runner-bin", "./runner/target/debug/runner", "")
+	flag.StringVar(&config.RunnerBin, "runner-bin", "./runner/target/release/runner", "")
 	flag.StringVar(&config.DefaultAI, "default-ai", "./default_ai.rb", "")
 	flag.StringVar(&config.BotAI, "bot-ai", "./bot_ai.rb", "")
 	flag.Parse()
