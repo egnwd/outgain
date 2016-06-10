@@ -145,15 +145,12 @@ export class GameRenderer {
     prevX: number
     prevY: number
     prevSize: number
-    initial: boolean
 
     constructor(canvas: HTMLCanvasElement, username: string) {
         this.canvas = canvas
         this.ctx = canvas.getContext("2d")
 
         this.username = username
-
-	this.initial = true
 	
         this.onResize()
     }
