@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
+	"sort"
 	"time"
 
 	"sync"
@@ -267,19 +268,25 @@ func (lobby *Lobby) FindGuest(username string) *guest.Guest {
 	return nil
 }
 
-type Lobbies []struct {
+type SerializedLobby struct {
 	ID   uint64
 	Name string
 }
 
+type SerializedLobbies []SerializedLobby
+
+func (ls SerializedLobbies) Len() int           { return len(ls) }
+func (ls SerializedLobbies) Less(i, j int) bool { return ls[i].Name < ls[j].Name }
+func (ls SerializedLobbies) Swap(i, j int)      { ls[i], ls[j] = ls[j], ls[i] }
+
 // GetLobbyNames returns an array of all the Names in the lobbies map
-func Serialize() (ls Lobbies) {
+func Serialize() (ls SerializedLobbies) {
 	for id, l := range lobbies {
-		newL := struct {
-			ID   uint64
-			Name string
-		}{ID: id, Name: l.Name}
+		newL := SerializedLobby{ID: id, Name: l.Name}
 		ls = append(ls, newL)
 	}
+
+	sort.Sort(ls)
+
 	return
 }
