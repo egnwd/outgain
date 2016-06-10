@@ -33,15 +33,17 @@ func UpdateLeaderboard(username string, score int) {
 	deleteSingle := `DELETE FROM leaderboard WHERE ctid 
 	                 IN (SELECT ctid FROM leaderboard ORDER BY 
                          score asc LIMIT 1)`
-	instance.Query(deleteSingle)
-
+	_, err := instance.Query(deleteSingle)
+	fmt.Print
+	NilCheck(err)
 	insertNew := "INSERT INTO leaderboard (username, score) "
 	insertNew += "VALUES ('"
 	insertNew += username
 	insertNew += "', "
 	insertNew += strconv.Itoa(score)
 	insertNew += ")"
-	instance.Query(insertNew)
+	_, err = instance.Query(insertNew)
+	NilCheck(err)
 }
 
 func GetMinScore() int {
@@ -53,6 +55,7 @@ func GetMinScore() int {
 	var score int
 	err = rows.Scan(&score)
 	NilCheck(err)
+	fmt.Println("min %s", score)
 	return score
 }
 
