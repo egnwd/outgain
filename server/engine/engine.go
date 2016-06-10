@@ -23,7 +23,7 @@ const initialCreatureCount = 10
 const drainRate = 0.5
 const radiusThreshold = 0.2
 
-const roundLength = 15 * time.Second
+const roundLength = 20 * time.Second
 
 // Engine stores the information about an instance of the game and controls
 // the events that are occuring within the game
@@ -164,8 +164,8 @@ func (engine *Engine) Serialize() protocol.WorldState {
 		entities[i] = entity.Serialize()
 	}
 
-	progress := time.Since(engine.firstTick).Nanoseconds() /
-		(roundLength.Nanoseconds() / 100)
+	var progress float64 = float64(time.Since(engine.firstTick).Nanoseconds()) /
+		(float64(roundLength.Nanoseconds()) / 100.0)
 
 	return protocol.WorldState{
 		Time:     uint64(engine.lastTick.UnixNano()) / 1e6,
@@ -305,12 +305,12 @@ func (engine *Engine) eatEntity(dt float64, eater, eaten Entity) {
 		nextCreatureVolume := eaterVolume + amount*eaten.BonusFactor()
 		if nextCreatureVolume < 0 {
 			eater.Base().dying = true
-			engine.addLogEvent(eater, eaten)
 		} else {
 			eater.Base().nextRadius = math.Sqrt(nextCreatureVolume)
 		}
 		eaten.Base().dying = true
 		eater.(*Creature).decrementScore()
+		engine.addLogEvent(eater, eaten)
 	} else {
 		amount = math.Exp(-1/drainRate*dt) * eatenVolume
 		eater.Base().nextRadius = math.Sqrt(eaterVolume + amount*eaten.BonusFactor())

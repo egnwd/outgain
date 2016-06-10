@@ -40,7 +40,7 @@ class Entity {
         this.current = state
     }
 
-    render(ctx: CanvasRenderingContext2D, scale: number, interpolation: number, 
+    render(ctx: CanvasRenderingContext2D, scale: number, interpolation: number,
             userX: number, userY:number, xSize: number, ySize: number) {
         let x = lerp(this.previous.x, this.current.x, interpolation)
         let y = lerp(this.previous.y, this.current.y, interpolation)
@@ -49,9 +49,9 @@ class Entity {
         // Skip if outside bounds of user's view
         // Use diameter rather than radius to render just outside view also
         let d = 2 * radius
-        if (!  (x + d > userX - xSize / 2 && 
+        if (!  (x + d > userX - xSize / 2 &&
                 x - d < userX + xSize / 2 &&
-                y + d > userY - ySize / 2 && 
+                y + d > userY - ySize / 2 &&
                 y - d < userY + ySize / 2)) {
             return
         }
@@ -223,7 +223,7 @@ export class GameRenderer {
         for (let id in this.entities) {
             let xSize = width / scale
             let ySize = height / scale
-            this.entities[id].render(this.ctx, scale, interpolation, x, y, 
+            this.entities[id].render(this.ctx, scale, interpolation, x, y,
                 xSize, ySize)
         }
 
@@ -235,6 +235,7 @@ export class GameRenderer {
             this.ctx.beginPath()
             this.ctx.moveTo(x * scale, 0)
             this.ctx.lineTo(x * scale, ysize * scale)
+            this.ctx.strokeStyle = '#dddddd'
             this.ctx.stroke()
         }
 

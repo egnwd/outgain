@@ -16,14 +16,12 @@ var createLobby = function(event) {
         text: "Name your lobby:",
         type: "input",
         showCancelButton: true,
-        closeOnConfirm: false,
-        showLoaderOnConfirm: true,
         animation: "slide-from-top",
         inputPlaceholder: "Foo bar..."
       },
       function(name){
         if (name === false) return false;
-        name = (<string>name).trim()
+        name = (name as string).trim()
 
         if (name === "") {
           sweetalert.showInputError("You need to give your lobby a name!");
@@ -37,12 +35,7 @@ var createLobby = function(event) {
           type: "POST"
         })
         .done(function() {
-          updateTable()
-          swal({title: "Created Lobby '" + name + "'!",
-                timer: 1500,
-                showConfirmButton: false,
-                type: "success"
-              });
+          updateTable(<string>name)
         })
       });
 }
@@ -53,9 +46,8 @@ var lobbyClick = function() {
     $("#lobbies-table tr.lobby").removeClass("selected")
     $(this).addClass("selected")
     // Get lobby name from row
-    let row = $(this).find("td")[0]
-    let name = row.innerHTML
-    var id = row.getAttribute("data-id")
+    let name =  $(this).attr("data-name")
+    var id = $(this).attr("data-id")
     // Get users in lobby from server
     let lobbyUrl = "/lobbies/" + id + "/users"
     $.ajax({
@@ -63,7 +55,6 @@ var lobbyClick = function() {
       dataType: 'json'
     })
     .done(function(data) {
-      console.log(data)
       let users = data
       // Generate table of users in specified lobby
       let table = "<table id='players'>\
@@ -92,25 +83,26 @@ interface Lobby {
   Name: string
 }
 
-var updateTable = function() {
+var updateTable = function(select?: string) {
   // Get lobby IDs from server
   $.ajax({
     url: "/peekLobbies",
     dataType: 'json'
   })
-  .done(function(data) {
-      console.log(data)
-      let lobbies = <Array<Lobby>> data
+  .done(redrawTable(select))
+}
 
-      // Generate table of lobby IDs
+var redrawTable = function(select?: string) {
+  return function(data) {
+      let lobbies = <Array<Lobby>> data
 
       let table = ""
       if (lobbies == null || lobbies.length == 0) {
         table += "<tr class='no-lobbies'><td>No available lobbies</td></tr>"
       } else {
         for (var i = 0; i < lobbies.length; i++) {
-          table += "<tr class='lobby'>\
-          <td class='left' data-id='" + lobbies[i].ID + "'>"
+          table += "<tr class='lobby' data-name='" + lobbies[i].Name + "' data-id='" + lobbies[i].ID + "'>\
+          <td class='left'>"
           + lobbies[i].Name + "</td>\
           <td class='right'>&#8594;</td></tr>"
         }
@@ -118,5 +110,9 @@ var updateTable = function() {
 
       $("#lobbies-table").find("tbody")[0].innerHTML = table
       $("#lobbies-table tr.lobby").click(lobbyClick)
-  })
+      // Select the lobby we just created
+      if (select) {
+        $("#lobbies-table tr.lobby[data-name=\"" + select + "\"]").click()
+      }
+  }
 }

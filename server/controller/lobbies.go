@@ -123,6 +123,12 @@ func LobbiesGame(staticDir string) http.Handler {
 	})
 }
 
+func LobbiesSummary(staticDir string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, staticDir+"/summary.html")
+	})
+}
+
 // LobbiesLeave temporarily logs the user out - this will change in the future
 func LobbiesLeave(w http.ResponseWriter, r *http.Request) {
 	// Get the id of the requested lobby
@@ -153,4 +159,38 @@ func LobbiesLeave(w http.ResponseWriter, r *http.Request) {
 	// Redirect user to the lobby
 	log.Printf("User: %s Left Lobby: %d", username, id)
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func LobbiesLeaderboard(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseUint(vars["id"], 10, 64)
+
+	l, ok := lobby.GetLobby(id)
+	if !ok {
+		return
+	}
+
+	// Get all usernames from lobby
+	userScores := l.GetUserScores()
+
+	// Convert to JSON and return it
+	bs, err := json.Marshal(userScores)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(bs)
+}
+
+func LobbiesName(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseUint(vars["id"], 10, 64)
+
+	l, ok := lobby.GetLobby(id)
+	if !ok {
+		return
+	}
+
+	w.Write([]byte(l.Name))
 }

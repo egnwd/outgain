@@ -155,6 +155,17 @@ code {
   box-sizing: border-box;
 }
 
+#game-title {
+  @extend .rounded;
+  @extend h3;
+  width: 95%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  overflow: hidden;
+  position: relative;
+  background: none;
+}
+
 #game-log-wrapper {
   flex: 1;
   width: 95%;
@@ -199,7 +210,8 @@ code {
   }
 }
 
-#game-panel {
+#game-panel,
+#game-leaderboard {
     @extend .container;
     @extend .rounded;
 
@@ -209,26 +221,80 @@ code {
     padding: 0;
     width: 95%;
     box-sizing: border-box;
-    margin: 10px 0;
+    margin: 10px 0 0 0;
     overflow: hidden;
     position: relative;
     background: darken($background-colour, 70%);
 
+}
+
+#game-leaderboard {
+  .table {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+
+    table {
+      flex: 1;
+      width: 50%;
+      padding: 0 5px;
+      background: none;
+      color: white;
+      margin: 0;
+      border: none;
+
+      tr {
+        background: none;
+        border: none;
+
+        td {
+          padding: 0;
+          margin: 0;
+
+          &.position, &.score {
+            text-align: right;
+          }
+
+          &.position {
+            width: 24px;
+            padding-right: 10px;
+          }
+        }
+
+        &.first {
+          color: $gold;
+        }
+
+        &.second {
+          color: $silver;
+        }
+
+        &.third {
+          color: $bronze;
+        }
+      }
+    }
+  }
+}
+
+.header {
+  display: block;
+  width: auto;
+  height: 2em;
+  font-weight: bold;
+  background-color: darken($background-colour, 80%);
+  border-bottom-right-radius: $container-border-radius;
+  padding: 4px 26px 4px 10px;
+  color: $user;
+  text-align: left !important;
+  line-height: 1.4em;
+}
+
+#game-panel {
+    margin-bottom: 10px;
+
     * {
       text-align: center;
-    }
-
-    #user-id {
-      display: block;
-      width: auto;
-      height: 2em;
-      font-weight: bold;
-      background-color: darken($background-colour, 80%);
-      border-bottom-right-radius: $container-border-radius;
-      padding: 4px 26px 4px 10px;
-      color: $user;
-      text-align: left;
-      line-height: 1.4em;
     }
 
     #user-id:before {

@@ -1,5 +1,5 @@
 import * as $ from 'jquery'
-import { ILogEvent, IWorldState } from "./protocol"
+import { ILogEvent } from "./protocol"
 import { lerp } from "./util"
 
 export class Timer {
@@ -33,14 +33,14 @@ export class Timer {
       }
   }
 
-  public pushState(state: IWorldState) {
+  public pushState(progress: number, time: number) {
     let interpolation = this.interpolation()
 
     this.previousTime = this.currentTime
-    this.currentTime = state.time
+    this.currentTime = time
 
     this.previousProgress = this.currentProgress
-    this.currentProgress = state.progress
+    this.currentProgress = progress
 
     this.lastUpdate = Date.now()
     if (this.previousTime != null) {
@@ -49,7 +49,7 @@ export class Timer {
   }
 
   public reset() {
-    $(this.bar).stop().css("width", "0")
+    this.pushState(0, Date.now())
   }
 }
 
@@ -109,7 +109,7 @@ export class GameLog {
 
       switch (logEvent.logType) {
           case 0:
-              this.log.innerHTML = "A new game has started, good luck!\n"
+              this.log.innerHTML = "A new round has started, good luck!\n"
               break
           case 1:
               this.log.innerHTML = this.log.innerHTML

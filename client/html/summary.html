@@ -3,17 +3,21 @@
   <head>
     <meta charset="utf-8">
     <link href="/css/main.css" rel="stylesheet" type="text/css" />
-    <script src="/js/leaderboard.bundle.js" type="text/javascript"></script>
-    <title>Leaderboard - Outgain</title>
+    <script src="/js/summary.bundle.js" type="text/javascript"></script>
+    <title>Summary - Outgain</title>
   </head>
   <body>
     <div id="leaderboard-container">
       <div class="banner">
         <h1 id="title" style="height: 200px; width: 320px;"></h1>
         <div class="nav-buttons" style="float: right; display: flex; flex-direction: row-reverse; align-items: center;">
-          <a href="/lobbies" class="btn">Back to lobbies</a>
+          <form action="/lobbies/leave" method="post">
+            <input id="id-field" type="text" name="id" value="" style="display: none;">
+            <input type="submit" name="submit" value="Back to Lobbies" class="btn">
+          </form>
         </div>
       </div>
+      <h2>Summary</h2>
       <div class="tables">
         <table id='leaderboardTable'>
          <!-- dynamically loaded-->

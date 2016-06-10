@@ -25,13 +25,13 @@
   table {
     width: 640px;
     tbody > tr:nth-child(1) {
-      background-color: #F1DA3C;
+      background-color: $gold;
     }
     tbody > tr:nth-child(2) {
-      background-color: #D1E4E2;
+      background-color: $silver;
     }
     tbody > tr:nth-child(3) {
-      background-color: #C39F59;
+      background-color: $bronze;
     }
   }
 }

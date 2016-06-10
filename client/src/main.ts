@@ -5,6 +5,7 @@ import { IWorldState, ILogEvent } from "./protocol";
 import { GameRenderer } from './renderer'
 import { UserPanel, Timer, GameLog } from './gameUI'
 import Editor from './editor'
+import GameLeaderboard from './live-leaderboard'
 import * as $ from 'jquery'
 
 // Move to GameUI
@@ -27,23 +28,32 @@ $(function() {
 
 function getLobbyId() {
   let url = window.location.href.toString()
-  let re = /([0-9]+)$/g
-  return url.match(re)[0]
+  let re = /([0-9]+)\/$/g
+  return re.exec(url)[1]
 }
 
 $(function() {
     var userPanel = new UserPanel("#user-id", "#user-gains-text")
     let timer = new Timer("#elapsed")
+    let leaderboard = new GameLeaderboard("#game-leaderboard .table")
+    let gameLog = new GameLog("game-log")
+
+
+    let title = document.getElementById("game-title")
+    $.ajax({ url: window.location.pathname + "/name", }).done((lobbyTitle) => {
+      title.innerHTML = lobbyTitle
+    })
 
     let idField = document.getElementById("id-field")
-    let gameLog = new GameLog("game-log")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
     let roundName = document.getElementById("round-name")
+
+
 
     let renderer = new GameRenderer(canvas, userPanel.username)
 
     let lobbyId = getLobbyId()
-    idField.setAttribute("value", lobbyId)
+    idField.setAttribute("href", "/lobbies/" + lobbyId + "/summary")
 
     let source = new EventSource("/updates/" + lobbyId)
 
@@ -52,7 +62,7 @@ $(function() {
         let update = <IWorldState>data
 
         roundName.style.display = "none"
-        timer.pushState(update)
+        timer.pushState(update.progress, update.time)
         renderer.pushState(update)
     })
 
@@ -63,7 +73,11 @@ $(function() {
     })
 
     source.addEventListener("gameover", function(event) {
-      window.location.href = "/lobbies"
+      roundName.innerHTML = "Game Over"
+      roundName.style.display = "block"
+      setTimeout(() => {
+        window.location.href = window.location.pathname + "/summary"
+      }, 1500);
     })
 
     source.addEventListener("log", function(lEvent) {
@@ -75,6 +89,8 @@ $(function() {
         if (userPanel.username == logEvent.protagName) {
           userPanel.updateScore(logEvent.gains)
         }
+
+        leaderboard.refresh()
     })
 
     window.addEventListener("resize", () => renderer.onResize())

@@ -16,12 +16,25 @@
           </div>
         </div>
         <div id="game-sidebar" class="main container one-third">
+          <div id="game-title">Lobby</div>
           <div id="game-log-wrapper">
-            <code id="game-log">A new game has started!
-</code> <!-- I apologise -->
+            <code id="game-log"></code>
+          </div>
+          <div id="game-leaderboard">
+            <div class="header">Leaderboard</div>
+            <div class="table">
+              <table>
+                <tbody class="top-half">
+                </tbody>
+              </table>
+              <table>
+                <tbody class="bottom-half">
+                </tbody>
+              </table>
+            </div>
           </div>
           <div id="game-panel">
-            <div id="user-id"></div>
+            <div id="user-id" class="header"></div>
             <div class="gains-buttons">
               <div id="user-gains"><span id="user-gains-text" display="block">00000</span></div>
               <ul id="game-buttons">
@@ -29,10 +42,7 @@
                   <button id="edit-button" class="btn btn--action">Edit AI</button>
                 </li>
                 <li>
-                  <form action="/lobbies/leave" method="post">
-                    <input id="id-field" type="text" name="id" value="" style="display: none;">
-                    <input type="submit" name="submit" value="Leave" class="btn btn--leave">
-                  </form>
+                  <a href="/lobbies/id/summary" id="id-field" class="btn btn--leave">Leave</a>
                 </li>
               </ul>
             </div>

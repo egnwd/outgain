@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
+	"sort"
 	"time"
 
 	"sync"
@@ -19,7 +20,8 @@ import (
 )
 
 const lobbySize int = 10
-const maxRounds int = 15
+const maxRounds int = 5
+const roundSleep = 1500 * time.Millisecond
 
 var lobbies = make(map[uint64]*Lobby)
 
@@ -118,7 +120,9 @@ func (lobby *Lobby) runEngine() {
 
 	log.Println("Destroying Lobby")
 	lobby.isRunning = false
-	destroyLobby(lobby)
+	lobby.eventChannel <- protocol.Event{
+		Type: "gameover",
+	}
 }
 
 func (lobby *Lobby) newRound() {
@@ -126,7 +130,7 @@ func (lobby *Lobby) newRound() {
 	lobby.UpdateRound()
 
 	// Pause before round start
-	time.Sleep(2 * time.Second)
+	time.Sleep(roundSleep)
 }
 
 func (lobby *Lobby) UpdateRound() {
@@ -152,10 +156,6 @@ func destroyLobby(lobby *Lobby) {
 	lobby.Guests.UserSize = 0
 	lobby.Engine = nil
 	delete(lobbies, lobby.ID)
-
-	lobby.eventChannel <- protocol.Event{
-		Type: "gameover",
-	}
 }
 
 func generalPopulation(size int, config *config.Config) guest.List {
@@ -267,19 +267,46 @@ func (lobby *Lobby) FindGuest(username string) *guest.Guest {
 	return nil
 }
 
-type Lobbies []struct {
+type userScore struct {
+	Name  string
+	Score int
+}
+
+type userScores []userScore
+
+func (us userScores) Len() int           { return len(us) }
+func (us userScores) Less(i, j int) bool { return us[i].Score > us[j].Score }
+func (us userScores) Swap(i, j int)      { us[i], us[j] = us[j], us[i] }
+
+func (lobby *Lobby) GetUserScores() (us userScores) {
+	for _, g := range lobby.Guests.Iterator() {
+		u := userScore{Name: g.GetName(), Score: g.GetGains()}
+		us = append(us, u)
+	}
+	sort.Sort(us)
+
+	return
+}
+
+type SerializedLobby struct {
 	ID   uint64
 	Name string
 }
 
+type SerializedLobbies []SerializedLobby
+
+func (ls SerializedLobbies) Len() int           { return len(ls) }
+func (ls SerializedLobbies) Less(i, j int) bool { return ls[i].Name < ls[j].Name }
+func (ls SerializedLobbies) Swap(i, j int)      { ls[i], ls[j] = ls[j], ls[i] }
+
 // GetLobbyNames returns an array of all the Names in the lobbies map
-func Serialize() (ls Lobbies) {
+func Serialize() (ls SerializedLobbies) {
 	for id, l := range lobbies {
-		newL := struct {
-			ID   uint64
-			Name string
-		}{ID: id, Name: l.Name}
+		newL := SerializedLobby{ID: id, Name: l.Name}
 		ls = append(ls, newL)
 	}
+
+	sort.Sort(ls)
+
 	return
 }
