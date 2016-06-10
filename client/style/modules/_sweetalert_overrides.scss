@@ -41,7 +41,8 @@ body.login .sweet-alert {
   top: 22px !important;
 }
 
-body.login .sweet-overlay {
+body.login .sweet-overlay,
+body.lobbies {
   background: url(../images/outgain_login_cover.png) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;

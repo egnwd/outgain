@@ -20,7 +20,8 @@ import (
 )
 
 const lobbySize int = 10
-const maxRounds int = 15
+const maxRounds int = 5
+const roundSleep = 1500 * time.Millisecond
 
 var lobbies = make(map[uint64]*Lobby)
 
@@ -119,7 +120,9 @@ func (lobby *Lobby) runEngine() {
 
 	log.Println("Destroying Lobby")
 	lobby.isRunning = false
-	destroyLobby(lobby)
+	lobby.eventChannel <- protocol.Event{
+		Type: "gameover",
+	}
 }
 
 func (lobby *Lobby) newRound() {
@@ -127,7 +130,7 @@ func (lobby *Lobby) newRound() {
 	lobby.UpdateRound()
 
 	// Pause before round start
-	time.Sleep(2 * time.Second)
+	time.Sleep(roundSleep)
 }
 
 func (lobby *Lobby) UpdateRound() {
@@ -153,10 +156,6 @@ func destroyLobby(lobby *Lobby) {
 	lobby.Guests.UserSize = 0
 	lobby.Engine = nil
 	delete(lobbies, lobby.ID)
-
-	lobby.eventChannel <- protocol.Event{
-		Type: "gameover",
-	}
 }
 
 func generalPopulation(size int, config *config.Config) guest.List {

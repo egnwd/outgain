@@ -23,7 +23,7 @@ const initialCreatureCount = 10
 const drainRate = 0.5
 const radiusThreshold = 0.2
 
-const roundLength = 15 * time.Second
+const roundLength = 20 * time.Second
 
 // Engine stores the information about an instance of the game and controls
 // the events that are occuring within the game
