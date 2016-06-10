@@ -35,11 +35,16 @@ function getLobbyId() {
 $(function() {
     var userPanel = new UserPanel("#user-id", "#user-gains-text")
     let timer = new Timer("#elapsed")
-
     let leaderboard = new GameLeaderboard("#game-leaderboard .table")
+    let gameLog = new GameLog("game-log")
+
+
+    let title = document.getElementById("game-title")
+    $.ajax({ url: window.location.pathname + "/name", }).done((lobbyTitle) => {
+      title.innerHTML = lobbyTitle
+    })
 
     let idField = document.getElementById("id-field")
-    let gameLog = new GameLog("game-log")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
     let roundName = document.getElementById("round-name")
 

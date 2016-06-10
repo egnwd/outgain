@@ -176,3 +176,15 @@ func LobbiesLeaderboard(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(bs)
 }
+
+func LobbiesName(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseUint(vars["id"], 10, 64)
+
+	l, ok := lobby.GetLobby(id)
+	if !ok {
+		return
+	}
+
+	w.Write([]byte(l.Name))
+}

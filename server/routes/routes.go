@@ -37,14 +37,15 @@ func GetHandler(config *config.Config) http.Handler {
 	// Lobbies
 	get.Handle("/lobbies", c.RequireAuth(c.LobbiesView(config.StaticDir)))
 	get.Handle("/peekLobbies", c.RequireAuth(http.HandlerFunc(c.LobbiesPeek)))
-	get.Handle("/lobbies/{id:[0-9]+}/users", c.RequireAuth(http.HandlerFunc(c.LobbiesGetUsers)))
 	post.Handle("/lobbies/join", c.RequireAuth(http.HandlerFunc(c.LobbiesJoin)))
 	post.Handle("/lobbies/create", c.RequireAuth(c.LobbiesCreate(config)))
 
 	// Game View
 	get.Handle("/lobbies/{id:[0-9]+}", c.RequireAuth(c.LobbiesGame(config.StaticDir)))
-	get.Handle("/updates/{id:[0-9]+}", c.UpdatesHandler())
+	get.Handle("/lobbies/{id:[0-9]+}/users", c.RequireAuth(http.HandlerFunc(c.LobbiesGetUsers)))
 	get.Handle("/lobbies/{id:[0-9]+}/leaderboard", c.RequireAuth(http.HandlerFunc(c.LobbiesLeaderboard)))
+	get.Handle("/lobbies/{id:[0-9]+}/name", c.RequireAuth(http.HandlerFunc(c.LobbiesName)))
+	get.Handle("/updates/{id:[0-9]+}", c.UpdatesHandler())
 	post.Handle("/lobbies/leave", c.RequireAuth(http.HandlerFunc(c.LobbiesLeave)))
 
 	// AI source
