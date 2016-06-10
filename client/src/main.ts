@@ -5,6 +5,7 @@ import { IWorldState, ILogEvent } from "./protocol";
 import { GameRenderer } from './renderer'
 import { UserPanel, Timer, GameLog } from './gameUI'
 import Editor from './editor'
+import GameLeaderboard from './live-leaderboard'
 import * as $ from 'jquery'
 
 // Move to GameUI
@@ -34,6 +35,8 @@ function getLobbyId() {
 $(function() {
     var userPanel = new UserPanel("#user-id", "#user-gains-text")
     let timer = new Timer("#elapsed")
+
+    let leaderboard = new GameLeaderboard("#game-leaderboard .table")
 
     let idField = document.getElementById("id-field")
     let gameLog = new GameLog("game-log")
@@ -75,6 +78,8 @@ $(function() {
         if (userPanel.username == logEvent.protagName) {
           userPanel.updateScore(logEvent.gains)
         }
+
+        leaderboard.refresh()
     })
 
     window.addEventListener("resize", () => renderer.onResize())

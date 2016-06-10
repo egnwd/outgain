@@ -44,6 +44,7 @@ func GetHandler(config *config.Config) http.Handler {
 	// Game View
 	get.Handle("/lobbies/{id:[0-9]+}", c.RequireAuth(c.LobbiesGame(config.StaticDir)))
 	get.Handle("/updates/{id:[0-9]+}", c.UpdatesHandler())
+	get.Handle("/lobbies/{id:[0-9]+}/leaderboard", c.RequireAuth(http.HandlerFunc(c.LobbiesLeaderboard)))
 	post.Handle("/lobbies/leave", c.RequireAuth(http.HandlerFunc(c.LobbiesLeave)))
 
 	// AI source

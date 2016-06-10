@@ -221,15 +221,34 @@ code {
   .table {
     padding: 10px;
     display: flex;
-    justify-content: space-between;
-    .top-half,
-    .bottom-half {
-      flex: 1;
+    justify-content: center;
 
-      span {
-        color: white;
-        display: block;
-        padding: 2px 0;
+    table {
+      flex: 1;
+      width: 50%;
+      padding: 0 5px;
+      background: none;
+      color: white;
+      margin: 0;
+      border: none;
+
+      tr {
+        background: none;
+        border: none;
+
+        td {
+          padding: 0;
+          margin: 0;
+
+          &.position, &.score {
+            text-align: right;
+          }
+
+          &.position {
+            width: 24px;
+            padding-right: 10px;
+          }
+        }
 
         &.first {
           color: $gold;

@@ -268,6 +268,27 @@ func (lobby *Lobby) FindGuest(username string) *guest.Guest {
 	return nil
 }
 
+type userScore struct {
+	Name  string
+	Score int
+}
+
+type userScores []userScore
+
+func (us userScores) Len() int           { return len(us) }
+func (us userScores) Less(i, j int) bool { return us[i].Score > us[j].Score }
+func (us userScores) Swap(i, j int)      { us[i], us[j] = us[j], us[i] }
+
+func (lobby *Lobby) GetUserScores() (us userScores) {
+	for _, g := range lobby.Guests.Iterator() {
+		u := userScore{Name: g.GetName(), Score: g.GetGains()}
+		us = append(us, u)
+	}
+	sort.Sort(us)
+
+	return
+}
+
 type SerializedLobby struct {
 	ID   uint64
 	Name string
