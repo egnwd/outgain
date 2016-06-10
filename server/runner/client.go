@@ -2,7 +2,6 @@ package runner
 
 import (
 	"errors"
-	"golang.org/x/sys/unix"
 	"log"
 	"net/rpc"
 	"os"
@@ -10,13 +9,15 @@ import (
 	"runtime"
 	"time"
 
+	"golang.org/x/sys/unix"
+
 	"github.com/ugorji/go/codec"
 
 	"github.com/egnwd/outgain/server/config"
 	"github.com/egnwd/outgain/server/protocol"
 )
 
-const runnerTimeout = 50 * time.Millisecond
+const runnerTimeout = 80 * time.Millisecond
 
 type RunnerClient struct {
 	client *rpc.Client

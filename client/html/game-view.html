@@ -66,9 +66,38 @@
               </div>
               <div id="editor-right-split">
                 <div id="editor-help" class="editor-block">
-                  <p>
-                  FooBar
-                  </p>
+                  <dl>
+                    <dt>WorldState</dt>
+                    <dd>
+                      <dl>
+                        <dt>time</dt>
+                        <dd>Current Time in game</dd>
+                        <dt>entities</dt>
+                        <dd>Current entities in the engine</dd>
+                      </dl>
+                    </dd>
+                    <dt>Entity</dt>
+                    <dd>
+                      <dl>
+                        <dt>id</dt>
+                        <dd>ID of entity</dd>
+                        <dt>x</dt>
+                        <dd>x coordinate of entity</dd>
+                        <dt>y</dt>
+                        <dd>y coordinate of entity</dd>
+                        <dt>radius</dt>
+                        <dd>radius of entity</dd>
+                        <dt>creature?</dt>
+                        <dd>returns true if and only if the Entity is a creature</dd>
+                        <dt>resource?</dt>
+                        <dd>returns true if and only if the Entity is a resource</dd>
+                        <dt>spike?</dt>
+                        <dd>returns true if and only if the Entity is a spike</dd>
+                        <dt>disance</dt>
+                        <dd>given another Entity is returns the distance between the centers</dd>
+                      </dl>
+                    </dd>
+                  </dl>
                 </div>
                 <div id="editor-buttons" class="editor-block">
                   <button id="editor-load-btn" class="btn btn--action">Load</button>

@@ -108,14 +108,17 @@ export default class Editor {
 
     private updateGistList() {
         this.gh.getGists().then((gists) => {
-          let elements = gists.map((gist) => this.gistElement(gist));
+          let elements = gists.map((gist) => this.gistElement(gist)).filter((gist) => {return gist !== null});
           return $.when(...elements);
         }).then((...items) => {
             let list = document.getElementById('gist-list')
             while (list.firstChild) list.removeChild(list.firstChild);
+            console.log(items)
             if (items.length === 0) {
                 $("#no-gists").show();
+                $("#gist-list").hide();
             } else {
+                $("#gist-list").show();
                 $("#no-gists").hide();
                 items.forEach((item) => {
                   if (item !== null) {
