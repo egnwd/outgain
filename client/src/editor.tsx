@@ -115,11 +115,9 @@ export default class Editor {
             while (list.firstChild) list.removeChild(list.firstChild);
             console.log(items)
             if (items.length === 0) {
-                console.log("none")
                 $("#no-gists").show();
                 $("#gist-list").hide();
             } else {
-                console.log("some")
                 $("#gist-list").show();
                 $("#no-gists").hide();
                 items.forEach((item) => {

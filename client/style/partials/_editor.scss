@@ -23,7 +23,7 @@
     #editor-modal {
         position: relative;
         align-self: center;
-        width: 80%;
+        width: 75%;
         height: 80%;
 
         border-radius: 5px;
@@ -105,12 +105,13 @@
                 }
 
                 #editor-right-split {
-                    width: 20%;
+                    width: 25%;
 
                     display: flex;
                     flex-direction: column;
                     #editor-help {
                         flex: 1;
+                        overflow-y: scroll;
                     }
 
                     #editor-buttons {
@@ -251,6 +252,22 @@
         animation: hideEditor 0.1s;
         visibility: hidden;
     }
+}
+
+dl {
+  padding: 5px;
+  dt {
+    font-weight: bold;
+    text-decoration: underline;
+    padding-bottom: 5px;
+  }
+  dd {
+    margin: 0;
+    padding: 0 0 0.5em 0.5em;
+    dl {
+      padding-left: 8px;
+    }
+  }
 }
 
 @keyframes showEditor {
