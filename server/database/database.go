@@ -5,7 +5,6 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/lib/pq"
 
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -33,15 +32,16 @@ func UpdateLeaderboard(username string, score int) {
 	deleteSingle := `DELETE FROM leaderboard WHERE ctid 
 	                 IN (SELECT ctid FROM leaderboard ORDER BY 
                          score asc LIMIT 1)`
-	instance.Query(deleteSingle)
-
+	_, err := instance.Query(deleteSingle)
+	NilCheck(err)
 	insertNew := "INSERT INTO leaderboard (username, score) "
 	insertNew += "VALUES ('"
 	insertNew += username
 	insertNew += "', "
 	insertNew += strconv.Itoa(score)
 	insertNew += ")"
-	instance.Query(insertNew)
+	_, err = instance.Query(insertNew)
+	NilCheck(err)
 }
 
 func GetMinScore() int {
@@ -84,6 +84,5 @@ func GetAllRows() *Leaderboard {
 		Usernames: usernames,
 		Scores:    scores,
 	}
-	fmt.Println(leaderboard)
 	return &leaderboard
 }
