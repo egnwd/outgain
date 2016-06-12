@@ -1,5 +1,9 @@
 package achievements
 
+import (
+	"github.com/egnwd/outgain/server/database"
+)
+
 type Achievements []Achievement
 
 type Achievement struct {
@@ -62,4 +66,42 @@ var dummyData = Achievements{
 
 func GetUserAchievements(_ string) Achievements {
 	return dummyData
+}
+
+// Must be less than 64 without having to change from uint64 bitmap
+const numAchievements = 3
+
+// Update changes bitmap values if achievements are now unlocked
+func Update(data *database.AchievementData) {
+	// Iterate through achievements bitmap
+	achievements := data.Achievements
+	var i uint8
+	for i = 0; i < numAchievements; i++ {
+		// Only look at locked achievements
+		var mask uint64 = 1 << i
+		if (achievements & mask) != mask {
+			// Check if each locked achievement is now unlocked
+			if unlocked := checkUnlock(i, data); unlocked {
+				// Update bitmap value
+				achievements |= mask
+			}
+		}
+	}
+}
+
+// checkUnlock returns whether corresponding achievement's conditions are met
+// This is where all achievement conditions are defined
+func checkUnlock(id uint8, data *database.AchievementData) bool {
+	switch id {
+	case 0:
+		// Total score > 1000
+		return data.TotalScore > 1000
+	case 1:
+		// High score > 50
+		return data.HighScore > 50
+	case 2:
+		// Played > 25 rounds
+		return data.RoundsPlayed > 25
+	}
+	return false
 }

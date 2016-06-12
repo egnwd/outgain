@@ -17,6 +17,14 @@ type Leaderboard struct {
 	Scores    []int
 }
 
+type AchievementData struct {
+	Username     string
+	TotalScore   int
+	HighScore    int
+	RoundsPlayed int
+	Achievements uint64 // Bitmap corresponding to locked/unlocked achievements
+}
+
 func OpenDb() error {
 	url := os.Getenv("DATABASE_URL")
 	url, err := pq.ParseURL(url)
@@ -85,4 +93,32 @@ func GetAllRows() *Leaderboard {
 		Scores:    scores,
 	}
 	return &leaderboard
+}
+
+func GetAchievements(username string) *AchievementData {
+	row, err := instance.Query(
+		"SELECT * FROM achievements WHERE username='" + username + "'")
+	NilCheck(err)
+	defer row.Close()
+	var (
+		totalScore   int
+		highScore    int
+		roundsPlayed int
+		achievements uint64
+	)
+	err = row.Scan(&username, &totalScore, &highScore, &roundsPlayed, &achievements)
+	NilCheck(err)
+	data := AchievementData{
+		Username:     username,
+		TotalScore:   totalScore,
+		HighScore:    highScore,
+		RoundsPlayed: roundsPlayed,
+		Achievements: achievements,
+	}
+	return &data
+}
+
+func UpdateAchievements(data *AchievementData) {
+	// TODO: Query error checking
+	// TODO: update database row with new data
 }

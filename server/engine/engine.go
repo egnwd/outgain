@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/egnwd/outgain/server/achievements"
 	"github.com/egnwd/outgain/server/database"
 	"github.com/egnwd/outgain/server/protocol"
 )
@@ -68,6 +69,7 @@ func NewEngine(eventChannel chan protocol.Event) (engine *Engine) {
 // restart puts the engine back to it's original state
 func (engine *Engine) restart() {
 	engine.updateLeaderboard()
+	engine.updateAchievements()
 	for _, entity := range engine.entities {
 		entity.Close()
 	}
@@ -96,6 +98,27 @@ func (engine *Engine) updateLeaderboard() {
 		} else {
 			break // The list is sorted, no need to check the rest
 		}
+	}
+}
+
+func (engine *Engine) updateAchievements() {
+	// Update values for all users in lobby
+	for _, entity := range engine.users {
+		// Gets entire database row for user
+		achievementData := database.GetAchievements(entity.GetName())
+		gains := entity.GetGains()
+		// Update values in row
+		// FIXME: currently this will add the score from previous rounds again
+		achievementData.TotalScore += gains
+		if achievementData.HighScore < gains {
+			achievementData.HighScore = gains
+		}
+		achievementData.RoundsPlayed++
+		// Check if new achievements unlocked
+		achievements.Update(achievementData)
+		// Update database with new values
+		database.UpdateAchievements(achievementData)
+		// TODO: log any new achievements
 	}
 }
 
