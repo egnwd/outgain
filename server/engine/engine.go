@@ -69,7 +69,6 @@ func NewEngine(eventChannel chan protocol.Event) (engine *Engine) {
 // restart puts the engine back to it's original state
 func (engine *Engine) restart() {
 	engine.updateLeaderboard()
-	engine.updateAchievements()
 	for _, entity := range engine.entities {
 		entity.Close()
 	}
@@ -108,12 +107,11 @@ func (engine *Engine) updateAchievements() {
 		achievementData := database.GetAchievements(entity.GetName())
 		gains := entity.GetGains()
 		// Update values in row
-		// FIXME: currently this will add the score from previous rounds again
 		achievementData.TotalScore += gains
 		if achievementData.HighScore < gains {
 			achievementData.HighScore = gains
 		}
-		achievementData.RoundsPlayed++
+		achievementData.GamesPlayed++
 		// Check if new achievements unlocked
 		achievements.Update(achievementData)
 		// Update database with new values
@@ -123,6 +121,8 @@ func (engine *Engine) updateAchievements() {
 }
 
 func (engine *Engine) Kill() {
+	// Update achievements only when game is complete
+	engine.updateAchievements()
 	engine.restart()
 }
 

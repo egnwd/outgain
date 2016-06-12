@@ -68,7 +68,7 @@ func GetUserAchievements(_ string) Achievements {
 	return dummyData
 }
 
-// Must be less than 64 without having to change from uint64 bitmap
+// Must be less than 32 without having to change from uint32 bitmap
 const numAchievements = 3
 
 // Update changes bitmap values if achievements are now unlocked
@@ -78,7 +78,7 @@ func Update(data *database.AchievementData) {
 	var i uint8
 	for i = 0; i < numAchievements; i++ {
 		// Only look at locked achievements
-		var mask uint64 = 1 << i
+		var mask uint32 = 1 << i
 		if (achievements & mask) != mask {
 			// Check if each locked achievement is now unlocked
 			if unlocked := checkUnlock(i, data); unlocked {
@@ -100,8 +100,8 @@ func checkUnlock(id uint8, data *database.AchievementData) bool {
 		// High score > 50
 		return data.HighScore > 50
 	case 2:
-		// Played > 25 rounds
-		return data.RoundsPlayed > 25
+		// Played > 25 games
+		return data.GamesPlayed > 25
 	}
 	return false
 }

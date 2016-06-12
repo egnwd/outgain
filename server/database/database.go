@@ -21,8 +21,8 @@ type AchievementData struct {
 	Username     string
 	TotalScore   int
 	HighScore    int
-	RoundsPlayed int
-	Achievements uint64 // Bitmap corresponding to locked/unlocked achievements
+	GamesPlayed  int
+	Achievements uint32 // Bitmap corresponding to locked/unlocked achievements
 }
 
 func OpenDb() error {
@@ -96,29 +96,49 @@ func GetAllRows() *Leaderboard {
 }
 
 func GetAchievements(username string) *AchievementData {
-	row, err := instance.Query(
+	row := instance.QueryRow(
 		"SELECT * FROM achievements WHERE username='" + username + "'")
-	NilCheck(err)
-	defer row.Close()
 	var (
 		totalScore   int
 		highScore    int
-		roundsPlayed int
-		achievements uint64
+		gamesPlayed  int
+		achievements uint32
 	)
-	err = row.Scan(&username, &totalScore, &highScore, &roundsPlayed, &achievements)
-	NilCheck(err)
+	err := row.Scan(&username, &totalScore, &highScore, &gamesPlayed, &achievements)
+	if err != nil {
+		// Row does not exist, create one using username and default values
+		achievements := strconv.FormatUint(uint64(achievements), 10)
+		insert := "INSERT INTO achievements "
+		insert += "(username, total_score, high_score, games_played, achievements) "
+		insert += "VALUES ('" + username + "',"
+		insert += "'" + strconv.Itoa(totalScore) + "',"
+		insert += "'" + strconv.Itoa(highScore) + "',"
+		insert += "'" + strconv.Itoa(gamesPlayed) + "',"
+		insert += "'" + achievements + "')"
+		_, err = instance.Exec(insert)
+		NilCheck(err)
+	}
 	data := AchievementData{
 		Username:     username,
 		TotalScore:   totalScore,
 		HighScore:    highScore,
-		RoundsPlayed: roundsPlayed,
+		GamesPlayed:  gamesPlayed,
 		Achievements: achievements,
 	}
 	return &data
 }
 
 func UpdateAchievements(data *AchievementData) {
-	// TODO: Query error checking
-	// TODO: update database row with new data
+	// Display bitmap as base 10 int, cast to uint64 to use function
+	// TODO: check that this is being written and read correctly
+	achievements := strconv.FormatUint(uint64(data.Achievements), 10)
+	// Update row for current user
+	update := "UPDATE achievements SET "
+	update += "total_score='" + strconv.Itoa(data.TotalScore) + "',"
+	update += "high_score='" + strconv.Itoa(data.HighScore) + "',"
+	update += "games_played='" + strconv.Itoa(data.GamesPlayed) + "',"
+	update += "achievements='" + achievements + "'"
+	update += "WHERE username='" + data.Username + "'"
+	_, err := instance.Exec(update)
+	NilCheck(err)
 }
