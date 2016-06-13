@@ -50,7 +50,13 @@ func StartRunner(config *config.Config) (client *RunnerClient, err error) {
 	}
 	defer randomFile.Close()
 
-	cmd := exec.Command(config.RunnerBin)
+	var cmd *exec.Cmd
+	if config.SandboxMode != "" {
+		cmd = exec.Command(config.RunnerBin, "--sandbox", config.SandboxMode)
+	} else {
+		cmd = exec.Command(config.RunnerBin)
+	}
+
 	cmd.ExtraFiles = []*os.File{serverFile, randomFile}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -78,7 +84,7 @@ func (client *RunnerClient) call(method string, args interface{}, reply interfac
 	case <-call.Done:
 		return call.Error
 	case <-time.After(runnerTimeout):
-		return errors.New("AI timed out")
+		return errors.New("AI timed out on " + method)
 	}
 }
 

@@ -22,13 +22,16 @@ cp server/server "$TARGET_DIR"
 cp runner/target/release/runner "$TARGET_DIR"
 cp default_ai.rb "$TARGET_DIR"
 cp bot_ai.rb "$TARGET_DIR"
+cp "/usr/lib/x86_64-linux-gnu/libseccomp.so.2" "$TARGET_DIR"
 
 cat > "$TARGET_DIR/start.sh" <<EOF
 #!/usr/bin/env bash
 set -eux
+export LD_LIBRARY_PATH=.
 exec ./server \
     -redirect-plain-http \
     -static-dir=./static \
+    -sandbox=trace \
     -runner-bin=./runner \
     -default-ai=./default_ai.rb \
     -bot-ai=./bot_ai.rb

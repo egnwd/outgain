@@ -17,9 +17,18 @@ func main() {
 	config := config.ParseArgs()
 
 	err := database.OpenDb()
-
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if config.SandboxMode == "" {
+		log.Println("WARNING: sandbox disabled.")
+		log.Println("Server is vulnerable to malicious user AIs.")
+	} else if config.SandboxMode == "trace" {
+		log.Println("WARNING: sandbox mode \"trace\" is insecure.")
+		log.Println("Server is vulnerable to malicious user AIs.")
+	} else if config.SandboxMode != "kill" && config.SandboxMode != "error" {
+		log.Fatal("Invalid sandbox mode: ", config.SandboxMode)
 	}
 
 	handler := routes.GetHandler(config)
