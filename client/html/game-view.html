@@ -10,13 +10,17 @@
       <div id="game-container" class="main container">
         <div id="game-view-container" class="two-thirds">
           <canvas id="game-view"></canvas>
-          <div id="round-name">Round 1</div>
+          <div id="round-name-popup">Round 1</div>
           <div id="progress">
             <div id="elapsed"></div>
           </div>
         </div>
         <div id="game-sidebar" class="main container one-third">
-          <div id="game-title">Lobby</div>
+          <div id="game-title">
+            <span id="lobby-name">Lobby</span>
+            -
+            <span id="round-name">Round 1</span>
+          </div>
           <div id="game-log-wrapper">
             <code id="game-log"></code>
           </div>
