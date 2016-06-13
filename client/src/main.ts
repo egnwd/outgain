@@ -36,7 +36,7 @@ $(function() {
     var userPanel = new UserPanel("#user-id", "#user-gains-text")
     let timer = new Timer("#elapsed")
     let leaderboard = new GameLeaderboard("#game-leaderboard .table")
-    let gameLog = new GameLog("game-log")
+    let gameLog = new GameLog("game-log", userPanel.username)
 
 
     let lobbyName = document.getElementById("lobby-name")

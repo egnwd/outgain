@@ -23,7 +23,7 @@ const (
 const resourceBonusFactor float64 = 50
 
 type Entity interface {
-	Tick(state protocol.WorldState, dt float64)
+	Tick(state protocol.WorldState, dt float64, events chan<- protocol.Event)
 	Serialize() protocol.Entity
 	Base() *EntityBase
 	BonusFactor() float64
@@ -86,13 +86,13 @@ func (list EntityList) Swap(i, j int) {
 }
 
 // Tick every entity of the list
-func (list EntityList) Tick(state protocol.WorldState, dt float64) {
+func (list EntityList) Tick(state protocol.WorldState, dt float64, events chan<- protocol.Event) {
 	var wg sync.WaitGroup
 	for _, entity := range list {
 		wg.Add(1)
 		go func(entity Entity) {
 			defer wg.Done()
-			entity.Tick(state, dt)
+			entity.Tick(state, dt, events)
 		}(entity)
 	}
 
@@ -180,7 +180,7 @@ func (resource *Resource) Base() *EntityBase {
 	return &resource.EntityBase
 }
 
-func (resource *Resource) Tick(state protocol.WorldState, dt float64) {
+func (resource *Resource) Tick(state protocol.WorldState, dt float64, events chan<- protocol.Event) {
 }
 
 func (resource *Resource) Serialize() protocol.Entity {
@@ -227,7 +227,7 @@ func (spike *Spike) Base() *EntityBase {
 	return &spike.EntityBase
 }
 
-func (spike *Spike) Tick(state protocol.WorldState, dt float64) {
+func (spike *Spike) Tick(state protocol.WorldState, dt float64, events chan<- protocol.Event) {
 }
 
 func (spike *Spike) Serialize() protocol.Entity {

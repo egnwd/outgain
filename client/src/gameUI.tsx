@@ -100,9 +100,11 @@ export class UserPanel {
 export class GameLog {
 
     private log: HTMLElement
+    private username: string
 
-    constructor(logEl: string) {
+    constructor(logEl: string, username: string) {
       this.log = document.getElementById(logEl)
+      this.username = username
     }
 
     public update(logEvent: ILogEvent) {
@@ -140,6 +142,13 @@ export class GameLog {
                     {logEvent.protagName}: {logEvent.antagName}
                   </span>
               )
+              break
+          case 5:
+              if (logEvent.protagName == this.username) {
+                  this.log.appendChild(
+                      <span class='aiError'>{logEvent.antagName}</span>
+                  )
+              }
               break
       }
 

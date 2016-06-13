@@ -78,11 +78,23 @@ func (creature *Creature) Base() *EntityBase {
 	return &creature.EntityBase
 }
 
-func (creature *Creature) Tick(state protocol.WorldState, dt float64) {
+func (creature *Creature) Tick(state protocol.WorldState, dt float64, events chan<- protocol.Event) {
 	speed, err := creature.runner.Tick(creature.Serialize(), state)
 	if err != nil {
 		log.Printf("Creature %s: %v", creature.GetName(), err)
 		creature.dying = true
+
+		logEvent := protocol.LogEvent{
+			LogType:    5,
+			ProtagName: creature.GetName(),
+			AntagName:  err.Error(),
+		}
+
+		events <- protocol.Event{
+			Type: "log",
+			Data: logEvent,
+		}
+
 		return
 	}
 
