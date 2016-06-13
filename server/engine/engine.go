@@ -252,7 +252,7 @@ func (engine *Engine) tick() {
 
 	state := engine.Serialize()
 
-	engine.entities.Tick(state, dt)
+	engine.entities.Tick(state, dt, engine.eventsOut)
 	engine.entities = engine.entities.Filter(func(entity Entity) bool {
 		return !entity.Base().dying
 	})
