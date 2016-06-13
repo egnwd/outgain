@@ -96,14 +96,16 @@ var achievements = Achievements{
 }
 
 func GetUserAchievements(username string) Achievements {
+	a := Achievements{}
+	copy(a, achievements)
 	data := database.GetAchievements(username)
 	bitmap := data.Bitmap
 	var i uint8
 	for i = 0; i < numAchievements; i++ {
 		var mask uint32 = 1 << i
-		achievements[i].Unlocked = (bitmap & mask) == mask
+		a[i].Unlocked = (bitmap & mask) == mask
 	}
-	return achievements
+	return a
 }
 
 // Update changes row values to new ones
