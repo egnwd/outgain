@@ -36,6 +36,7 @@ type Engine struct {
 	firstTick         time.Time
 	lastTick          time.Time
 	lastResourceSpawn time.Time
+	achievementData   achievements.LiveDataMap
 	nextID            <-chan uint64
 	restarted         bool
 }
@@ -60,6 +61,7 @@ func NewEngine(eventChannel chan protocol.Event) (engine *Engine) {
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
 		users:             EntityList{},
+		achievementData:   make(achievements.LiveDataMap),
 		nextID:            idChannel,
 	}
 
@@ -104,24 +106,19 @@ func (engine *Engine) updateAchievements() {
 	// Update values for all users in lobby
 	for _, entity := range engine.users {
 		// Gets entire database row for user
-		achievementData := database.GetAchievements(entity.GetName())
+		data := database.GetAchievements(entity.GetName())
+		liveData := engine.achievementData[entity.GetName()]
 		gains := entity.GetGains()
-		// Update values in row
-		achievementData.TotalScore += gains
-		if achievementData.HighScore < gains {
-			achievementData.HighScore = gains
-		}
-		achievementData.GamesPlayed++
 		// Check if new achievements unlocked
-		achievements.Update(achievementData)
+		achievements.Update(data, &liveData, gains)
 		// Update database with new values
-		database.UpdateAchievements(achievementData)
-		// TODO: log any new achievements
+		database.UpdateAchievements(data)
 	}
 }
 
 func (engine *Engine) Kill() {
-	// Update achievements only when game is complete
+	// FIXME: this should be moved to be called at the end of every game
+	// Currently only works when game is ended prematurely
 	engine.updateAchievements()
 	engine.restart()
 }
@@ -230,18 +227,38 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 		logEvent protocol.LogEvent
 		logType  int
 	)
+	var liveData achievements.LiveData
+	if a.IsUser() {
+		ld, ok := engine.achievementData[a.GetName()]
+		if ok {
+			liveData = ld
+		} else {
+			liveData = achievements.LiveData{}
+			engine.achievementData[a.GetName()] = liveData
+		}
+	}
 	switch b.(type) {
 	case nil:
 		return
 	case *Resource:
 		logType = 1
+		if a.IsUser() {
+			liveData.Resources++
+		}
 		break
 	case *Creature:
 		logType = 2
+		if a.IsUser() {
+			liveData.Creatures++
+		}
 		break
 	case *Spike:
 		logType = 3
+		if a.IsUser() {
+			liveData.Spikes++
+		}
 	}
+	engine.achievementData[a.GetName()] = liveData
 
 	logEvent = protocol.LogEvent{
 		LogType:    logType,

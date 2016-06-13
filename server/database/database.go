@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/egnwd/outgain/server/achievements"
 )
 
 var instance *sql.DB
@@ -15,14 +17,6 @@ var instance *sql.DB
 type Leaderboard struct {
 	Usernames []string
 	Scores    []int
-}
-
-type AchievementData struct {
-	Username     string
-	TotalScore   int
-	HighScore    int
-	GamesPlayed  int
-	Achievements uint32 // Bitmap corresponding to locked/unlocked achievements
 }
 
 func OpenDb() error {
@@ -95,50 +89,61 @@ func GetAllRows() *Leaderboard {
 	return &leaderboard
 }
 
-func GetAchievements(username string) *AchievementData {
+func GetAchievements(username string) *achievements.AchievementData {
 	row := instance.QueryRow(
 		"SELECT * FROM achievements WHERE username='" + username + "'")
 	var (
-		totalScore   int
-		highScore    int
-		gamesPlayed  int
-		achievements uint32
+		totalScore int
+		highScore  int
+		spikes     int
+		resources  int
+		creatures  int
+		bitmap     uint32
 	)
-	err := row.Scan(&username, &totalScore, &highScore, &gamesPlayed, &achievements)
+	err := row.Scan(&username, &totalScore, &highScore, &spikes, &resources,
+		&creatures, &bitmap)
 	if err != nil {
 		// Row does not exist, create one using username and default values
-		achievements := strconv.FormatUint(uint64(achievements), 10)
+		bitmap := strconv.FormatUint(uint64(bitmap), 10)
 		insert := "INSERT INTO achievements "
-		insert += "(username, total_score, high_score, games_played, achievements) "
-		insert += "VALUES ('" + username + "',"
+		insert += "(username, total_score, high_score, spikes, resources, "
+		insert += "creatures, bitmap) VALUES ("
+		insert += "'" + username + "',"
 		insert += "'" + strconv.Itoa(totalScore) + "',"
 		insert += "'" + strconv.Itoa(highScore) + "',"
-		insert += "'" + strconv.Itoa(gamesPlayed) + "',"
-		insert += "'" + achievements + "')"
+		insert += "'" + strconv.Itoa(spikes) + "',"
+		insert += "'" + strconv.Itoa(resources) + "',"
+		insert += "'" + strconv.Itoa(creatures) + "',"
+		insert += "'" + bitmap + "')"
 		_, err = instance.Exec(insert)
 		NilCheck(err)
 	}
-	data := AchievementData{
-		Username:     username,
-		TotalScore:   totalScore,
-		HighScore:    highScore,
-		GamesPlayed:  gamesPlayed,
-		Achievements: achievements,
+	data := achievements.AchievementData{
+		Username:   username,
+		TotalScore: totalScore,
+		HighScore:  highScore,
+		Spikes:     spikes,
+		Resources:  resources,
+		Creatures:  creatures,
+		Bitmap:     bitmap,
 	}
 	return &data
 }
 
-func UpdateAchievements(data *AchievementData) {
+func UpdateAchievements(data *achievements.AchievementData) {
 	// Display bitmap as base 10 int, cast to uint64 to use function
 	// TODO: check that this is being written and read correctly
-	achievements := strconv.FormatUint(uint64(data.Achievements), 10)
+	bitmap := strconv.FormatUint(uint64(data.Bitmap), 10)
 	// Update row for current user
 	update := "UPDATE achievements SET "
 	update += "total_score='" + strconv.Itoa(data.TotalScore) + "',"
 	update += "high_score='" + strconv.Itoa(data.HighScore) + "',"
-	update += "games_played='" + strconv.Itoa(data.GamesPlayed) + "',"
-	update += "achievements='" + achievements + "'"
+	update += "spikes='" + strconv.Itoa(data.Spikes) + "',"
+	update += "resources='" + strconv.Itoa(data.Resources) + "',"
+	update += "creatures='" + strconv.Itoa(data.Creatures) + "',"
+	update += "bitmap='" + bitmap + "'"
 	update += "WHERE username='" + data.Username + "'"
 	_, err := instance.Exec(update)
+	log.Printf(update)
 	NilCheck(err)
 }
