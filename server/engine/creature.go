@@ -36,7 +36,8 @@ func (creature *Creature) decrementScore() {
 func NewCreature(guest *guest.Guest, config *config.Config) (builderFunc, error) {
 	x := rand.Float64() * gridSize
 	y := rand.Float64() * gridSize
-	color := colorful.FastHappyColor().Hex()
+	random_light := colorful.Hcl(rand.Float64()*360.0, rand.Float64(), 0.6+rand.Float64()*0.4)
+	color := random_light.Hex()
 
 	client, err := runner.StartRunner(config)
 	if err != nil {

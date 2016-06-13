@@ -1,0 +1,21 @@
+<ul>
+  {{ range . }}
+    <li>
+      <img src="/images/achievements{{ if .Unlocked }}-unlocked{{ end }}-{{ .ID }}.png" alt="{{ .Title }}" width="128"/>
+      <div class="content {{ .Slug }}{{ if .Unlocked }} unlocked{{ end }}">
+        <h3>{{ .Title }}</h3>
+        {{ if .Unlocked }}
+          <p>
+            {{ .Description }}
+          </p>
+          <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://outgain.herokuapp.com" data-text="{{ .Tweet }}" data-size="large">Tweet</a>
+        {{ end }}
+        {{ if not .Unlocked }}
+          <p>
+            {{ .DescriptionLocked }}
+          </p>
+        {{ end }}
+      </div>
+    </li>
+  {{ end }}
+</ul>
