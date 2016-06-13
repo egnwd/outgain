@@ -50,25 +50,6 @@ hr {
   line-height: 320px;
 }
 
-code {
-  @extend .rounded;
-  @extend .container;
-  white-space: pre-wrap;       /* css-3 */
-  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-  white-space: -pre-wrap;      /* Opera 4-6 */
-  white-space: -o-pre-wrap;    /* Opera 7 */
-  word-wrap: break-word;       /* Internet Explorer 5.5+ */
-
-  background: $blue-darker;
-  color: $blue-lighter;
-}
-
-.code-demo {
-  margin: 20px 10px;
-  width: 460px;
-  height: 340px;
-}
-
 #title {
     height: 160px;
     background-image: url("/images/outgain_logo.svg");
@@ -164,46 +145,69 @@ code {
 }
 
 #game-log-wrapper {
+  @extend .rounded;
+  @extend .container;
+
   flex: 1;
   width: 95%;
   position: relative;
+  background: $blue-darker;
+  color: $blue-lighter;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
 
   #game-log {
-    position: absolute;
-    height: 100%;
+    flex: 1;
     width: 100%;
     overflow-y: scroll;
+    padding: 10px 10px 5px 10px;
+    font-family: monospace;
 
-    &.small {
-      position: absolute;
-      height:  36px;
-      width: 100%;
-      line-height:20px;
-      bottom: 0;
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+
+    span {
+        display: block;
     }
   }
 
-  #collapse-arrow {
-    display: block;
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    background: rgba(255, 255, 255, 0.5);
-    width: auto;
-    height: 24px;
-    border-radius: 3px;
-    padding: 0 6px;
-    color: white;
-    text-align: center;
-    font-family: 'Source Sans Pro';
-    line-height: 1.25em;
-    font-weight: bold;
+  #chat-wrapper {
+      border-top: 1px solid gray;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      padding: 0px 0px 0px 10px;
+      min-height: 30px;
 
-    &.small {
-      top: auto;
-      bottom: 6px !important;
-      right:6px;
-    }
+      label {
+          font-size: 13px;
+          align-self: center;
+          vertical-align: middle;
+          color: gold;
+      }
+      #chat-input {
+          font-size: 13px;
+          flex: 1;
+          padding: 0;
+          margin: 0;
+          margin-left: 5px;
+
+          -webkit-appearance: none;
+          background: none;
+          border: none;
+          color: gold;
+          font-family: monospace;
+
+          &:focus { outline: none; }
+      }
+
+      &:focus { outline: none; }
   }
 }
 

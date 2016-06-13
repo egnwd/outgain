@@ -1,4 +1,5 @@
 import * as $ from 'jquery'
+import * as React from './dom';
 import { ILogEvent } from "./protocol"
 import { lerp } from "./util"
 
@@ -109,30 +110,41 @@ export class GameLog {
 
       switch (logEvent.logType) {
           case 0:
-              this.log.innerHTML = "A new round has started, good luck!\n"
+              this.log.innerHTML = ""
+              this.log.appendChild(<span>A new round has started, good luck!</span>)
               break
           case 1:
-              this.log.innerHTML = this.log.innerHTML
-              + "<span class='collectResource'>"
-              + "Yum, "+ logEvent.protagName
-              + " ate a resource\n" + "</span>"
+              this.log.appendChild(
+                  <span class='collectResource'>
+                    Yum, {logEvent.protagName} ate a resource
+                  </span>
+              )
               break
           case 2:
-              this.log.innerHTML = this.log.innerHTML
-              + "<span class='eatCreature'>"
-              + logEvent.protagName + " ate " + logEvent.antagName
-              + "\n" + "</span>"
+              this.log.appendChild(
+                  <span class='eatCreature'>
+                    {logEvent.protagName} ate {logEvent.antagName}
+                  </span>
+              )
               break
           case 3:
-              this.log.innerHTML = this.log.innerHTML
-              + "<span class='hitSpike'>Oh no, "
-              + logEvent.protagName + " hit a spike!\n"
-              +  "</span>"
+              this.log.appendChild(
+                  <span class='hitSpike'>
+                    {logEvent.protagName} hit a spike
+                  </span>
+              )
+              break
+          case 4:
+              this.log.appendChild(
+                  <span class='chatMessage'>
+                    {logEvent.protagName}: {logEvent.antagName}
+                  </span>
+              )
+              break
       }
 
       if (scrollUpdate) {
           this.log.scrollTop = this.log.scrollHeight - this.log.clientHeight
       }
-
     }
 }

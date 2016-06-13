@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -193,4 +194,29 @@ func LobbiesName(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte(l.Name))
+}
+
+func LobbiesMessage(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.ParseUint(vars["id"], 10, 64)
+
+	l, ok := lobby.GetLobby(id)
+	if !ok {
+		http.Error(w, "Lobby doesn't exist", http.StatusNotFound)
+		return
+	}
+
+	username, err := GetUserName(r)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	l.PostMessage(username, string(data))
 }

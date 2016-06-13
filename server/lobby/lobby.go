@@ -143,6 +143,14 @@ func (lobby *Lobby) UpdateRound() {
 	}
 }
 
+func (lobby *Lobby) PostMessage(user, message string) {
+	logEvent := protocol.LogEvent{LogType: 4, ProtagName: user, AntagName: message}
+	lobby.eventChannel <- protocol.Event{
+		Type: "log",
+		Data: logEvent,
+	}
+}
+
 // GetLobby returns the Lobby with id: `id` and if it does not exist it returns
 // `(nil, false)`
 func GetLobby(id uint64) (*Lobby, bool) {

@@ -111,4 +111,18 @@ $(function() {
             editor.open()
         })
     })
+
+    let chatInput = <HTMLInputElement>document.getElementById("chat-input")
+
+    chatInput.addEventListener("keypress", (event) => {
+        if (event.keyCode == 13) {
+          let msg = chatInput.value.trim()
+          if (msg) {
+            let msgUrl = "/lobbies/" + lobbyId + "/message";
+            $.post(msgUrl, msg)
+            chatInput.value = "";
+            return false;
+          }
+        }
+    })
 })

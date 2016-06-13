@@ -1,6 +1,7 @@
 $eatCreature: #AAE2E8;
 $hitSpike: #F6A27F;
 $collectResource: #9FC155;
+$chatMessage: gold;
 
 .eatCreature {
   color: $eatCreature
@@ -12,4 +13,8 @@ $collectResource: #9FC155;
 
 .collectResource {
   color: $collectResource
+}
+
+.chatMessage {
+  color: $chatMessage
 }
