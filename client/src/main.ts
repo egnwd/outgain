@@ -39,16 +39,15 @@ $(function() {
     let gameLog = new GameLog("game-log")
 
 
-    let title = document.getElementById("game-title")
+    let lobbyName = document.getElementById("lobby-name")
     $.ajax({ url: window.location.pathname + "/name", }).done((lobbyTitle) => {
-      title.innerHTML = lobbyTitle
+      lobbyName.innerHTML = lobbyTitle
     })
 
     let idField = document.getElementById("id-field")
     let canvas = <HTMLCanvasElement> document.getElementById("game-view")
-    let roundName = document.getElementById("round-name")
-
-
+    let roundNamePopup = document.getElementById("round-name-popup")
+    let roundNameSidebar = document.getElementById("round-name")
 
     let renderer = new GameRenderer(canvas, userPanel.username)
 
@@ -61,20 +60,24 @@ $(function() {
         let data = JSON.parse((<sse.IOnMessageEvent>event).data)
         let update = <IWorldState>data
 
-        roundName.style.display = "none"
+        roundNamePopup.style.display = "none"
         timer.pushState(update.progress, update.time)
         renderer.pushState(update)
     })
 
     source.addEventListener("round", function(event) {
-      roundName.innerHTML = JSON.parse((<sse.IOnMessageEvent>event).data)
-      roundName.style.display = "block"
+      let message = JSON.parse((<sse.IOnMessageEvent>event).data)
+      roundNamePopup.innerHTML = message
+      roundNameSidebar.innerHTML = message
+      roundNamePopup.style.display = "block"
       timer.reset()
     })
 
     source.addEventListener("gameover", function(event) {
-      roundName.innerHTML = "Game Over"
-      roundName.style.display = "block"
+      let message = "Game Over"
+      roundNamePopup.innerHTML = message
+      roundNameSidebar.innerHTML = message
+      roundNamePopup.style.display = "block"
       setTimeout(() => {
         window.location.href = window.location.pathname + "/summary"
       }, 1500);

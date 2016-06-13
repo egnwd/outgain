@@ -32,7 +32,7 @@ func UpdateLeaderboard(username string, score int) {
 	deleteSingle := `DELETE FROM leaderboard WHERE ctid 
 	                 IN (SELECT ctid FROM leaderboard ORDER BY 
                          score asc LIMIT 1)`
-	_, err := instance.Query(deleteSingle)
+	_, err := instance.Exec(deleteSingle)
 	NilCheck(err)
 	insertNew := "INSERT INTO leaderboard (username, score) "
 	insertNew += "VALUES ('"
@@ -40,7 +40,7 @@ func UpdateLeaderboard(username string, score int) {
 	insertNew += "', "
 	insertNew += strconv.Itoa(score)
 	insertNew += ")"
-	_, err = instance.Query(insertNew)
+	_, err = instance.Exec(insertNew)
 	NilCheck(err)
 }
 
