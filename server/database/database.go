@@ -8,8 +8,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-
-	"github.com/egnwd/outgain/server/achievements"
 )
 
 var instance *sql.DB
@@ -17,6 +15,16 @@ var instance *sql.DB
 type Leaderboard struct {
 	Usernames []string
 	Scores    []int
+}
+
+type AchievementData struct {
+	Username   string
+	TotalScore int
+	HighScore  int
+	Spikes     int
+	Resources  int
+	Creatures  int
+	Bitmap     uint32 // Bitmap corresponding to locked/unlocked achievements
 }
 
 func OpenDb() error {
@@ -89,7 +97,7 @@ func GetAllRows() *Leaderboard {
 	return &leaderboard
 }
 
-func GetAchievements(username string) *achievements.AchievementData {
+func GetAchievements(username string) *AchievementData {
 	row := instance.QueryRow(
 		"SELECT * FROM achievements WHERE username='" + username + "'")
 	var (
@@ -118,7 +126,7 @@ func GetAchievements(username string) *achievements.AchievementData {
 		_, err = instance.Exec(insert)
 		NilCheck(err)
 	}
-	data := achievements.AchievementData{
+	data := AchievementData{
 		Username:   username,
 		TotalScore: totalScore,
 		HighScore:  highScore,
@@ -130,7 +138,7 @@ func GetAchievements(username string) *achievements.AchievementData {
 	return &data
 }
 
-func UpdateAchievements(data *achievements.AchievementData) {
+func UpdateAchievements(data *AchievementData) {
 	// Display bitmap as base 10 int, cast to uint64 to use function
 	// TODO: check that this is being written and read correctly
 	bitmap := strconv.FormatUint(uint64(data.Bitmap), 10)
