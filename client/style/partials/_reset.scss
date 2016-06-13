@@ -32,7 +32,4 @@ table {
   border-collapse: collapse;
   border-spacing: 0; }
 
-html, body {
-  height: 100%;
-  overflow: auto;
-}
+html { height: 100%; } body { min-height: 100%; }

@@ -48,3 +48,7 @@ automatically.
 tar czvf slug.tgz ./app
 HEROKU_OAUTH_TOKEN="<CHANGEME>" ./deploy.rb outgain slug.tgz
 ```
+
+## Credit
+
+Diamond by iconsphere from the Noun Project

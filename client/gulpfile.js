@@ -47,6 +47,7 @@ function scripts(watch) {
         bundle(__dirname + '/src/index.ts', 'index.bundle.js', watch),
         bundle(__dirname + '/src/lobbies.ts', 'lobbies.bundle.js', watch),
         bundle(__dirname + '/src/leaderboard.ts', 'leaderboard.bundle.js', watch),
+        bundle(__dirname + '/src/achievements.ts', 'achievements.bundle.js', watch),
         bundle(__dirname + '/src/summary.ts', 'summary.bundle.js', watch),
     ];
 }
@@ -67,7 +68,7 @@ gulp.task('styles', function () {
 });
 
 gulp.task('html', function () {
-    return gulp.src('./html/*.html')
+    return gulp.src('./html/*.{html,tmpl}')
         .pipe(gulp.dest(targetDir));
 });
 
@@ -80,7 +81,7 @@ gulp.task('all', ['scripts', 'styles', 'html', 'images']);
 
 gulp.task('watch', ['typings', 'styles', 'html', 'images'], function() {
     gulp.watch('./style/**/*.scss', ['styles']);
-    gulp.watch('./html/**/*.html', ['html']);
+    gulp.watch('./html/**/*.{html,tmpl}', ['html']);
     gulp.watch('./images/**/*.scss', ['images']);
 
     return scripts(true);

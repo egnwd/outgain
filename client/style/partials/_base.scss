@@ -18,6 +18,10 @@ $container-border-radius: 4px;
   width: percentage(2/3);
 }
 
+body.game {
+  height:100%;
+}
+
 // Mixins
 
 @mixin border-radius($radius) {
