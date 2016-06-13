@@ -48,6 +48,10 @@ func GetHandler(config *config.Config) http.Handler {
 	lobby.Handle("/summary", c.RequireAuth(c.LobbiesSummary(config.StaticDir)))
 	lobby.Handle("/leaderboard", c.RequireAuth(http.HandlerFunc(c.LobbiesLeaderboard)))
 	lobby.Handle("/name", c.RequireAuth(http.HandlerFunc(c.LobbiesName)))
+
+	lobbyPost := post.PathPrefix("/lobbies/{id:[0-9]+}").Subrouter().StrictSlash(true)
+	lobbyPost.Handle("/message", c.RequireAuth(http.HandlerFunc(c.LobbiesMessage)))
+
 	get.Handle("/updates/{id:[0-9]+}", c.UpdatesHandler())
 
 	// AI source

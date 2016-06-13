@@ -113,7 +113,6 @@ export default class Editor {
         }).then((...items) => {
             let list = document.getElementById('gist-list')
             while (list.firstChild) list.removeChild(list.firstChild);
-            console.log(items)
             if (items.length === 0) {
                 $("#no-gists").show();
                 $("#gist-list").hide();
