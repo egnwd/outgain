@@ -66,7 +66,7 @@ export class UserPanel {
     }
 
     public updateScore(gains: number) {
-      $(this.resourcesEl).html(UserPanel.pad(gains, 5))
+      $(this.resourcesEl).html(gains)
     }
 
     private static pad(num: number, size: number) {
