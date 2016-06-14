@@ -8,8 +8,6 @@ type Engineer interface {
 	Kill()
 	AddEntity(builder builderFunc)
 	CreateEntity(builder builderFunc) Entity
-	UpdateAchievements()
-	UpdateLeaderboard()
 }
 
 // MockEngine allows us to use an engine without acutally running a simulation

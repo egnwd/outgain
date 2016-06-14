@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/egnwd/outgain/server/achievements"
 	"github.com/egnwd/outgain/server/lobby"
 	"github.com/gorilla/mux"
 )
@@ -51,9 +50,6 @@ func PostAISource() http.Handler {
 			http.Error(w, "No username", http.StatusUnauthorized)
 			return
 		}
-
-		// Unlock AI achievement
-		achievements.CreatedAI(username)
 
 		lobby, ok := lobby.GetLobby(uint64(lobbyId))
 		if !ok {
