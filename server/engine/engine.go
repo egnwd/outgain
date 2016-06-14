@@ -33,10 +33,11 @@ type Engine struct {
 	tickInterval      time.Duration
 	entities          EntityList
 	users             EntityList
+	allUsers          map[string]Entity
+	achievementData   achievements.LiveDataMap
 	firstTick         time.Time
 	lastTick          time.Time
 	lastResourceSpawn time.Time
-	achievementData   achievements.LiveDataMap
 	nextID            <-chan uint64
 	restarted         bool
 }
@@ -61,6 +62,7 @@ func NewEngine(eventChannel chan protocol.Event) (engine *Engine) {
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
 		users:             EntityList{},
+		allUsers:          make(map[string]Entity),
 		achievementData:   make(achievements.LiveDataMap),
 		nextID:            idChannel,
 	}
@@ -70,7 +72,6 @@ func NewEngine(eventChannel chan protocol.Event) (engine *Engine) {
 
 // restart puts the engine back to it's original state
 func (engine *Engine) restart() {
-	engine.updateLeaderboard()
 	for _, entity := range engine.entities {
 		entity.Close()
 	}
@@ -87,27 +88,24 @@ func (engine *Engine) restart() {
 	engine.restarted = true
 }
 
-func (engine *Engine) updateLeaderboard() {
+func (engine *Engine) UpdateLeaderboard() {
 	engine.users = engine.users.SortScore()
-
-	for _, entity := range engine.users {
+	for username, entity := range engine.allUsers {
 		var minVal = database.GetMinScore()
 		if gains := entity.GetGains(); gains > minVal {
-			if entity.IsUser() { // Bots can't set high scores
-				database.UpdateLeaderboard(entity.GetName(), gains)
-			}
+			database.UpdateLeaderboard(username, gains)
 		} else {
 			break // The list is sorted, no need to check the rest
 		}
 	}
 }
 
-func (engine *Engine) updateAchievements() {
+func (engine *Engine) UpdateAchievements() {
 	// Update values for all users in lobby
-	for _, entity := range engine.users {
+	for username, entity := range engine.allUsers {
 		// Gets entire database row for user
-		data := database.GetAchievements(entity.GetName())
-		liveData := engine.achievementData[entity.GetName()]
+		data := database.GetAchievements(username)
+		liveData := engine.achievementData[username]
 		gains := entity.GetGains()
 		// Check if new achievements unlocked
 		achievements.Update(data, &liveData, gains)
@@ -117,9 +115,6 @@ func (engine *Engine) updateAchievements() {
 }
 
 func (engine *Engine) Kill() {
-	// FIXME: this should be moved to be called at the end of every game
-	// Currently only works when game is ended prematurely
-	engine.updateAchievements()
 	engine.restart()
 }
 
@@ -139,6 +134,7 @@ func (engine *Engine) Run(entities EntityList) {
 	for _, entity := range entities {
 		if entity.IsUser() {
 			engine.users = append(engine.users, entity)
+			engine.allUsers[entity.GetName()] = entity
 		}
 	}
 	engine.clearGameLog()

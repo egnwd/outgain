@@ -38,7 +38,6 @@ func OpenDb() error {
 }
 
 func UpdateLeaderboard(username string, score int) {
-	// TODO: Query error checking
 	deleteSingle := `DELETE FROM leaderboard WHERE ctid 
 	                 IN (SELECT ctid FROM leaderboard ORDER BY 
                          score asc LIMIT 1)`
@@ -55,7 +54,6 @@ func UpdateLeaderboard(username string, score int) {
 }
 
 func GetMinScore() int {
-	// TODO: Query error checking
 	rows, err := instance.Query("SELECT MIN(score) FROM leaderboard")
 	NilCheck(err)
 	defer rows.Close()
@@ -152,6 +150,5 @@ func UpdateAchievements(data *AchievementData) {
 	update += "bitmap='" + bitmap + "'"
 	update += "WHERE username='" + data.Username + "'"
 	_, err := instance.Exec(update)
-	log.Printf(update)
 	NilCheck(err)
 }

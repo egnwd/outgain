@@ -34,6 +34,7 @@ var achievements = Achievements{
 	Achievement{
 		ID:    1,
 		Title: "Top of the Leaderboard",
+		// FIXME: don't just return false..
 		Condition: func(data *database.AchievementData, liveData *LiveData) bool {
 			return false
 		},
@@ -46,7 +47,6 @@ var achievements = Achievements{
 	Achievement{
 		ID:    2,
 		Title: "Total 1000 points",
-		// FIXME: don't just return false..
 		Condition: func(data *database.AchievementData, liveData *LiveData) bool {
 			return data.TotalScore > 1000
 		},
