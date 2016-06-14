@@ -165,6 +165,9 @@ func GetLobby(id uint64) (*Lobby, bool) {
 
 // destroyLobby removes lobby from the global map
 func destroyLobby(lobby *Lobby) {
+	// FIXME: updates database upon leaving, remove after presentation
+	lobby.Engine.UpdateLeaderboard()
+	lobby.Engine.UpdateAchievements()
 	lobby.Guests.List = nil
 	lobby.Guests.UserSize = 0
 	lobby.Engine = nil
