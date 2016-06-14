@@ -96,7 +96,7 @@ var achievements = Achievements{
 }
 
 func GetUserAchievements(username string) Achievements {
-	a := Achievements{}
+	a := make(Achievements, len(achievements))
 	copy(a, achievements)
 	data := database.GetAchievements(username)
 	bitmap := data.Bitmap
