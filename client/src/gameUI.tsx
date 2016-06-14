@@ -112,8 +112,11 @@ export class GameLog {
 
       switch (logEvent.logType) {
           case 0:
-              this.log.innerHTML = ""
-              this.log.appendChild(<span>A new round has started, good luck!</span>)
+              this.log.appendChild(
+                  <span class='newRound'>
+                    A new round has started, good luck!
+                  </span>
+              )
               break
           case 1:
               this.log.appendChild(

@@ -18,3 +18,11 @@ $chatMessage: gold;
 .chatMessage {
   color: $chatMessage
 }
+
+.newRound {
+  text-decoration: underline;
+
+  &:not(:first-child) {
+    margin-top: 5px;
+  }
+}

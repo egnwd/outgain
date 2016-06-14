@@ -80,8 +80,6 @@ func (engine *Engine) restart() {
 		Data: engine.Serialize(),
 	}
 
-	engine.clearGameLog()
-
 	log.Println("Restarting Engine")
 	engine.restarted = true
 }
