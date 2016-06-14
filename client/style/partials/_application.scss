@@ -136,6 +136,9 @@ hr {
 #game-title {
   @extend .rounded;
   @extend h3;
+
+  flex: 0 0 auto;
+
   width: 95%;
   box-sizing: border-box;
   margin-bottom: 10px;
@@ -148,7 +151,8 @@ hr {
   @extend .rounded;
   @extend .container;
 
-  flex: 1;
+  flex: 1 2 auto;
+
   width: 95%;
   position: relative;
   background: $blue-darker;
@@ -160,7 +164,8 @@ hr {
   flex-direction: column;
 
   #game-log {
-    flex: 1;
+    flex: 1 1 0;
+
     width: 100%;
     overflow-y: scroll;
     padding: 10px 10px 5px 10px;
@@ -178,6 +183,8 @@ hr {
   }
 
   #chat-wrapper {
+      flex: 0 0 auto;
+
       border-top: 1px solid gray;
       width: 100%;
       display: flex;
@@ -230,6 +237,8 @@ hr {
 }
 
 #game-leaderboard {
+  flex: 0 0 auto;
+
   .table {
     padding: 10px;
     display: flex;
@@ -292,6 +301,8 @@ hr {
 }
 
 #game-panel {
+    flex: 0 0 auto;
+
     margin-bottom: 10px;
 
     * {
