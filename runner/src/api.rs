@@ -51,4 +51,13 @@ mrusty_class!(Entity, "Entity", {
 
         return mruby.float(dx * dx + dy * dy);
     });
+
+    def!("<", |mruby, slf: (&Entity), other: (&Entity)| {
+        return mruby.bool(slf.radius < other.radius);
+    });
+
+    def!(">", |mruby, slf: (&Entity), other: (&Entity)| {
+        return mruby.bool(slf.radius > other.radius);
+    });
+
 });
