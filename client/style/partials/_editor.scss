@@ -111,18 +111,17 @@
                     flex-direction: column;
                     justify-content: flex-end;
                     #editor-help {
+                        flex-grow: 1;
+                        flex-basis: 0;
+
                         overflow-y: scroll;
-                        flex: 1;
                     }
 
                     #editor-buttons {
+                        flex-shrink: 0;
+
                         display: flex;
                         flex-direction: column;
-
-                        .buttons-row {
-                          height: auto;
-                          display: block;
-                        }
                     }
                 }
             }
