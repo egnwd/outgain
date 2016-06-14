@@ -26,7 +26,15 @@ type Creature struct {
 }
 
 func (creature *Creature) incrementScore(eaten Entity) {
-	creature.Guest.AddGains(1)
+	switch eaten.(type) {
+	case nil:
+		return
+	case *Resource:
+		creature.Guest.AddGains(1)
+	case *Creature:
+		creatureValue := 1 + eaten.Base().Radius/defaultRadius
+		creature.Guest.AddGains(int(creatureValue))
+	}
 }
 
 func (creature *Creature) decrementScore() {
