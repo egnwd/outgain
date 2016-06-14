@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/egnwd/outgain/server/achievements"
 	"github.com/egnwd/outgain/server/database"
 	"github.com/egnwd/outgain/server/protocol"
 )
@@ -33,8 +32,6 @@ type Engine struct {
 	tickInterval      time.Duration
 	entities          EntityList
 	users             EntityList
-	allUsers          map[string]Entity
-	achievementData   achievements.LiveDataMap
 	firstTick         time.Time
 	lastTick          time.Time
 	lastResourceSpawn time.Time
@@ -62,8 +59,6 @@ func NewEngine(eventChannel chan protocol.Event) (engine *Engine) {
 		lastResourceSpawn: time.Now(),
 		entities:          EntityList{},
 		users:             EntityList{},
-		allUsers:          make(map[string]Entity),
-		achievementData:   make(achievements.LiveDataMap),
 		nextID:            idChannel,
 	}
 
@@ -72,6 +67,7 @@ func NewEngine(eventChannel chan protocol.Event) (engine *Engine) {
 
 // restart puts the engine back to it's original state
 func (engine *Engine) restart() {
+	engine.updateLeaderboard()
 	for _, entity := range engine.entities {
 		entity.Close()
 	}
@@ -88,29 +84,18 @@ func (engine *Engine) restart() {
 	engine.restarted = true
 }
 
-func (engine *Engine) UpdateLeaderboard() {
+func (engine *Engine) updateLeaderboard() {
 	engine.users = engine.users.SortScore()
-	for username, entity := range engine.allUsers {
+
+	for _, entity := range engine.users {
 		var minVal = database.GetMinScore()
 		if gains := entity.GetGains(); gains > minVal {
-			database.UpdateLeaderboard(username, gains)
+			if entity.IsUser() { // Bots can't set high scores
+				database.UpdateLeaderboard(entity.GetName(), gains)
+			}
 		} else {
 			break // The list is sorted, no need to check the rest
 		}
-	}
-}
-
-func (engine *Engine) UpdateAchievements() {
-	// Update values for all users in lobby
-	for username, entity := range engine.allUsers {
-		// Gets entire database row for user
-		data := database.GetAchievements(username)
-		liveData := engine.achievementData[username]
-		gains := entity.GetGains()
-		// Check if new achievements unlocked
-		achievements.Update(data, &liveData, gains)
-		// Update database with new values
-		database.UpdateAchievements(data)
 	}
 }
 
@@ -134,7 +119,6 @@ func (engine *Engine) Run(entities EntityList) {
 	for _, entity := range entities {
 		if entity.IsUser() {
 			engine.users = append(engine.users, entity)
-			engine.allUsers[entity.GetName()] = entity
 		}
 	}
 	engine.clearGameLog()
@@ -223,38 +207,18 @@ func (engine *Engine) addLogEvent(a, b Entity) {
 		logEvent protocol.LogEvent
 		logType  int
 	)
-	var liveData achievements.LiveData
-	if a.IsUser() {
-		ld, ok := engine.achievementData[a.GetName()]
-		if ok {
-			liveData = ld
-		} else {
-			liveData = achievements.LiveData{}
-			engine.achievementData[a.GetName()] = liveData
-		}
-	}
 	switch b.(type) {
 	case nil:
 		return
 	case *Resource:
 		logType = 1
-		if a.IsUser() {
-			liveData.Resources++
-		}
 		break
 	case *Creature:
 		logType = 2
-		if a.IsUser() {
-			liveData.Creatures++
-		}
 		break
 	case *Spike:
 		logType = 3
-		if a.IsUser() {
-			liveData.Spikes++
-		}
 	}
-	engine.achievementData[a.GetName()] = liveData
 
 	logEvent = protocol.LogEvent{
 		LogType:    logType,

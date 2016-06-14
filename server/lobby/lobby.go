@@ -119,11 +119,6 @@ func (lobby *Lobby) runEngine() {
 		log.Printf("Users in Game: %d\n", lobby.Guests.UserSize)
 	}
 
-	// When lobby ends naturally update leaderboards and achievements
-	if lobby.Engine != nil {
-		lobby.Engine.UpdateLeaderboard()
-		lobby.Engine.UpdateAchievements()
-	}
 	log.Println("Destroying Lobby")
 	lobby.isRunning = false
 	lobby.isOver = true
