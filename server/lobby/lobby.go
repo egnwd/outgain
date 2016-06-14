@@ -20,7 +20,7 @@ import (
 )
 
 const lobbySize int = 10
-const maxRounds int = 100
+const maxRounds int = 5
 const roundSleep = 1500 * time.Millisecond
 
 var lobbies = make(map[uint64]*Lobby)
@@ -167,9 +167,6 @@ func GetLobby(id uint64) (*Lobby, bool) {
 
 // destroyLobby removes lobby from the global map
 func destroyLobby(lobby *Lobby) {
-	// FIXME: updates database upon leaving, remove after presentation
-	lobby.Engine.UpdateLeaderboard()
-	lobby.Engine.UpdateAchievements()
 	lobby.Guests.List = nil
 	lobby.Guests.UserSize = 0
 	lobby.Engine = nil
