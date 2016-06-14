@@ -36,6 +36,7 @@ type Lobby struct {
 	size         int
 	round        int
 	isRunning    bool
+	isOver       bool
 	config       *config.Config
 	sync.Mutex
 }
@@ -120,6 +121,7 @@ func (lobby *Lobby) runEngine() {
 
 	log.Println("Destroying Lobby")
 	lobby.isRunning = false
+	lobby.isOver = true
 	lobby.eventChannel <- protocol.Event{
 		Type: "gameover",
 	}
@@ -310,8 +312,10 @@ func (ls SerializedLobbies) Swap(i, j int)      { ls[i], ls[j] = ls[j], ls[i] }
 // GetLobbyNames returns an array of all the Names in the lobbies map
 func Serialize() (ls SerializedLobbies) {
 	for id, l := range lobbies {
-		newL := SerializedLobby{ID: id, Name: l.Name}
-		ls = append(ls, newL)
+		if !l.isOver {
+			newL := SerializedLobby{ID: id, Name: l.Name}
+			ls = append(ls, newL)
+		}
 	}
 
 	sort.Sort(ls)
