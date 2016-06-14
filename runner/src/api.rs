@@ -2,6 +2,8 @@ use mrusty::*;
 
 use protocol::{WorldState, Entity};
 
+const threshold : f64 = 0.1;
+
 mrusty_class!(WorldState, "WorldState", {
     def!("time", |mruby, slf: (&WorldState)| {
         mruby.fixnum(slf.time as i32)
@@ -53,11 +55,11 @@ mrusty_class!(Entity, "Entity", {
     });
 
     def!("<", |mruby, slf: (&Entity), other: (&Entity)| {
-        return mruby.bool(slf.radius < other.radius);
+        return mruby.bool(other.radius - slf.radius > threshold);
     });
 
     def!(">", |mruby, slf: (&Entity), other: (&Entity)| {
-        return mruby.bool(slf.radius > other.radius);
+        return mruby.bool(slf.radius - other.radius > threshold);
     });
 
 });
