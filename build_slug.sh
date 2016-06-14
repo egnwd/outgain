@@ -31,7 +31,7 @@ export LD_LIBRARY_PATH=.
 exec ./server \
     -redirect-plain-http \
     -static-dir=./static \
-    -sandbox=trace \
+    -sandbox=error \
     -runner-bin=./runner \
     -default-ai=./default_ai.rb \
     -bot-ai=./bot_ai.rb
