@@ -20,7 +20,7 @@ import (
 )
 
 const lobbySize int = 10
-const maxRounds int = 5
+const maxRounds int = 100
 const roundSleep = 1500 * time.Millisecond
 
 var lobbies = make(map[uint64]*Lobby)
